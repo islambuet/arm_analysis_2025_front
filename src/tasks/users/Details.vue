@@ -66,20 +66,6 @@
       type:'text',
       values:[item.data['user_group_name']],
     };
-    key='trial_station_ids';
-    let trial_station_ids=item.data[key].split(",");
-    let trial_station_names=[];
-    for(let i=0;i<taskData.trial_stations.length;i++){
-      if(trial_station_ids.includes(taskData.trial_stations[i].id.toString())){
-        trial_station_names.push(taskData.trial_stations[i].name)
-      }
-    }
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'text',
-      values:trial_station_names
-    };
-
     key='email';
     detailFields[key] = {
       label: labels.get('label_'+key),

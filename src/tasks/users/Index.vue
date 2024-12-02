@@ -44,7 +44,6 @@
     pagination: {current_page: 1,per_page_options: [1,2,10,20,50,100,500,1000],per_page:-1,show_all_items:true},
     user_groups:[],
     users_types:[],
-    trial_stations:[],
     location_parts:[],
     location_areas :[],
     location_territories:[],
@@ -107,7 +106,6 @@
       if (res.data.error == "") {
         taskData.permissions=res.data.permissions;
         taskData.user_groups= res.data.user_groups;
-        taskData.trial_stations= res.data.trial_stations;
         taskData.location_parts=res.data.location_parts;
         taskData.location_areas=res.data.location_areas;
         taskData.location_territories=res.data.location_territories;

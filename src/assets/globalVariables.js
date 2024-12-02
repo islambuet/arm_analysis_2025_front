@@ -32,5 +32,5 @@ export default reactive({
   loadListData:true,
   starting_year:2023, //TODO change it to 2023
   current_year:new Date().getFullYear(),
-  current_season_id:1
+  current_analysis_id:1
 })

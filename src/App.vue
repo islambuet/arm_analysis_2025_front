@@ -50,8 +50,8 @@
   const init=async ()=>{
     await axios.get('/user/initialize').then((res)=>{
       if (res.data.error == "") {
-        if(res.data.current_season_id){
-          globalVariables.current_season_id=res.data.current_season_id;
+        if(res.data.current_analysis_id){
+          globalVariables.current_analysis_id=res.data.current_analysis_id;
         }
         if(res.data.user){
           systemFunctions.setUser(res.data.user);

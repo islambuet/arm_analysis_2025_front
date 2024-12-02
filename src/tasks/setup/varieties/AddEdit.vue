@@ -46,7 +46,6 @@ let item=reactive({
     name:'',
     crop_id:'',
     crop_type_id:'',
-    crop_feature_ids:'',
     whose:'ARM',
     principal_id:'',
     competitor_id:'',
@@ -99,17 +98,6 @@ const setInputFields=async ()=>{
     type:'dropdown',
     options:[],
     default:item.data[key],
-    mandatory:true
-  };
-
-  key='crop_feature_ids';
-  inputFields[key] = {
-    name: 'item[' +key +']',
-    label: labels.get('label_'+key),
-    type:'checkbox',
-    options:[],
-    default:item.data[key].split(','),
-    //default:[2,3],
     mandatory:true
   };
   key='whose';
@@ -232,12 +220,8 @@ $(document).ready(function()
   $(document).on("change",'#crop_id',function()
   {
     let crop_id=$(this).val();
-    let key='crop_feature_ids';
-    item.inputFields[key].options=taskData.crop_features.filter((item)=>{ if(item.crop_id==crop_id){item.value=item.id.toString();item.label=item.name;return true}})
-    key='crop_type_id';
+    let key='crop_type_id';
     item.inputFields[key].options=taskData.crop_types.filter((item)=>{ if(item.crop_id==crop_id){item.value=item.id.toString();item.label=item.name;return true}})
-    // console.log(item.inputFields[key].options);
-    // console.log(crop_id)
 
   })
 });

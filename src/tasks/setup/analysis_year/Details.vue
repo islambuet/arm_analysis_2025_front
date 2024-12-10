@@ -53,24 +53,6 @@
       type:'text',
       values:[item.data[key]],
     };
-    key='expected_delivery_at';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'date',
-      values:[item.data[key]],
-    };
-    key='expected_sowing_at';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'date',
-      values:[item.data[key]],
-    };
-    key='expected_reporting_at';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'date',
-      values:[item.data[key]],
-    };
     key='ordering';
     detailFields[key] = {
       label: labels.get('label_'+key),

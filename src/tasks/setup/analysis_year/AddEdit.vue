@@ -79,31 +79,6 @@ const setInputFields=async ()=>{
     default:item.data[key],
     mandatory:true
   };
-  key='expected_delivery_at';
-  inputFields[key] = {
-    name: 'item[' +key +']',
-    label: labels.get('label_'+key),
-    type:'date',
-    default:systemFunctions.getDatePart(item.data[key]),
-    mandatory:false
-  };
-  key='expected_sowing_at';
-  inputFields[key] = {
-    name: 'item[' +key +']',
-    label: labels.get('label_'+key),
-    type:'date',
-    default:systemFunctions.getDatePart(item.data[key]),
-    mandatory:false
-  };
-  key='expected_reporting_at';
-  inputFields[key] = {
-    name: 'item[' +key +']',
-    label: labels.get('label_'+key),
-    type:'date',
-    default:systemFunctions.getDatePart(item.data[key]),
-    mandatory:false
-  };
-
   key='ordering';
   inputFields[key] = {
     name: 'item[' +key +']',

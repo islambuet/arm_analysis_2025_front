@@ -26,6 +26,7 @@
   import List from './List.vue'
   import AddEdit from './AddEdit.vue'
   import Details from './Details.vue'
+  import SystemFunctions from "@/assets/systemFunctions";
 
   globalVariables.loadListData=true;
   const route =useRoute()
@@ -36,13 +37,11 @@
     method:'list',
 
     permissions:{},
-    
+    item: {},           //single item
     items: {data:[]},   //from Laravel server with pagination and info
     itemsFiltered: [],    //for display
     columns:{all:{},hidden:[],sort:{key:'',dir:''}},
-    pagination: {current_page: 1,per_page_options: [10,20,50,100,500,1000],per_page:50,show_all_items:true},
-    location_parts:[],
-    location_areas:[],
+    pagination: {current_page: 1,per_page_options: [10,20,50,100,500,1000],per_page:-1,show_all_items:true},
   })
   labels.add([{language:globalVariables.language,file:'tasks'+taskData.api_url+'/labels.js'}])
 
@@ -85,7 +84,16 @@
     }
   }
   taskData.setFilteredItems=()=>{
-    taskData.itemsFiltered=systemFunctions.getFilteredItems(taskData.items.data,taskData.columns);
+    let filteredItems=systemFunctions.getFilteredItems(taskData.items.data,taskData.columns);
+    for(let i=0;i<filteredItems.length;i++){
+      let date=systemFunctions.displayDate(filteredItems[i]['expected_delivery_at']).slice(0,-4);
+      filteredItems[i]['expected_delivery_at']= date;
+      date=systemFunctions.displayDate(filteredItems[i]['expected_sowing_at']).slice(0,-4);
+      filteredItems[i]['expected_sowing_at']= date;
+      date=systemFunctions.displayDate(filteredItems[i]['expected_reporting_at']).slice(0,-4);
+      filteredItems[i]['expected_reporting_at']= date;
+    }
+    taskData.itemsFiltered=filteredItems
   }
   taskData.reloadItems=(pagination)=>{
     globalVariables.loadListData=true;
@@ -95,8 +103,6 @@
     await axios.get(taskData.api_url+'/initialize').then((res)=>{
       if (res.data.error == "") {
         taskData.permissions=res.data.permissions;
-        taskData.location_parts=res.data.location_parts;
-        taskData.location_areas=res.data.location_areas;
         if(res.data.hidden_columns){
           taskData.columns.hidden=res.data.hidden_columns;
         }

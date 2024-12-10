@@ -36,13 +36,12 @@
     method:'list',
 
     permissions:{},
-    
+    item: {},           //single item
     items: {data:[]},   //from Laravel server with pagination and info
     itemsFiltered: [],    //for display
     columns:{all:{},hidden:[],sort:{key:'',dir:''}},
     pagination: {current_page: 1,per_page_options: [10,20,50,100,500,1000],per_page:50,show_all_items:true},
-    location_parts:[],
-    location_areas:[],
+    location_districts:[]
   })
   labels.add([{language:globalVariables.language,file:'tasks'+taskData.api_url+'/labels.js'}])
 
@@ -95,8 +94,7 @@
     await axios.get(taskData.api_url+'/initialize').then((res)=>{
       if (res.data.error == "") {
         taskData.permissions=res.data.permissions;
-        taskData.location_parts=res.data.location_parts;
-        taskData.location_areas=res.data.location_areas;
+        taskData.location_districts=res.data.location_districts;
         if(res.data.hidden_columns){
           taskData.columns.hidden=res.data.hidden_columns;
         }

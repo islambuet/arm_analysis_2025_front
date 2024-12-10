@@ -44,11 +44,10 @@ let item=reactive({
   data:{
     id:0,
     name:'',
-    part_id:'',
-    area_id:'',
+    district_id:'',
+    upazila_id:'',
     ordering:99,
     status:'Active',
-    retrial:'Yes',
   }
 })
 const setInputFields=async ()=>{
@@ -79,16 +78,16 @@ const setInputFields=async ()=>{
     default:item.data[key],
     mandatory:true
   };
-  key='part_id';
+  key='district_id';
   inputFields[key] = {
-    name: 'crop_id',
+    name: 'district_id',
     label: labels.get('label_'+key),
     type:'dropdown',
-    options:taskData.location_parts.map((item)=>{ return {value:item.id,label:item.name}}),
+    options:taskData.location_districts.map((item)=>{ return {value:item.id,label:item.name}}),
     default:item.data[key],
     mandatory:true
   };
-  key='area_id';
+  key='upazila_id';
   inputFields[key] = {
     name: 'item[' +key +']',
     label: labels.get('label_'+key),
@@ -117,7 +116,7 @@ const setInputFields=async ()=>{
   };
   item.inputFields=inputFields;
   await systemFunctions.delay(1);
-  $('#part_id').trigger('change');
+  $('#district_id').trigger('change');
 
 }
 const save=async (save_and_new)=>{
@@ -160,12 +159,12 @@ const getItem=async ()=>{
 
 $(document).ready(function()
 {
-  $(document).off("change", "#part_id");
-  $(document).on("change",'#part_id',function()
+  $(document).off("change", "#district_id");
+  $(document).on("change",'#district_id',function()
   {
-    let part_id=$(this).val();
-    let key='area_id';
-    item.inputFields[key].options=taskData.location_areas.filter((item)=>{ if(item.part_id==part_id){item.value=item.id.toString();item.label=item.name;return true}})
+    let district_id=$(this).val();
+    let key='upazila_id';
+    item.inputFields[key].options=taskData.location_upazilas.filter((item)=>{ if(item.district_id==district_id){item.value=item.id.toString();item.label=item.name;return true}})
     // console.log(item.inputFields[key].options);
     // console.log(crop_id)
 

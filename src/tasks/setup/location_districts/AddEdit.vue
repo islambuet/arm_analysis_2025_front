@@ -44,11 +44,11 @@ let item=reactive({
   data:{
     id:0,
     name:'',
-    part_id:'',
-    area_id:'',
     ordering:99,
+    expected_delivery_at:'',
+    expected_sowing_at:'',
+    expected_reporting_at:'',
     status:'Active',
-    retrial:'Yes',
   }
 })
 const setInputFields=async ()=>{
@@ -79,25 +79,6 @@ const setInputFields=async ()=>{
     default:item.data[key],
     mandatory:true
   };
-  key='part_id';
-  inputFields[key] = {
-    name: 'crop_id',
-    label: labels.get('label_'+key),
-    type:'dropdown',
-    options:taskData.location_parts.map((item)=>{ return {value:item.id,label:item.name}}),
-    default:item.data[key],
-    mandatory:true
-  };
-  key='area_id';
-  inputFields[key] = {
-    name: 'item[' +key +']',
-    label: labels.get('label_'+key),
-    type:'dropdown',
-    options:[],
-    default:item.data[key],
-    mandatory:true
-  };
-
   key='ordering';
   inputFields[key] = {
     name: 'item[' +key +']',
@@ -116,8 +97,7 @@ const setInputFields=async ()=>{
     mandatory:true
   };
   item.inputFields=inputFields;
-  await systemFunctions.delay(1);
-  $('#part_id').trigger('change');
+
 
 }
 const save=async (save_and_new)=>{
@@ -157,20 +137,6 @@ const getItem=async ()=>{
   });
 }
   item.id=route.params['item_id']?route.params['item_id']:0;
-
-$(document).ready(function()
-{
-  $(document).off("change", "#part_id");
-  $(document).on("change",'#part_id',function()
-  {
-    let part_id=$(this).val();
-    let key='area_id';
-    item.inputFields[key].options=taskData.location_areas.filter((item)=>{ if(item.part_id==part_id){item.value=item.id.toString();item.label=item.name;return true}})
-    // console.log(item.inputFields[key].options);
-    // console.log(crop_id)
-
-  })
-});
   if(item.id>0){
     if(!(taskData.permissions.action_2)){
       toastFunctions.showAccessDenyMessage();

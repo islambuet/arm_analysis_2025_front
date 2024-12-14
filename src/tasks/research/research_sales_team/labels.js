@@ -15,6 +15,10 @@ export default {
         en:"Details of Market Requirement",
         bn:'ব্যবহারকারীর বিবরণ'
     },
+    label_analysis_year :{
+        en:"Analysis Year",
+        bn:'ব্যবহারকারীরা'
+    },
     label_crop_id:{
         en:"Crop",
         bn:"কর্মচারী আইডি"
@@ -24,22 +28,23 @@ export default {
         bn:"কর্মচারী আইডি"
     },
 
-    label_crop_type2_id:{
+    label_crop_type_id:{
         en:"Type",
         bn:"কর্মচারী আইডি"
     },
-    label_crop_type2_name:{
+    label_crop_type_name:{
         en:"Type",
         bn:"কর্মচারী আইডি"
     },
-    label_part_id:{
-        en:"Part",
+    label_district_id:{
+        en:"District",
         bn:"কর্মচারী আইডি"
     },
-    label_part_name:{
-        en:"Part",
+    label_districts:{
+        en:"District",
         bn:"কর্মচারী আইডি"
     },
+
     label_area_id:{
         en:"Area",
         bn:"কর্মচারী আইডি"

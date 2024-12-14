@@ -36,32 +36,36 @@
     method:'list',
 
     permissions:{},
-    
+
     items: {data:[]},   //from Laravel server with pagination and info
     itemsFiltered: [],    //for display
     columns:{all:{},hidden:[],sort:{key:'',dir:''}},
     pagination: {current_page: 1,per_page_options: [10,20,50,100,500,1000],per_page:-1,show_all_items:true},
     user_locations:{},
+    analysis_year_id:0,
     crops:[],
-    crop_types2:[],
-    location_parts:[],
-    location_areas :[],
-    location_territories:[],
+    crop_types:[],
+    analysis_years:[],
+    location_districts :[],
   })
   labels.add([{language:globalVariables.language,file:'tasks'+taskData.api_url+'/labels.js'}])
   const routing=async ()=>{
+    let analysis_year_id=route.params['analysis_year_id']?route.params['analysis_year_id']:0;
+    if(analysis_year_id==0 ){
+      analysis_year_id=taskData.analysis_years[taskData.analysis_years.length-1].id;
+      await router.push(taskData.api_url+'/'+analysis_year_id)
+      return;
+    }
+    taskData.analysis_year_id=analysis_year_id
     await getItems(taskData.pagination);//Load at least once
-    if(route.path==taskData.api_url){
+    if(route.path==(taskData.api_url+'/'+taskData.analysis_year_id)){
       taskData.method='list';
     }
-    else if(route.path==taskData.api_url+'/add'){
-      taskData.method='add';
-    }
-    else if(route.path.indexOf(taskData.api_url+'/edit/')!=-1)
+    else if(route.path.indexOf(taskData.api_url+'/'+taskData.analysis_year_id+'/edit/')!=-1)
     {
       taskData.method='edit';
     }
-    else if(route.path.indexOf(taskData.api_url+'/details/')!=-1)
+    else if(route.path.indexOf(taskData.api_url+'/'+taskData.analysis_year_id+'/details/')!=-1)
     {
       taskData.method='details';
     }
@@ -72,20 +76,13 @@
 
 
   const getItems=async(pagination)=>{
-    if(globalVariables.loadListData)
-    {
-      await axios.get(taskData.api_url+'/get-items?page='+ pagination.current_page+'&perPage='+ pagination.per_page)
-          .then(res => {
-            if(res.data.error==''){
-              taskData.items= res.data.items;
-              taskData.setFilteredItems();
-            }
-            else{
-              toastFunctions.showResponseError(res.data)
-            }
-            globalVariables.loadListData=false;
-          })
-    }
+    let items={};
+    items['data']=taskData.location_districts;
+    items['current_page']=1;
+    items['last_page1']=1;
+    items['total']=taskData.location_districts.length;
+    taskData.items= items;
+    taskData.setFilteredItems();
   }
   taskData.setFilteredItems=()=>{
     taskData.itemsFiltered=systemFunctions.getFilteredItems(taskData.items.data,taskData.columns);
@@ -100,10 +97,9 @@
         taskData.permissions=res.data.permissions;
         taskData.user_locations=res.data.user_locations;
         taskData.crops=res.data.crops;
-        taskData.crop_types2=res.data.crop_types2;
-        taskData.location_parts=res.data.location_parts;
-        taskData.location_areas=res.data.location_areas;
-        taskData.location_territories=res.data.location_territories;
+        taskData.crop_types=res.data.crop_types;
+        taskData.analysis_years=res.data.analysis_years;
+        taskData.location_districts=res.data.location_districts;
         if(res.data.hidden_columns){
           taskData.columns.hidden=res.data.hidden_columns;
         }

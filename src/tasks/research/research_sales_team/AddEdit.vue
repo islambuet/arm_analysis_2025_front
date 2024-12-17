@@ -10,10 +10,10 @@
   </div>
   <div class="card d-print-none mb-2" v-if="item.exists">
     <div class="card-header">
-      <div v-if="item.id>0">{{labels.get('label_edit_task')}}({{item.id}})</div>
+      <div v-if="item.id>0">{{labels.get('label_edit_task')}}({{item.name}})</div>
       <div v-else>{{labels.get('label_new_task')}}</div>
     </div>
-    <div class="card-body" style='overflow-x:auto;min-height:250px;'>
+    <div class="card-body" style='overflow-x:auto;height:600px;'>
       <form id="formSaveItem">
         <table style="width: 2000px;" class="table table-bordered">
           <thead class="table-active">
@@ -23,6 +23,7 @@
               <th style="width: 100px;">Total Market Size</th>
               <th style="width: 600px;">Upazila Market Size</th>
               <th style="width: 200px;">Sowing Period</th>
+              <th style="width: 100px;">Arm Market Size</th>
               <th style="width: 600px;">Competitors Variety</th>
             </tr>
           </thead>
@@ -30,8 +31,8 @@
             <tr class="row_type" v-for="row in item.rows" :key="'row_'+row.id" :id="'type_'+row.id">
               <td class="col_crop_name">{{row.crop_name}}</td>
               <td class="col_crop_type_name">{{row.crop_type_name}}</td>
-              <td class="col_market_size_total"></td>
-              <td class="col_upazilas_market_size">
+              <td class="col_market_size_total text-right">0.000</td>
+              <td class="col_market_size_upazilas">
                 <table class="table table-bordered">
                   <thead>
                   <tr>
@@ -58,12 +59,13 @@
                   </tbody>
                 </table>
               </td>
-              <td>
+              <td class="col_sowing_periods">
                 <div v-for="i in 12" class="form-check form-check-inline">
                   <input class="form-check-input" type="checkbox" :id="'sowing_periods_'+i" :value="i"><label class="form-check-label" :for="'sowing_periods_'+i">{{ labels.get('label_month_short_'+i) }}</label>
                 </div>
               </td>
-              <td>
+              <td class="col_market_size_arm text-right">0.000</td>
+              <td class="col_market_size_competitors">
                 <table class="table table-bordered">
                   <thead>
                   <tr>
@@ -71,19 +73,19 @@
                     <th>Variety</th>
                     <th>Market Size</th>
                     <th>Reason for the Sales</th>
-                    <th style="width: 100px"></th>
+                    <th style="width: 110px"></th>
                   </tr>
                   </thead>
                   <tbody>
                   <tr>
                     <td colspan="4">
                       <div class="input-group" >
-                        <select class="form-control">
+                        <select class="form-control sel_competitor_variety">
                           <option value="0">Other</option>
                         </select>
                       </div>
                     </td>
-                    <td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary"><i class="bi bi-plus-circle"></i> {{labels.get('action_1')}}</button></td>
+                    <td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary btn_add_more_competitor_size"><i class="bi bi-plus-circle"></i> {{labels.get('action_1')}}</button></td>
                   </tr>
                   </tbody>
                 </table>
@@ -114,6 +116,7 @@ const router =useRouter()
 let taskData = inject('taskData')
 let item=reactive({
   id:0,
+  name:'',
   exists:false,
   inputFields:{},
   data:[],
@@ -164,6 +167,38 @@ $(document).ready(function()
   });
   $(document).off("input", ".input_upazila_market_size");
   $(document).on("input",'.input_upazila_market_size',function(){
+    let row_type_id=$(this).closest('.row_type').attr('id');
+    calculateTotalMarketSize(row_type_id);
+  });
+  $(document).off("click", ".btn_add_more_competitor_size");
+  $(document).on("click",'.btn_add_more_competitor_size',function()
+  {
+    let row_type_id=$(this).closest('.row_type').attr('id');
+    let crop_type_id=row_type_id.substring(5);//after type_
+    let variety_id=$("#"+row_type_id+" .sel_competitor_variety").val();
+    let variety_name="Other";
+    let competitor_name="Other";
+    if(variety_id>0){
+      //set variety_name competitor_name
+    }
+
+    let html='<tr>';
+    html+=('<td>'+competitor_name+'</td>');
+    html+=('<td>'+variety_name+'</td>');
+    html+=('<td><input type="text" class="form-control float_positive input_competitor_market_size" /></td>');
+    html+=('<td><input type="text" class="form-control input_competitor_sales_reason" /></td>');
+    html+='<td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_competitor"><i class="bi bi-dash-circle"></i> Remove </button></td>';
+    html+='</tr>';
+    $(this).closest("tr").before(html);
+  })
+  $(document).off("click", ".btn_remove_competitor");
+  $(document).on("click",'.btn_remove_competitor',function(){
+    let row_type_id=$(this).closest('.row_type').attr('id');
+    $(this).closest('tr').remove();
+    calculateTotalMarketSize(row_type_id);
+  });
+  $(document).off("input", ".input_competitor_market_size");
+  $(document).on("input",'.input_competitor_market_size',function(){
     let row_type_id=$(this).closest('.row_type').attr('id');
     calculateTotalMarketSize(row_type_id);
   });
@@ -224,6 +259,11 @@ const getItem=async ()=>{
   });
 }
 item.id=route.params['item_id']?route.params['item_id']:0;
+for(let i=0;i<taskData.location_districts.length;i++){
+  if(taskData.location_districts[i].id==item.id){
+    item.name=taskData.location_districts[i].name;
+  }
+}
 if(item.id>0){
   if(!(taskData.permissions.action_2)){
     toastFunctions.showAccessDenyMessage();
@@ -242,12 +282,17 @@ else{
   }
 }
 const calculateTotalMarketSize=(typeId)=>{
-  let totalMarketSize=0;
+  let narketSizeTotal=0;
   $('#'+typeId+" .input_upazila_market_size").each( function (){
-    totalMarketSize+=(+$(this).val());
+    narketSizeTotal+=(+$(this).val());
   });
+  let marketSizeCompetitor=0;
 
-  $('#'+typeId+" .col_market_size_total").text(totalMarketSize);
+  $('#'+typeId+" .input_competitor_market_size").each( function (){
+    marketSizeCompetitor+=(+$(this).val());
+  });
+  $('#'+typeId+" .col_market_size_total").text(narketSizeTotal.toFixed(3));
+  $('#'+typeId+" .col_market_size_arm").text((narketSizeTotal-marketSizeCompetitor).toFixed(3));
 
 }
 </script>

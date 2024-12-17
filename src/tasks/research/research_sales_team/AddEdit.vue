@@ -13,9 +13,9 @@
       <div v-if="item.id>0">{{labels.get('label_edit_task')}}({{item.name}})</div>
       <div v-else>{{labels.get('label_new_task')}}</div>
     </div>
-    <div class="card-body" style='overflow-x:auto;height:600px;'>
+    <div class="card-body" style='overflow-x:auto;height:600px;padding: 0'>
       <form id="formSaveItem">
-        <table style="width: 2000px;" class="table table-bordered">
+        <table style="width: 2000px;" class="table table-bordered sticky">
           <thead class="table-active">
             <tr>
               <th style="width: 150px;">{{labels.get('label_crop_name')}}</th>
@@ -25,6 +25,7 @@
               <th style="width: 200px;">Sowing Period</th>
               <th style="width: 100px;">Arm Market Size</th>
               <th style="width: 600px;">Competitors Variety</th>
+              <th style="width: 100px;">Competitors Market Size</th>
             </tr>
           </thead>
           <tbody class="table-striped table-hover">
@@ -32,7 +33,7 @@
               <td class="col_crop_name">{{row.crop_name}}</td>
               <td class="col_crop_type_name">{{row.crop_type_name}}</td>
               <td class="col_market_size_total text-right">0.000</td>
-              <td class="col_market_size_upazilas">
+              <td class="col_upazilas_info">
                 <table class="table table-bordered">
                   <thead>
                   <tr>
@@ -65,7 +66,7 @@
                 </div>
               </td>
               <td class="col_market_size_arm text-right">0.000</td>
-              <td class="col_market_size_competitors">
+              <td class="col_competitors_info">
                 <table class="table table-bordered">
                   <thead>
                   <tr>
@@ -90,6 +91,7 @@
                   </tbody>
                 </table>
               </td>
+              <td class="col_market_size_competitors text-right">0.000</td>
             </tr>
           </tbody>
         </table>
@@ -292,7 +294,52 @@ const calculateTotalMarketSize=(typeId)=>{
     marketSizeCompetitor+=(+$(this).val());
   });
   $('#'+typeId+" .col_market_size_total").text(narketSizeTotal.toFixed(3));
+  $('#'+typeId+" .col_market_size_competitors").text(marketSizeCompetitor.toFixed(3));
   $('#'+typeId+" .col_market_size_arm").text((narketSizeTotal-marketSizeCompetitor).toFixed(3));
+
 
 }
 </script>
+
+<style scoped>
+
+/* To show borders. overwrite bootstarp css */
+table.sticky {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+table.sticky >thead th{
+  position: sticky;
+  position: -webkit-sticky;
+  top: 0;
+  z-index: 1030;
+  background:#f5f5f5;
+  border-width: 1px;
+}
+table.sticky > thead > tr > th:nth-child(1){
+  left: 0;
+  z-index: 1040;
+}
+table.sticky > thead > tr > th:nth-child(2){
+  left: 150px;
+  z-index: 1040;
+}
+
+table.sticky > tbody > tr > td:nth-child(1){
+  position: sticky;
+  position: -webkit-sticky;
+  left: 0;
+  z-index: 1020;
+  background:#f5f5f5;
+  border-width: 1px;
+}
+
+table.sticky > tbody > tr > td:nth-child(2){
+  position: sticky;
+  position: -webkit-sticky;
+  left: 150px;
+  z-index: 1020;
+  background:#f5f5f5;
+  border-width: 1px;
+}
+</style>

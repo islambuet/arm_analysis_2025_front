@@ -15,6 +15,9 @@
     </div>
     <div class="card-body" style='overflow-x:auto;height:600px;padding: 0'>
       <form id="formSaveItem">
+        <input type="hidden" name="save_token" :value="new Date().getTime()">
+        <input type="hidden" name="district_id" :value="item.id">
+        <input type="hidden" name="analysis_year_id" :value="taskData.analysis_year_id">
         <table style="width: 2000px;" class="table table-bordered sticky">
           <thead class="table-active">
             <tr>
@@ -62,7 +65,7 @@
               </td>
               <td class="col_sowing_periods">
                 <div v-for="i in 12" class="form-check form-check-inline">
-                  <input class="form-check-input" type="checkbox" :id="'sowing_periods_'+i" :value="i"><label class="form-check-label" :for="'sowing_periods_'+i">{{ labels.get('label_month_short_'+i) }}</label>
+                  <input class="form-check-input" type="checkbox" :id="'sowing_periods_'+row.id+'_'+i" :name="'item['+row.id+'][sowing_periods][]'" :value="i"/><label class="form-check-label" :for="'sowing_periods_'+row.id+'_'+i">{{ labels.get('label_month_short_'+i) }}</label>
                 </div>
               </td>
               <td class="col_market_size_arm text-right">0.000</td>
@@ -150,11 +153,11 @@ $(document).ready(function()
 
     let html='<tr>';
     html+=('<td>'+upazila_name+'</td>');
-    html+=('<td><input type="text" class="form-control float_positive input_upazila_market_size" /></td>');
+    html+=('<td><input type="text" name="item['+crop_type_id+'][upazila_market_size]['+upazila_id+']" class="form-control float_positive input_upazila_market_size" /></td>');
     html+='<td>';
     for(let i=0;i<unions.length;i++){
       let union=unions[i];
-      html+=('<div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" id="'+(row_type_id+"_"+union.id)+'" value="'+union.id+'"><label class="form-check-label" for="'+(row_type_id+"_"+union.id)+'">'+union.name+'</label></div>');
+      html+=('<div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" name="item['+crop_type_id+'][union_ids_running][]" id="union_id_'+(row_type_id+"_"+union.id)+'" value="'+union.id+'"/><label class="form-check-label" for="union_id_'+(row_type_id+"_"+union.id)+'">'+union.name+'</label></div>');
     }
     html+='</td>';
     html+='<td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_upazila"><i class="bi bi-dash-circle"></i> Remove </button></td>';
@@ -211,17 +214,7 @@ const save=async (save_and_new)=>{
     if (res.data.error == "") {
       globalVariables.loadListData=true;
       toastFunctions.showSuccessfullySavedMessage();
-      if(save_and_new){
-        if(item.id>0){
-          router.push(taskData.api_url+"/add")
-        }
-        else{
-          setInputFields();
-        }
-      }
-      else{
-        router.push(taskData.api_url)
-      }
+      router.push(taskData.api_url)
     }
     else{
       toastFunctions.showResponseError(res.data)

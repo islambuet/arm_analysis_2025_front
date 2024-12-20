@@ -3,8 +3,8 @@
     <div class="card-body">
       <router-link :to="taskData.api_url" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" ><i class="feather icon-corner-up-left"></i> {{labels.get('label_back')}}</router-link>
       <template v-if="item.exists">
-        <button  type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="save(false)"><i class="feather icon-save"></i> {{labels.get('label_save')}}</button>
-        <button  type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="save(true)"><i class="feather icon-plus-square"></i> {{labels.get('label_save_new')}}</button>
+        <button  type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="save(false)"><i class="feather icon-save"></i> Save and Back</button>
+        <button  type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="save(true)"><i class="feather icon-plus-square"></i> Save and Edit</button>
       </template>
     </div>
   </div>
@@ -15,10 +15,10 @@
     </div>
     <div class="card-body" style='overflow-x:auto;height:600px;padding: 0'>
       <form id="formSaveItem">
-        <input type="hidden" name="save_token" :value="new Date().getTime()">
+        <input type="hidden" name="save_token" id="save_token" :value="new Date().getTime()">
         <input type="hidden" name="district_id" :value="item.id">
         <input type="hidden" name="analysis_year_id" :value="taskData.analysis_year_id">
-        <table style="width: 2000px;" class="table table-bordered sticky">
+        <table style="width: 2100px;" class="table table-bordered sticky">
           <thead class="table-active">
             <tr>
               <th style="width: 150px;">{{labels.get('label_crop_name')}}</th>
@@ -50,11 +50,11 @@
                   <template v-if="item.data[row.id]">
                     <tr v-for="(market_size,upazila_id) in item.data[row.id]['upazila_market_size']">
                       <td>{{ item.location_upazilas[upazila_id]?item.location_upazilas[upazila_id]['name']:"Other" }}</td>
-                      <td><input type="text" :name="'item['+row.id+'][upazila_market_size]['+upazila_id+']'" class="form-control float_positive input_upazila_market_size" :value="market_size"></td>
+                      <td><input type="text" :name="'items['+row.id+'][upazila_market_size]['+upazila_id+']'" class="form-control float_positive input_upazila_market_size" :value="market_size"></td>
                       <td>
                         <template v-if="item.location_unions[upazila_id]">
                           <div class="form-check form-check-inline" v-for="union in item.location_unions[upazila_id]">
-                            <input class="form-check-input" type="checkbox" :name="'item['+row.id+'][union_ids_running][]'" :id="'union_id_type_'+row.id+'_'+union.id" :value="union.id" :checked="(item.data[row.id]['union_ids_running'].includes(','+union.id+','))"/><label class="form-check-label" :for="'union_id_type_'+row.id+'_'+union.id">{{union.name}}</label>
+                            <input class="form-check-input" type="checkbox" :name="'items['+row.id+'][union_ids_running][]'" :id="'union_id_type_'+row.id+'_'+union.id" :value="union.id" :checked="(item.data[row.id]['union_ids_running'].includes(','+union.id+','))"/><label class="form-check-label" :for="'union_id_type_'+row.id+'_'+union.id">{{union.name}}</label>
                           </div>
                         </template>
                       </td>
@@ -79,7 +79,7 @@
               </td>
               <td class="col_sowing_periods">
                 <div v-for="i in 12" class="form-check form-check-inline">
-                  <input class="form-check-input" type="checkbox" :id="'sowing_periods_'+row.id+'_'+i" :name="'item['+row.id+'][sowing_periods][]'" :value="i" :checked="item.data[row.id]?(item.data[row.id]['sowing_periods'].includes(','+i+',')):false"/><label class="form-check-label" :for="'sowing_periods_'+row.id+'_'+i">{{ labels.get('label_month_short_'+i) }}</label>
+                  <input class="form-check-input" type="checkbox" :id="'sowing_periods_'+row.id+'_'+i" :name="'items['+row.id+'][sowing_periods][]'" :value="i" :checked="item.data[row.id]?(item.data[row.id]['sowing_periods'].includes(','+i+',')):false"/><label class="form-check-label" :for="'sowing_periods_'+row.id+'_'+i">{{ labels.get('label_month_short_'+i) }}</label>
                 </div>
               </td>
               <td class="col_market_size_arm text-right">0.000</td>
@@ -162,11 +162,11 @@ $(document).ready(function()
 
     let html='<tr>';
     html+=('<td>'+upazila_name+'</td>');
-    html+=('<td><input type="text" name="item['+crop_type_id+'][upazila_market_size]['+upazila_id+']" class="form-control float_positive input_upazila_market_size" /></td>');
+    html+=('<td><input type="text" name="items['+crop_type_id+'][upazila_market_size]['+upazila_id+']" class="form-control float_positive input_upazila_market_size" /></td>');
     html+='<td>';
     for(let i=0;i<unions.length;i++){
       let union=unions[i];
-      html+=('<div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" name="item['+crop_type_id+'][union_ids_running][]" id="union_id_'+(row_type_id+"_"+union.id)+'" value="'+union.id+'"/><label class="form-check-label" for="union_id_'+(row_type_id+"_"+union.id)+'">'+union.name+'</label></div>');
+      html+=('<div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" name="items['+crop_type_id+'][union_ids_running][]" id="union_id_'+(row_type_id+"_"+union.id)+'" value="'+union.id+'"/><label class="form-check-label" for="union_id_'+(row_type_id+"_"+union.id)+'">'+union.name+'</label></div>');
     }
     html+='</td>';
     html+='<td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_upazila"><i class="bi bi-dash-circle"></i> Remove </button></td>';
@@ -223,7 +223,13 @@ const save=async (save_and_new)=>{
     if (res.data.error == "") {
       globalVariables.loadListData=true;
       toastFunctions.showSuccessfullySavedMessage();
-      router.push(taskData.api_url)
+      if(save_and_new){
+        $('#save_token').val(new Date().getTime());
+      }
+      else{
+        router.push(taskData.api_url)
+      }
+
     }
     else{
       toastFunctions.showResponseError(res.data)

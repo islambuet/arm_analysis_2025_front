@@ -18,7 +18,7 @@
         <input type="hidden" name="save_token" id="save_token" :value="new Date().getTime()">
         <input type="hidden" name="district_id" :value="item.id">
         <input type="hidden" name="analysis_year_id" :value="taskData.analysis_year_id">
-        <table style="width: 2100px;" class="table table-bordered sticky">
+        <table style="width: 2250px;" class="table table-bordered sticky">
           <thead class="table-active">
             <tr>
               <th style="width: 150px;">{{labels.get('label_crop_name')}}</th>
@@ -27,7 +27,7 @@
               <th style="width: 600px;">Upazila Market Size</th>
               <th style="width: 200px;">Sowing Period</th>
               <th style="width: 100px;">Arm Market Size</th>
-              <th style="width: 600px;">Competitors Variety</th>
+              <th style="width: 800px;">Competitors Variety</th>
               <th style="width: 100px;">Competitors Market Size</th>
             </tr>
           </thead>
@@ -47,8 +47,7 @@
                   </tr>
                   </thead>
                   <tbody>
-                  <template v-if="item.data[row.id]">
-                    <tr v-for="(market_size,upazila_id) in item.data[row.id]['upazila_market_size']">
+                    <tr v-if="item.data[row.id]" v-for="(market_size,upazila_id) in item.data[row.id]['upazila_market_size']">
                       <td>{{ item.location_upazilas[upazila_id]?item.location_upazilas[upazila_id]['name']:"Other" }}</td>
                       <td><input type="text" :name="'items['+row.id+'][upazila_market_size]['+upazila_id+']'" class="form-control float_positive input_upazila_market_size" :value="market_size"></td>
                       <td>
@@ -60,7 +59,6 @@
                       </td>
                       <td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_upazila"><i class="bi bi-dash-circle"></i> Remove </button></td>
                     </tr>
-                  </template>
                   <tr>
                     <td colspan="3">
                       <div class="input-group" >
@@ -82,23 +80,33 @@
                   <input class="form-check-input" type="checkbox" :id="'sowing_periods_'+row.id+'_'+i" :name="'items['+row.id+'][sowing_periods][]'" :value="i" :checked="item.data[row.id]?(item.data[row.id]['sowing_periods'].includes(','+i+',')):false"/><label class="form-check-label" :for="'sowing_periods_'+row.id+'_'+i">{{ labels.get('label_month_short_'+i) }}</label>
                 </div>
               </td>
-              <td class="col_market_size_arm text-right">0.000</td>
+              <td class="col_market_size_arm text-right">{{ item.data[row.id]?item.data[row.id]['market_size_arm'].toFixed(3):'0.000' }}</td>
               <td class="col_competitors_info">
                 <table class="table table-bordered">
                   <thead>
                   <tr>
-                    <th>Company</th>
-                    <th>Variety</th>
-                    <th>Market Size</th>
+                    <th style="width: 150px">Company</th>
+                    <th style="width: 150px">Variety</th>
+                    <th style="width: 150px">Market Size</th>
                     <th>Reason for the Sales</th>
                     <th style="width: 110px"></th>
                   </tr>
                   </thead>
                   <tbody>
+                  <tr v-if="item.data[row.id]" v-for="(market_size,variety_id) in item.data[row.id]['competitor_market_size']">
+                    <td>{{ (item.varieties_competitor[row.id] && item.varieties_competitor[row.id][variety_id])?item.varieties_competitor[row.id][variety_id]['competitor_name']:"Other" }}</td>
+                    <td>{{ (item.varieties_competitor[row.id] && item.varieties_competitor[row.id][variety_id])?item.varieties_competitor[row.id][variety_id]['name']:"Other" }}</td>
+                    <td><input type="text" :name="'items['+row.id+'][competitor_market_size]['+variety_id+']'" class="form-control float_positive input_competitor_market_size" :value="market_size"></td>
+                    <td><input type="text" :name="'items['+row.id+'][competitor_sales_reason]['+variety_id+']'" class="form-control input_competitor_sales_reason" :value="item.data[row.id]['competitor_sales_reason'][variety_id]?item.data[row.id]['competitor_sales_reason'][variety_id]:''"></td>
+                    <td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_upazila"><i class="bi bi-dash-circle"></i> Remove </button></td>
+                  </tr>
                   <tr>
                     <td colspan="4">
                       <div class="input-group" >
                         <select class="form-control sel_competitor_variety">
+                          <option v-if="item.varieties_competitor[row.id]" v-for="variety in item.varieties_competitor[row.id]" :value="variety.id">
+                            {{variety.competitor_name+'-'+ variety.name}}
+                          </option>
                           <option value="0">Other</option>
                         </select>
                       </div>
@@ -108,7 +116,7 @@
                   </tbody>
                 </table>
               </td>
-              <td class="col_market_size_competitors text-right">0.000</td>
+              <td class="col_market_size_competitors text-right">{{ item.data[row.id]?item.data[row.id]['market_size_competitor'].toFixed(3):'0.000' }}</td>
             </tr>
           </tbody>
         </table>
@@ -141,6 +149,7 @@ let item=reactive({
   data:{},
   location_upazilas:{},
   location_unions: {},
+  varieties_competitor: {},
   rows:[]
 })
 $(document).ready(function()
@@ -193,14 +202,15 @@ $(document).ready(function()
     let variety_name="Other";
     let competitor_name="Other";
     if(variety_id>0){
-      //set variety_name competitor_name
+      variety_name=item.varieties_competitor[crop_type_id][variety_id]['name'];
+      competitor_name=item.varieties_competitor[crop_type_id][variety_id]['competitor_name'];
     }
 
     let html='<tr>';
     html+=('<td>'+competitor_name+'</td>');
     html+=('<td>'+variety_name+'</td>');
-    html+=('<td><input type="text" class="form-control float_positive input_competitor_market_size" /></td>');
-    html+=('<td><input type="text" class="form-control input_competitor_sales_reason" /></td>');
+    html+=('<td><input type="text" name="items['+crop_type_id+'][competitor_market_size]['+variety_id+']" class="form-control float_positive input_competitor_market_size" /></td>');
+    html+=('<td><input type="text" name="items['+crop_type_id+'][competitor_sales_reason]['+variety_id+']" class="form-control input_competitor_sales_reason" /></td>');
     html+='<td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_competitor"><i class="bi bi-dash-circle"></i> Remove </button></td>';
     html+='</tr>';
     $(this).closest("tr").before(html);
@@ -243,6 +253,7 @@ const getItem=async ()=>{
       item.data=res.data.data;
       item.location_upazilas=res.data.location_upazilas;
       item.location_unions=res.data.location_unions;
+      item.varieties_competitor=res.data.varieties_competitor;
       let rows=[];
       //let prev_crop_name="";
       for(let i=0;i<taskData.crop_types.length;i++){
@@ -281,15 +292,6 @@ if(item.id>0){
   }
   else{
     getItem();
-  }
-}
-else{
-  if(!(taskData.permissions.action_1)){
-    toastFunctions.showAccessDenyMessage();
-  }
-  else{
-    setInputFields();
-    item.exists=true;
   }
 }
 const calculateTotalMarketSize=(typeId)=>{

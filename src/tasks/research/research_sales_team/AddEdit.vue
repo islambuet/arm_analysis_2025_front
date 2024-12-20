@@ -35,7 +35,7 @@
             <tr class="row_type" v-for="row in item.rows" :key="'row_'+row.id" :id="'type_'+row.id">
               <td class="col_crop_name">{{row.crop_name}}</td>
               <td class="col_crop_type_name">{{row.crop_type_name}}</td>
-              <td class="col_market_size_total text-right">0.000</td>
+              <td class="col_market_size_total text-right">{{ item.data[row.id]?item.data[row.id]['market_size_total'].toFixed(3):'0.000' }}</td>
               <td class="col_upazilas_info">
                 <table class="table table-bordered">
                   <thead>
@@ -47,6 +47,20 @@
                   </tr>
                   </thead>
                   <tbody>
+                  <template v-if="item.data[row.id]">
+                    <tr v-for="(market_size,upazila_id) in item.data[row.id]['upazila_market_size']">
+                      <td>{{ item.location_upazilas[upazila_id]?item.location_upazilas[upazila_id]['name']:"Other" }}</td>
+                      <td><input type="text" :name="'item['+row.id+'][upazila_market_size]['+upazila_id+']'" class="form-control float_positive input_upazila_market_size" :value="market_size"></td>
+                      <td>
+                        <template v-if="item.location_unions[upazila_id]">
+                          <div class="form-check form-check-inline" v-for="union in item.location_unions[upazila_id]">
+                            <input class="form-check-input" type="checkbox" :name="'item['+row.id+'][union_ids_running][]'" :id="'union_id_type_'+row.id+'_'+union.id" :value="union.id" :checked="(item.data[row.id]['union_ids_running'].includes(','+union.id+','))"/><label class="form-check-label" :for="'union_id_type_'+row.id+'_'+union.id">{{union.name}}</label>
+                          </div>
+                        </template>
+                      </td>
+                      <td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_upazila"><i class="bi bi-dash-circle"></i> Remove </button></td>
+                    </tr>
+                  </template>
                   <tr>
                     <td colspan="3">
                       <div class="input-group" >
@@ -65,7 +79,7 @@
               </td>
               <td class="col_sowing_periods">
                 <div v-for="i in 12" class="form-check form-check-inline">
-                  <input class="form-check-input" type="checkbox" :id="'sowing_periods_'+row.id+'_'+i" :name="'item['+row.id+'][sowing_periods][]'" :value="i"/><label class="form-check-label" :for="'sowing_periods_'+row.id+'_'+i">{{ labels.get('label_month_short_'+i) }}</label>
+                  <input class="form-check-input" type="checkbox" :id="'sowing_periods_'+row.id+'_'+i" :name="'item['+row.id+'][sowing_periods][]'" :value="i" :checked="item.data[row.id]?(item.data[row.id]['sowing_periods'].includes(','+i+',')):false"/><label class="form-check-label" :for="'sowing_periods_'+row.id+'_'+i">{{ labels.get('label_month_short_'+i) }}</label>
                 </div>
               </td>
               <td class="col_market_size_arm text-right">0.000</td>
@@ -124,8 +138,8 @@ let item=reactive({
   name:'',
   exists:false,
   inputFields:{},
-  data:[],
-  location_upazilas:[],
+  data:{},
+  location_upazilas:{},
   location_unions: {},
   rows:[]
 })
@@ -140,12 +154,7 @@ $(document).ready(function()
     let upazila_name="Other";
     let unions=[];
     if(upazila_id>0){
-      for(let i=0;i<item.location_upazilas.length;i++){
-        if(item.location_upazilas[i].id==upazila_id){
-          upazila_name=item.location_upazilas[i].name;
-          break;
-        }
-      }
+      upazila_name=item.location_upazilas[upazila_id].name;
       if(item.location_unions[upazila_id]){
         unions=item.location_unions[upazila_id];
       }
@@ -229,18 +238,19 @@ const getItem=async ()=>{
       item.location_upazilas=res.data.location_upazilas;
       item.location_unions=res.data.location_unions;
       let rows=[];
-      let prev_crop_name="";
+      //let prev_crop_name="";
       for(let i=0;i<taskData.crop_types.length;i++){
         let crop_type=taskData.crop_types[i];
         let row={};
         row['id']=crop_type['id'];
-        if(prev_crop_name!=crop_type['crop_name']){
-          row['crop_name']=crop_type['crop_name'];
-          prev_crop_name=crop_type['crop_name'];
-        }
-        else{
-          row['crop_name']='';
-        }
+        row['crop_name']=crop_type['crop_name'];
+        // if(prev_crop_name!=crop_type['crop_name']){
+        //   row['crop_name']=crop_type['crop_name'];
+        //   prev_crop_name=crop_type['crop_name'];
+        // }
+        // else{
+        //   row['crop_name']='';
+        // }
         row['crop_type_name']=crop_type['name'];
         rows.push(row);
       }

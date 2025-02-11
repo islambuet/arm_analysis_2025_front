@@ -77,5 +77,9 @@ export default {
         en:"Reason for the Sales",
         bn:"কর্মচারী আইডি"
     },
+    label_total_type_entered:{
+        en:"# of types data",
+        bn:"কর্মচারী আইডি"
+    },
 
 }

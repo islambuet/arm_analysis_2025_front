@@ -90,6 +90,16 @@
         type:'text',
         filter:{from:'',to:''}
       };
+      key='total_type_entered';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:false,
+        sortable:true,
+        type:'number',
+        filter:{from:'',to:''},
+        class:'col_1'
+      };
       taskData.columns.all=columns
     }
     $(document).ready(function()

@@ -14,9 +14,9 @@ function getNotLoggedUser(){
   }    
 }
 export default reactive({
-  baseURLApiServer:(process.env.NODE_ENV=='production')?'https://analysis.api.malikseedsbd.com/api':'http://192.168.179.1/arm_analysis_2025_back/public/api',
-  baseURLUploadServer:(process.env.NODE_ENV=='production')?'https://analysis.files.malikseedsbd.com/api':'http://192.168.179.1/uploads/public/api',
-  baseURLUploadedFilesLink:(process.env.NODE_ENV=='production')?'https://analysis.files.malikseedsbd.com':'http://192.168.179.1/uploads/public',
+  baseURLApiServer:(process.env.NODE_ENV=='production')?'https://analysis.api.malikseedsbd.com/api':'http://localhost/arm_analysis_2025_back/public/api',
+  baseURLUploadServer:(process.env.NODE_ENV=='production')?'https://analysis.files.malikseedsbd.com/api':'http://localhost/uploads/public/api',
+  baseURLUploadedFilesLink:(process.env.NODE_ENV=='production')?'https://analysis.files.malikseedsbd.com':'http://localhost/uploads/public',
   localStorageAuthTokenStr:localStorageAuthTokenStr,
   localStorageLanguageStr:localStorageLanguageStr,
   baseUrl: process.env.BASE_URL,

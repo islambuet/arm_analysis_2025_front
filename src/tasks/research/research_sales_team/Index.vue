@@ -76,13 +76,30 @@
 
 
   const getItems=async(pagination)=>{
-    let items={};
-    items['data']=taskData.location_districts;
-    items['current_page']=1;
-    items['last_page1']=1;
-    items['total']=taskData.location_districts.length;
-    taskData.items= items;
-    taskData.setFilteredItems();
+    if(globalVariables.loadListData)
+    {
+      await axios.get(taskData.api_url+'/'+taskData.analysis_year_id+'/get-items?page='+ pagination.current_page+'&perPage='+ pagination.per_page)
+          .then(res => {
+            if(res.data.error==''){
+              let items={};
+              items['data']=[];
+              for(let i in taskData.location_districts){
+                let districtData=taskData.location_districts[i];
+                districtData['total_type_entered']=res.data.items[districtData['id']]?res.data.items[districtData['id']]['total_type_entered']:0;
+                items['data'].push(districtData)
+              }
+              items['current_page']=1;
+              items['last_page1']=1;
+              items['total']=taskData.location_districts.length;
+              taskData.items= items;
+              taskData.setFilteredItems();
+            }
+            else{
+              toastFunctions.showResponseError(res.data)
+            }
+            globalVariables.loadListData=false;
+          })
+    }
   }
   taskData.setFilteredItems=()=>{
     taskData.itemsFiltered=systemFunctions.getFilteredItems(taskData.items.data,taskData.columns);

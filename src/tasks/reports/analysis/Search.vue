@@ -1,27 +1,30 @@
 <template>
-  <div class="card mb-2">
-    <div class="card-header d-print-none">
-      {{labels.get('label_task')}}
-    </div>
-    <div class="card-body pb-0" v-if="item.exists">
-      <form id="formSearch">
-        <div class="row mb-2">
-          <div class="input_container col-lg-4">
-            <InputTemplate :inputItems="item.inputFields1" />
-          </div>
+  <div id="accordion">
+    <div class="card">
+      <div class="card-header p-1">
+        <a class="btn btn-sm" data-toggle="collapse" href="#label_task">{{labels.get('label_task')}} </a>
+      </div>
+      <div id="label_task" class="collapse show" v-if="item.exists">
+        <form id="formSearch">
+          <div class="row mt-2">
+            <div class="input_container col-lg-4">
+              <InputTemplate :inputItems="item.inputFields1" />
+            </div>
             <div class="input_container col-lg-4">
               <InputTemplate :inputItems="item.inputFields2" />
             </div>
             <div class="input_container col-lg-4">
               <InputTemplate :inputItems="item.inputFields3" />
             </div>
-        </div>
-      </form>
-      <div class="row">
-        <div class="col-12 text-center">
-          <button  type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="search"><i class="feather icon-save"></i> {{labels.get('label_search')}}</button>
+          </div>
+        </form>
+        <div class="row">
+          <div class="col-12 text-center">
+            <button  type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="search"><i class="feather icon-save"></i> {{labels.get('label_search')}}</button>
+          </div>
         </div>
       </div>
+
     </div>
 
   </div>
@@ -32,15 +35,13 @@
       <button type="button" v-if="taskData.permissions.action_8" class="mr-2 mb-2 btn btn-sm" :class="[show_column_controls?'bg-gradient-success':'bg-gradient-primary']" @click="show_column_controls = !show_column_controls"><i class="feather icon-command"></i> {{labels.get('action_8')}}</button>
     </div>
     <ColumnControl :url="taskData.api_url.substring(1)" :columns="taskData.columns"  v-if="show_column_controls"/>
-    <div class="card-body" style='overflow-x:auto;min-height:250px;'>
-      <table class="table table-bordered">
+    <div class="card-body" style='overflow-x:auto;height:600px;padding: 0'>
+      <table style="width: 2250px;" class="table table-bordered sticky">
         <thead class="table-active">
         <tr>
           <template v-for="(column,key) in taskData.columns.all">
-            <th class="position-relative align-middle" v-if="taskData.columns.hidden.indexOf(key)<0" :key="'th_'+key">
-              <div class=" text-center " style="width:calc(100% - 33px);margin-left:17px">
-                {{ column.label }}
-              </div>
+            <th style="width: 150px;" v-if="taskData.columns.hidden.indexOf(key)<0" :key="'th_'+key">
+              {{ column.label }}
             </th>
           </template>
         </tr>
@@ -48,7 +49,7 @@
         <tbody class="table-striped table-hover">
           <tr v-for="item in taskData.itemsFiltered" :key="'item_'+item.id">
             <template v-for="(column,key) in taskData.columns.all">
-              <td :class="((['id','ordering'].indexOf(key) != -1)?'text-right':'')+(column.class?(' '+column.class):'col_9')" v-if="taskData.columns.hidden.indexOf(key)<0" :key="'td_'+key">
+              <td :class="((['market_size_crop','market_size_total','upazila_market_size','market_size_arm','type_competitor_market_size_variety','type_competitor_market_size_total'].indexOf(key) != -1)?'text-right':'')+(column.class?(' '+column.class):' col_9')" v-if="taskData.columns.hidden.indexOf(key)<0" :key="'td_'+key">
                 {{ item[key] }}
               </td>
             </template>
@@ -86,6 +87,27 @@
 
       }
     })
+    let crops_object={};
+    for(let i in taskData.crops){
+      crops_object[taskData.crops[i]['id']]=taskData.crops[i];
+    }
+    let crop_types_object={};
+    for(let i in taskData.crop_types){
+      crop_types_object[taskData.crop_types[i]['id']]=taskData.crop_types[i];
+    }
+    let location_districts_object={};
+    for(let i in taskData.location_districts){
+      location_districts_object[taskData.location_districts[i]['id']]=taskData.location_districts[i];
+    }
+    let location_upazilas_object={};
+    for(let i in taskData.location_districts){
+      location_upazilas_object[taskData.location_upazilas[i]['id']]=taskData.location_upazilas[i];
+    }
+    let location_unions_object={};
+    for(let i in taskData.location_unions){
+      location_unions_object[taskData.location_unions[i]['id']]=taskData.location_unions[i];
+    }
+
     const setInputFields=async ()=>{
       item.inputFields1= {};
       item.inputFields2= {};
@@ -123,7 +145,7 @@
       };
       key='district_id';
       inputFields[key] = {
-        name: 'district_id',
+        name: 'options[' +key +']',
         label: labels.get('label_'+key),
         type:'dropdown',
         options:taskData.location_districts.map((item)=>{ return {value:item.id,label:item.name}}),
@@ -132,7 +154,7 @@
       };
       key='upazila_id';
       inputFields[key] = {
-        name: 'item[' +key +']',
+        name: 'options[' +key +']',
         label: labels.get('label_'+key),
         type:'dropdown',
         options:[],
@@ -207,7 +229,56 @@
       let formData=new FormData(document.getElementById('formSearch'))
       await axios.post(taskData.api_url+'/get-items',formData).then((res)=>{
         if (res.data.error == "") {
-          taskData.items= res.data.items;
+          let items={};
+          items['data']=[];
+          for(let i in res.data.items){
+            let type_data=res.data.items[i];
+            let crop_name=(crops_object[type_data['crop_id']]?crops_object[type_data['crop_id']]['name']:type_data['crop_id']);
+            let crop_type_name=(crop_types_object[type_data['type_id']]?crop_types_object[type_data['type_id']]['name']:type_data['type_id']);
+            let district_name=(location_districts_object[type_data['district_id']]?location_districts_object[type_data['district_id']]['name']:type_data['district_id']);
+            let market_size_total=type_data['market_size_total'];
+            let market_size_arm=type_data['market_size_arm'];
+            let market_size_competitor=type_data['market_size_competitor'];
+            let upazila_market_size=type_data['upazila_market_size'].split(',');
+            let union_ids_running=type_data['union_ids_running'].split(',');
+            let sowing_periods=type_data['sowing_periods'].split(',');
+            let competitor_market_size=type_data['competitor_market_size'].split(',');
+            let competitor_sales_reason=type_data['competitor_market_size'].split(',,,');
+            let num_type_row=Math.max(3,upazila_market_size.length,competitor_market_size.length)-2;
+            let rows=[];
+            for(let i=0;i<num_type_row;i++){
+              let row={}
+              row['crop_name']=(i==0?crop_name:'');
+              row['type_name']=(i==0?crop_type_name:'');
+              row['district_name']=(i==0?district_name:'');
+              row['market_size_total']=(i==0?market_size_total:'');
+              row['unions_name']=',';
+              rows.push(row);
+            }
+            //console.log(rows[0]['crop_name']);
+            for(let i=1;i<upazila_market_size.length-1;i++){
+              let upazila_id=upazila_market_size[i].substring(0,upazila_market_size[i].indexOf('_'));
+              let quantity=upazila_market_size[i].substring(upazila_market_size[i].indexOf('_')+1);
+              rows[i-1]['upazila_name']=(location_upazilas_object[upazila_id]?location_upazilas_object[upazila_id]['name']:upazila_id);
+              rows[i-1]['upazila_market_size']=quantity;
+              for(let j=1;j<union_ids_running.length-1;j++){
+                if((location_unions_object[union_ids_running[j]])&&(location_unions_object[union_ids_running[j]]['upazila_id']==upazila_id))
+                {
+                  rows[i-1]['unions_name']+=(location_unions_object[union_ids_running[j]]['name']+',');
+                }
+              }
+
+            }
+            for(i=0;i<rows.length;i++){
+              items['data'].push(rows[i]);
+            }
+          }
+          items['current_page']=1;
+          items['last_page1']=1;
+          items['total']=items['data'].length;
+          taskData.items= items;
+
+          //taskData.items= res.data.items;
           taskData.setFilteredItems();
           show_report.value=true;
         }
@@ -258,62 +329,154 @@
     });
     const setColumns=()=>{
       let columns={}
-      let key='id';
+      let key='crop_name';
       columns[key]={
         label: labels.get('label_'+key),
         hideable:true,
-        filterable:true,
-        sortable:true,
+        filterable:false,
+        sortable:false,
+        type:'text',
+        filter:{from:'',to:''}
+      };
+      key='market_size_crop';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:false,
+        sortable:false,
         type:'number',
-        filter:{from:'',to:''},
-        class:'col_1'
-      };
-      key='name';
-      columns[key]={
-        label: labels.get('label_'+key),
-        hideable:false,
-        filterable:true,
-        sortable:true,
-        type:'text',
         filter:{from:'',to:''}
       };
-      key='crop_name';
+      key='type_name';
       columns[key]={
         label: labels.get('label_'+key),
         hideable:true,
-        filterable:true,
-        sortable:true,
-        type:'dropdown',
-        filter:{from:'',to:'',options:taskData.crops.map((item)=>{ return {value:item.name,label:item.name}}),}
-      };
-      key='crop_type_name';
-      columns[key]={
-        label: labels.get('label_'+key),
-        hideable:true,
-        filterable:true,
-        sortable:true,
+        filterable:false,
+        sortable:false,
         type:'text',
         filter:{from:'',to:''}
       };
 
-      key='principal_name';
+      key='market_size_total';
       columns[key]={
         label: labels.get('label_'+key),
         hideable:true,
-        sortable:true,
-        filterable:true,
-        type:'dropdown',
-        filter:{from:'',to:'',options:[{value:'ARM',label:'ARM'},{value:'Principal',label:'Principal'},{value:'Competitor',label:'Competitor'}]},
+        filterable:false,
+        sortable:false,
+        type:'number',
+        filter:{from:'',to:''}
+      };
+      key='district_name';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:false,
+        sortable:false,
+        type:'text',
+        filter:{from:'',to:''}
+      };
+      key='upazila_name';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:false,
+        sortable:false,
+        type:'text',
+        filter:{from:'',to:''}
+      };
+      key='upazila_market_size';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:false,
+        sortable:false,
+        type:'number',
+        filter:{from:'',to:''}
+      };
+      key='unions_name';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:false,
+        sortable:false,
+        type:'text',
+        filter:{from:'',to:''}
+      };
+      key='sowing_periods';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:false,
+        sortable:false,
+        type:'text',
+        filter:{from:'',to:''}
+      };
 
+
+      key='market_size_arm';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:false,
+        sortable:false,
+        type:'number',
+        filter:{from:'',to:''}
+      };
+      key='sowing_periods';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:false,
+        sortable:false,
+        type:'text',
+        filter:{from:'',to:''}
       };
       key='competitor_name';
       columns[key]={
         label: labels.get('label_'+key),
         hideable:true,
-        sortable:true,
-        filterable:true,
-        type:'dropdown',
-        filter:{from:'',to:'',options:[{value:'ARM',label:'ARM'},{value:'Principal',label:'Principal'},{value:'Competitor',label:'Competitor'}]},
+        filterable:false,
+        sortable:false,
+        type:'text',
+        filter:{from:'',to:''}
+      };
+
+      key='competitor_variety';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:false,
+        sortable:false,
+        type:'text',
+        filter:{from:'',to:''}
+      };
+      key='competitor_market_size';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:false,
+        sortable:false,
+        type:'number',
+        filter:{from:'',to:''}
+      };
+
+      key='competitor_sales_reason';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:false,
+        sortable:false,
+        type:'text',
+        filter:{from:'',to:''}
+      };
+      key='market_size_competitor';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:false,
+        sortable:false,
+        type:'number',
+        filter:{from:'',to:''}
       };
       taskData.columns.all=columns
     }
@@ -323,3 +486,47 @@
 
 </script>
 
+
+<style scoped>
+
+/* To show borders. overwrite bootstarp css */
+table.sticky {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+table.sticky >thead th{
+  position: sticky;
+  position: -webkit-sticky;
+  top: 0;
+  z-index: 1030;
+  background:#f5f5f5;
+  border-width: 1px;
+  width: 100px;
+}
+table.sticky > thead > tr > th:nth-child(1){
+  left: 0;
+  z-index: 1040;
+}
+table.sticky > thead > tr > th:nth-child(2){
+  left: 150px;
+  z-index: 1040;
+}
+
+table.sticky > tbody > tr > td:nth-child(1){
+  position: sticky;
+  position: -webkit-sticky;
+  left: 0;
+  z-index: 1020;
+  background:#f5f5f5;
+  border-width: 1px;
+}
+
+table.sticky > tbody > tr > td:nth-child(2){
+  position: sticky;
+  position: -webkit-sticky;
+  left: 150px;
+  z-index: 1020;
+  background:#f5f5f5;
+  border-width: 1px;
+}
+</style>

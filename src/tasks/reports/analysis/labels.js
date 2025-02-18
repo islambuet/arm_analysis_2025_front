@@ -47,12 +47,20 @@ export default {
         en:"Upazila",
         bn:"কর্মচারী আইডি"
     },
+    label_unions_name:{
+        en:"Unions",
+        bn:"কর্মচারী আইডি"
+    },
     label_crop_id:{
         en:"Crop",
         bn:"Crop"
     },
     label_crop_name:{
         en:"Crop",
+        bn:"Crop"
+    },
+    label_market_size_crop:{
+        en:"Total Crop Market Size",
         bn:"Crop"
     },
     label_crop_type_id :{
@@ -63,8 +71,49 @@ export default {
         en:"Type",
         bn:"Type"
     },
+    label_type_name :{
+        en:"Type",
+        bn:"Type"
+    },
+    label_market_size_total:{
+        en:"Total Type Market Size",
+        bn:"Crop"
+    },
+    label_market_size_arm:{
+        en:"Arm Market Size",
+        bn:"Crop"
+    },
+    label_upazila_market_size:{
+        en:"Uazila Market Size",
+        bn:"Crop"
+    },
+    label_sowing_periods:{
+        en:"Sowing Periods",
+        bn:"Crop"
+    },
+
+    label_type_competitor_market_size_total:{
+        en:"competitor Market Size total",
+        bn:"Crop"
+    },
     label_variety:{
         en:"Variety",
+        bn:"Variety"
+    },
+    label_competitor_variety:{
+        en:"Variety",
+        bn:"Variety"
+    },
+    label_competitor_market_size:{
+        en:"Market Size",
+        bn:"Variety"
+    },
+    label_market_size_competitor:{
+        en:"Competitor Market Size",
+        bn:"Variety"
+    },
+    label_competitor_sales_reason:{
+        en:"Reason For Sales",
         bn:"Variety"
     },
     label_principal_id:{

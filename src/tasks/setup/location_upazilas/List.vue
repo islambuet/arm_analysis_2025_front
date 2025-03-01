@@ -100,6 +100,33 @@
         type:'dropdown',
         filter:{from:'',to:'',options:taskData.location_districts.map((item)=>{ return {value:item.name,label:item.name}}),}
       };
+      key='part_name';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:true,
+        sortable:true,
+        type:'dropdown',
+        filter:{from:'',to:'',options:taskData.location_parts.map((item)=>{ return {value:item.name,label:item.name}}),}
+      };
+      key='area_name';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:true,
+        sortable:true,
+        type:'text',
+        filter:{from:'',to:''}
+      };
+      key='territory_name';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:true,
+        sortable:true,
+        type:'text',
+        filter:{from:'',to:''}
+      };
       key='ordering';
       columns[key]={
         label: labels.get('label_'+key),

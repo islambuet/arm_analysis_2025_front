@@ -41,7 +41,10 @@
     itemsFiltered: [],    //for display
     columns:{all:{},hidden:[],sort:{key:'',dir:''}},
     pagination: {current_page: 1,per_page_options: [10,20,50,100,500,1000],per_page:50,show_all_items:true},
-    location_districts:[]
+    location_districts:[],
+    location_parts:[],
+    location_areas:[],
+    location_territories:[]
   })
   labels.add([{language:globalVariables.language,file:'tasks'+taskData.api_url+'/labels.js'}])
 
@@ -95,6 +98,9 @@
       if (res.data.error == "") {
         taskData.permissions=res.data.permissions;
         taskData.location_districts=res.data.location_districts;
+        taskData.location_parts=res.data.location_parts;
+        taskData.location_areas=res.data.location_areas;
+        taskData.location_territories=res.data.location_territories;
         if(res.data.hidden_columns){
           taskData.columns.hidden=res.data.hidden_columns;
         }

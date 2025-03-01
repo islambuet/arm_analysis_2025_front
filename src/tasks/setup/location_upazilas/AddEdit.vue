@@ -45,6 +45,9 @@ let item=reactive({
     id:0,
     name:'',
     district_id:'',
+    part_id:'',
+    area_id:'',
+    territory_id:'',
     ordering:99,
     status:'Active',
   }
@@ -103,8 +106,45 @@ const setInputFields=async ()=>{
     default:item.data[key],
     mandatory:true
   };
+  key='part_id';
+  inputFields[key] = {
+    name: 'part_id',
+    label: labels.get('label_'+key),
+    type:'dropdown',
+    options:taskData.location_parts.map((item)=>{ return {value:item.id,label:item.name}}),
+    default:item.data[key],
+    mandatory:false
+  };
+  key='area_id';
+  inputFields[key] = {
+    name: 'area_id',
+    label: labels.get('label_'+key),
+    type:'dropdown',
+    options:[],
+    default:item.data[key],
+    mandatory:false
+  };
+  key='territory_id';
+  inputFields[key] = {
+    name: 'item[' +key +']',
+    label: labels.get('label_'+key),
+    type:'dropdown',
+    options:[],
+    default:item.data[key],
+    mandatory:false
+  };
+
+
   item.inputFields=inputFields;
 
+  if(item.data.part_id>0){
+    key='area_id';
+    item.inputFields[key].options=taskData.location_areas.filter((temp)=>{ if(temp.part_id==item.data.part_id){temp.value=temp.id.toString();temp.label=temp.name;return true}})
+  }
+  if(item.data.area_id>0){
+    key='territory_id';
+    item.inputFields[key].options=taskData.location_territories.filter((temp)=>{ if(temp.area_id==item.data.area_id){temp.value=temp.id.toString();temp.label=temp.name;return true}})
+  }
 
 }
 const save=async (save_and_new)=>{
@@ -131,6 +171,30 @@ const save=async (save_and_new)=>{
   });
 
 }
+$(document).ready(function()
+{
+  $(document).off("change", "#part_id");
+  $(document).on("change",'#part_id',async function()
+  {
+    let part_id=$(this).val();
+    let key='area_id';
+    item.inputFields[key].options=taskData.location_areas.filter((item)=>{ if(item.part_id==part_id){item.value=item.id.toString();item.label=item.name;return true}})
+    await systemFunctions.delay(1);
+    $('#'+key).val('');
+    key='territory_id';
+    item.inputFields[key].options=[];
+    $('#'+key).val('');
+  })
+  $(document).off("change", "#area_id");
+  $(document).on("change",'#area_id',async function()
+  {
+    let area_id=$(this).val();
+    let key='territory_id';
+    item.inputFields[key].options=taskData.location_territories.filter((item)=>{ if(item.area_id==area_id){item.value=item.id.toString();item.label=item.name;return true}})
+    await systemFunctions.delay(1);
+    $('#'+key).val('');
+  })
+});
 const getItem=async ()=>{
   await axios.get(taskData.api_url+'/get-item/'+ item.id).then((res)=>{
     if (res.data.error == "") {

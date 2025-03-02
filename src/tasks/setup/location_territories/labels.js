@@ -31,5 +31,17 @@ export default {
         en:"Area",
         bn:"কর্মচারী আইডি"
     },
+    label_upazila_id:{
+        en:"Upazila",
+        bn:"কর্মচারী আইডি"
+    },
+    label_upazila_name:{
+        en:"Upazila",
+        bn:"কর্মচারী আইডি"
+    },
+    label_upazilas:{
+        en:"Upazilas",
+        bn:"কর্মচারী আইডি"
+    },
 
 }

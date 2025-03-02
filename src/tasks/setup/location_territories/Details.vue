@@ -83,6 +83,12 @@
       type:'date-time',
       values:[item.data[key]],
     };
+    key='upazilas';
+    detailFields[key] = {
+      label: labels.get('label_'+key),
+      type:'text',
+      values:item.data[key],
+    };
     item.detailFields=detailFields;
   }
   const getItem=async ()=>{

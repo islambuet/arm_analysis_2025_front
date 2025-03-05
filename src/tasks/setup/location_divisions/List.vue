@@ -91,15 +91,6 @@
         type:'text',
         filter:{from:'',to:''}
       };
-      key='division_name';
-      columns[key]={
-        label: labels.get('label_'+key),
-        hideable:true,
-        filterable:true,
-        sortable:true,
-        type:'dropdown',
-        filter:{from:'',to:'',options:taskData.location_divisions.map((item)=>{ return {value:item.name,label:item.name}}),}
-      };
       key='ordering';
       columns[key]={
         label: labels.get('label_'+key),

@@ -53,12 +53,6 @@
       type:'text',
       values:[item.data[key]],
     };
-    key='division_name';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'text',
-      values:[item.data[key]],
-    };
     key='ordering';
     detailFields[key] = {
       label: labels.get('label_'+key),

@@ -42,7 +42,6 @@
     itemsFiltered: [],    //for display
     columns:{all:{},hidden:[],sort:{key:'',dir:''}},
     pagination: {current_page: 1,per_page_options: [10,20,50,100,500,1000],per_page:-1,show_all_items:true},
-    location_divisions:[]
   })
   labels.add([{language:globalVariables.language,file:'tasks'+taskData.api_url+'/labels.js'}])
 
@@ -104,7 +103,6 @@
     await axios.get(taskData.api_url+'/initialize').then((res)=>{
       if (res.data.error == "") {
         taskData.permissions=res.data.permissions;
-        taskData.location_divisions=res.data.location_divisions;
         if(res.data.hidden_columns){
           taskData.columns.hidden=res.data.hidden_columns;
         }

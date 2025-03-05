@@ -44,7 +44,6 @@ let item=reactive({
   data:{
     id:0,
     name:'',
-    division_id:'',
     ordering:99,
     expected_delivery_at:'',
     expected_sowing_at:'',
@@ -77,15 +76,6 @@ const setInputFields=async ()=>{
     name: 'item[' +key +']',
     label: labels.get('label_'+key),
     type:'text',
-    default:item.data[key],
-    mandatory:true
-  };
-  key='division_id';
-  inputFields[key] = {
-    name: 'item[' +key +']',
-    label: labels.get('label_'+key),
-    type:'dropdown',
-    options:taskData.location_divisions.map((item)=>{ return {value:item.id,label:item.name}}),
     default:item.data[key],
     mandatory:true
   };

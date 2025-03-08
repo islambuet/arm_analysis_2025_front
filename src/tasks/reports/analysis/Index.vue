@@ -28,7 +28,7 @@ let taskData=reactive({
   permissions:{},
   items: {data:[]},   //from Laravel server with pagination and info
   itemsFiltered: [],    //for display
-  columns:{all:{},hidden:[],sort:{key:'',dir:''}},
+  columns:{all:[],hidden:[],sort:{key:'',dir:''}},
   pagination: {current_page: 1,per_page_options: [10,20,50,100,500,1000],per_page:-1,show_all_items:true},
   analysis_years:[],
   location_parts:[],
@@ -78,9 +78,7 @@ const init=async ()=>{
     }
   });
 }
-taskData.setFilteredItems=()=>{
-  taskData.itemsFiltered=systemFunctions.getFilteredItems(taskData.items.data,taskData.columns);
-}
+
 provide('taskData',taskData)
 if(!(globalVariables.user.id>0)){
   router.push("/login")

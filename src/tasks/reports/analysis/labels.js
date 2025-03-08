@@ -7,6 +7,10 @@ export default {
         en:"Analysis Year",
         bn:'ব্যবহারকারীরা'
     },
+    label_report_format :{
+        en:"Report Format",
+        bn:'ব্যবহারকারীরা'
+    },
     label_part_id:{
         en:"Part",
         bn:"কর্মচারী আইডি"
@@ -76,12 +80,16 @@ export default {
         bn:"Type"
     },
     label_market_size_total:{
-        en:"Total Type Market Size",
+        en:"Total Market Size",
         bn:"Crop"
     },
     label_market_size_arm:{
         en:"Arm Market Size",
         bn:"Crop"
+    },
+    label_market_size_competitor:{
+        en:"Competitor Market Size",
+        bn:"Variety"
     },
     label_upazila_market_size:{
         en:"Uazila Market Size",
@@ -101,19 +109,15 @@ export default {
         bn:"Variety"
     },
     label_competitor_variety:{
-        en:"Variety",
+        en:"Competitor Variety",
         bn:"Variety"
     },
-    label_competitor_market_size:{
-        en:"Market Size",
+    label_competitor_variety_market_size:{
+        en:"Competitor Variety Market Size",
         bn:"Variety"
     },
-    label_market_size_competitor:{
-        en:"Competitor Market Size",
-        bn:"Variety"
-    },
-    label_competitor_sales_reason:{
-        en:"Reason For Sales",
+    label_competitor_variety_sales_reason:{
+        en:"Competitor Variety Sales Reason",
         bn:"Variety"
     },
     label_principal_id:{

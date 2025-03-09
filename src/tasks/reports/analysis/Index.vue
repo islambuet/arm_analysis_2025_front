@@ -34,12 +34,14 @@ let taskData=reactive({
   location_parts:[],
   location_areas:[],
   location_territories:[],
+  location_divisions:[],
   location_districts:[],
   location_upazilas:[],
   location_unions:[],
 
   crops:[],
   crop_types:[],
+  varieties:[],
   principals :[],
   competitors:[],
 
@@ -61,11 +63,13 @@ const init=async ()=>{
       taskData.location_parts=res.data.location_parts;
       taskData.location_areas=res.data.location_areas;
       taskData.location_territories=res.data.location_territories;
+      taskData.location_divisions=res.data.location_divisions;
       taskData.location_districts=res.data.location_districts;
       taskData.location_upazilas=res.data.location_upazilas;
       taskData.location_unions=res.data.location_unions;
       taskData.crops=res.data.crops;
       taskData.crop_types=res.data.crop_types;
+      taskData.varieties=res.data.varieties;
       taskData.principals=res.data.principals;
       taskData.competitors=res.data.competitors;
       if(res.data.hidden_columns){

@@ -35,6 +35,14 @@ export default {
         en:"Territory",
         bn:"কর্মচারী আইডি"
     },
+    label_division_id :{
+        en:"Division",
+        bn:"কর্মচারী আইডি"
+    },
+    label_division_name :{
+        en:"Division",
+        bn:"কর্মচারী আইডি"
+    },
     label_district_id:{
         en:"District",
         bn:"কর্মচারী আইডি"

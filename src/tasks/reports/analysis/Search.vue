@@ -1,6 +1,6 @@
 <template>
   <div id="accordion">
-    <div class="card">
+    <div class="card d-print-none">
       <div class="card-header p-1">
         <a class="btn btn-sm" data-toggle="collapse" href="#label_task">{{labels.get('label_task')}} </a>
       </div>
@@ -25,7 +25,7 @@
         </div>
       </div>
     </div>
-    <div class="card" v-if="taskData.permissions.action_8">
+    <div class="card d-print-none" v-if="taskData.permissions.action_8">
       <div class="card-header p-1">
         <a class="btn btn-sm" data-toggle="collapse" href="#label_action_8">{{labels.get('action_8')}} </a>
       </div>
@@ -44,10 +44,10 @@
   <div class="card" v-if="show_report">
     <div class="card-body pb-0 d-print-none">
       <button type="button" v-if="taskData.permissions.action_4" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" onclick="window.print();"><i class="feather icon-printer"></i> {{labels.get('action_4')}}</button>
-      <button type="button" v-if="taskData.permissions.action_5" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="systemFunctions.exportCsv(taskData.columns,taskData.itemsFiltered,taskData.api_url.substring(1)+'.csv')"><i class="feather icon-download"></i> {{labels.get('action_5')}}</button>
+      <button type="button" v-if="taskData.permissions.action_5" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="exportCsv"><i class="feather icon-download"></i> {{labels.get('action_5')}}</button>
     </div>
     <div class="card-body" style='overflow-x:auto;height:600px;padding: 0'>
-      <table :style="'width: '+table_width+'px'" class="table table-bordered sticky">
+      <table id="table_report" :style="'width: '+table_width+'px'" class="table table-bordered sticky">
         <thead class="table-active">
         <tr>
           <template v-for="(column,key) in taskData.columns.all">
@@ -71,12 +71,12 @@
                 <template v-else-if="column=='upazila_market_size' && row['upazila_info'].length>(index-1)">{{row['upazila_info'][index-1]['upazila_market_size']}}</template>
                 <template v-else-if="column=='unions_name' && row['upazila_info'].length>(index-1)">
                   <template v-for="union_name in row['upazila_info'][index-1]['unions']">
-                  {{union_name}}<br>
+                  {{union_name}} , <br>
                   </template>
                 </template>
 
                 <template v-else-if="column=='sowing_periods'">
-                  <template v-for="(month_value,month_key) in row['sowing_periods']"><template v-if="month_value==1">{{labels.get('label_month_short_'+month_key)}}<br></template></template>
+                  <template v-for="(month_value,month_key) in row['sowing_periods']"><template v-if="month_value==1">{{labels.get('label_month_short_'+month_key)}} , <br></template></template>
                 </template>
                 <template v-else-if="index==1">{{ row[column] }}</template>
                 <template v-else>&nbsp</template>
@@ -387,7 +387,29 @@
         }
       });
     }
-
+    const exportCsv=async ()=>{
+      let headers=$('#table_report thead th');
+      if(headers.length>0){
+        let csvStr="";
+        $.each( headers, function( key, header ) {
+          csvStr=csvStr+'"'+$(header).text()+'",';
+        });
+        csvStr+="\n";
+        let rows=$('#table_report tbody tr');
+        $.each( rows, function( key, row ) {
+          let cols=$(row).children('td');
+          $.each( cols, function( i, col ) {
+            csvStr=csvStr+'"'+$(col).text().replace()+'",';
+          });
+          csvStr+="\n";
+        });
+        let hiddenElement = document.createElement('a');
+        hiddenElement.href = 'data:text/csv;charset=utf-8,%EF%BB%BF' + encodeURI(csvStr);
+        hiddenElement.target = '_blank';
+        hiddenElement.download = $('#report_format').val()+'.csv';
+        hiddenElement.click();
+      }
+    }
     const toggleReportControlColumns=(event)=>{
       let key=event.target .value;
       if(event.target .checked){

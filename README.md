@@ -26,3 +26,6 @@
 ## To change main domain and subdomain
     need to change golbal.js line 110
     need to add/remove public path at vue.config file like  publicPath:'/rnd_2023'
+## close port
+    netstat -ano | findstr :8080
+    npx kill-port 1900

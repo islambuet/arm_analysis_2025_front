@@ -6,7 +6,7 @@
     <div class="col-lg-4 col-8">
       <div class="input-group" >
         <select :id="inputKey" class="form-control" :class="inputItem.class? inputItem.class:null" :name="inputItem.name">
-          <option value="">{{labels.get('label_select')}}</option>
+          <option v-if="!inputItem.noselect" value="">{{labels.get('label_select')}}</option>
           <option v-for="(option, i) in inputItem.options" :key="i" :value="option.value" :selected="inputItem.default==option.value">
             {{ option.label }}
           </option>
@@ -30,7 +30,7 @@
         <div class="col-12">
           <div class="input-group">
             <select class="form-control" :class="inputItem.class? inputItem.class:null" >
-              <option value="">{{labels.get('label_select')}}</option>
+              <option v-if="!inputItem.noselect" value="">{{labels.get('label_select')}}</option>
               <option v-for="(option, i) in inputItem.options" :key="i" :value="option.value">
                 {{ option.label }}
               </option>

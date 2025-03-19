@@ -155,7 +155,8 @@
         type:'dropdown',
         options:taskData.analysis_years.map((item)=>{ return {value:item.id,label:item.name}}),
         default:taskData.analysis_years[taskData.analysis_years.length-1].id,
-        mandatory:true
+        mandatory:true,
+        noselect:true,
       };
       key='report_format';
       inputFields[key] = {
@@ -163,8 +164,9 @@
         label: labels.get('label_'+key),
         type:'dropdown',
         options:[{value:'crop_marketsize',label:'Crop - Market Size'},{value:'type_marketsize',label:'Type - Market Size'}],
-        default:'type_marketsize',
-        mandatory:true
+        default:'',
+        mandatory:true,
+        noselect:true,
       };
       item.inputFields1=inputFields;
       //inputFields2
@@ -296,27 +298,51 @@
           let report_format=$('#report_format').val();
           if(report_format=='crop_marketsize'){
             let rows={};
+            for(let i in taskData.crops){
+              let crop=taskData.crops[i];
+              let row_available=false;
+              if($('#crop_id').val()>0){
+                if($('#crop_id').val()==crop['id']){
+                  row_available=true;
+                }
+              }
+              else{
+                row_available=true;
+              }
+              if(row_available){
+                rows[crop['id']]={}
+                rows[crop['id']]['num_rows']=1;
+                rows[crop['id']]['crop_name']=(crops_object[crop['id']]?crops_object[crop['id']]['name']:crop['id']);
+                rows[crop['id']]['market_size_total']=0;
+                rows[crop['id']]['market_size_arm']=0;
+                rows[crop['id']]['market_size_competitor']=0;
+                rows[crop['id']]['competitor_info']=[];
+                rows[crop['id']]['sowing_periods']={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0}
+                rows[crop['id']]['upazila_info']=[];
+              }
+            }
             for(let i in res.data.items){
               let type_data=res.data.items[i];
-              if(!rows[type_data['crop_id']]){
-                rows[type_data['crop_id']]={};
-                rows[type_data['crop_id']]['num_rows']=1;
-                rows[type_data['crop_id']]['crop_name']='';
-                rows[type_data['crop_id']]['market_size_total']=0;
-                rows[type_data['crop_id']]['market_size_arm']=0;
-                rows[type_data['crop_id']]['market_size_competitor']=0;
-                rows[type_data['crop_id']]['competitor_info']=[];
-                rows[type_data['crop_id']]['sowing_periods']=[];
-              }
-              rows[type_data['crop_id']]['crop_name']=(crops_object[type_data['crop_id']]?crops_object[type_data['crop_id']]['name']:type_data['crop_id']);
-              rows[type_data['crop_id']]['market_size_total']+=(+type_data['market_size_total']);
-              rows[type_data['crop_id']]['market_size_arm']+=(+type_data['market_size_arm']);
-              rows[type_data['crop_id']]['market_size_competitor']+=(+type_data['market_size_competitor']);
-              //if(!(['competitor_name','competitor_variety','competitor_variety_market_size','competitor_variety_sales_reason'].some(r=>taskData.columns.hidden.includes(r)))){
-              if(!(['competitor_name','competitor_variety','competitor_variety_market_size','competitor_variety_sales_reason'].every(r=>taskData.columns.hidden.includes(r)))){
-                let competitor_info=getCompetitorInfo(type_data)
-                rows[type_data['crop_id']]['competitor_info'].push(...competitor_info);
-                rows[type_data['crop_id']]['num_rows']=Math.max(rows[type_data['crop_id']]['num_rows'],rows[type_data['crop_id']]['competitor_info'].length)
+              if(rows[type_data['crop_id']])
+              {
+                rows[type_data['crop_id']]['market_size_total']+=(+type_data['market_size_total']);
+                rows[type_data['crop_id']]['market_size_arm']+=(+type_data['market_size_arm']);
+                rows[type_data['crop_id']]['market_size_competitor']+=(+type_data['market_size_competitor']);
+                for(let month_key=1;month_key<13;month_key++){
+                  if(type_data['sowing_periods'].indexOf(','+month_key+',')>-1){
+                    rows[type_data['crop_id']]['sowing_periods'][month_key]=1;
+                  }
+                }
+                if(!(['competitor_name','competitor_variety','competitor_variety_market_size','competitor_variety_sales_reason'].every(r=>taskData.columns.hidden.includes(r)))){
+                  let competitor_info=getCompetitorInfo(type_data)
+                  rows[type_data['crop_id']]['competitor_info'].push(...competitor_info);
+                  rows[type_data['crop_id']]['num_rows']=Math.max(rows[type_data['crop_id']]['num_rows'],rows[type_data['crop_id']]['competitor_info'].length)
+                }
+                if(!(['upazila_name','upazila_market_size','unions_name'].every(r=>taskData.columns.hidden.includes(r)))){
+                  let upazila_info=getUpazilaInfo(type_data)
+                  rows[type_data['crop_id']]['upazila_info'].push(...upazila_info);
+                  rows[type_data['crop_id']]['num_rows']=Math.max(rows[type_data['crop_id']]['num_rows'],rows[type_data['crop_id']]['upazila_info'].length)
+                }
               }
             }
             taskData.itemsFiltered=Object.values(rows);
@@ -411,6 +437,7 @@
       }
     }
     const toggleReportControlColumns=(event)=>{
+      //show_report.value=false;
       let key=event.target .value;
       if(event.target .checked){
         taskData.columns.hidden=taskData.columns.hidden.filter(function(value) {return value !== key});
@@ -429,8 +456,8 @@
         let columns_all=[];
         let columns_hidden=[]
         if(report_format=='crop_marketsize'){
-          columns_all=['crop_name','market_size_total','market_size_arm','market_size_competitor','competitor_name','competitor_variety','competitor_variety_market_size','competitor_variety_sales_reason'];
-          //columns_hidden=['market_size_arm','market_size_competitor','competitor_variety','competitor_variety_market_size','competitor_variety_sales_reason'];
+          columns_all=['crop_name','market_size_total','market_size_arm','market_size_competitor','competitor_name','competitor_variety','competitor_variety_market_size','competitor_variety_sales_reason','sowing_periods','upazila_name','upazila_market_size','unions_name'];
+          columns_hidden=['competitor_name','competitor_variety','competitor_variety_market_size','competitor_variety_sales_reason','sowing_periods','upazila_name','upazila_market_size','unions_name'];
 
         }
         else if(report_format=='type_marketsize'){

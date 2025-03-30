@@ -64,7 +64,7 @@
                     <td colspan="3">
                       <div class="input-group" >
                         <select class="form-control sel_upazila">
-                          <option v-for="upazila in item.location_upazilas" :value="upazila.id">
+                          <option v-for="upazila in item.location_upazilas_ordered" :value="upazila.id">
                             {{upazila.name}}
                           </option>
                           <option value="0">Other</option>
@@ -150,9 +150,11 @@ let item=reactive({
   inputFields:{},
   data:{},
   location_upazilas:{},
+  location_upazilas_ordered: {},
   location_unions: {},
   varieties_competitor: {},
   varieties_competitor_ordered: {},
+
   rows:[]
 })
 $(document).ready(function()
@@ -255,9 +257,11 @@ const getItem=async ()=>{
     if (res.data.error == "") {
       item.data=res.data.data;
       item.location_upazilas=res.data.location_upazilas;
+      item.location_upazilas_ordered=res.data.location_upazilas_ordered;
       item.location_unions=res.data.location_unions;
       item.varieties_competitor=res.data.varieties_competitor;
       item.varieties_competitor_ordered=res.data.varieties_competitor_ordered;
+
       let rows=[];
       //let prev_crop_name="";
       for(let i=0;i<taskData.crop_types.length;i++){

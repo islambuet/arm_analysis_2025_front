@@ -18,17 +18,18 @@
         <input type="hidden" name="save_token" id="save_token" :value="new Date().getTime()">
         <input type="hidden" name="district_id" :value="item.id">
         <input type="hidden" name="analysis_year_id" :value="taskData.analysis_year_id">
-        <table style="width: 2250px;" class="table table-bordered sticky">
+        <table style="width: 2350px;" class="table table-bordered sticky">
           <thead class="table-active">
             <tr>
               <th style="width: 150px;">{{labels.get('label_crop_name')}}</th>
               <th style="width: 200px;">{{labels.get('label_crop_type_name')}}</th>
               <th style="width: 100px;">Total Market Size</th>
               <th style="width: 600px;">Upazila Market Size</th>
+              <th style="width: 100px;">Approximate Price</th>
               <th style="width: 200px;">Sowing Period</th>
               <th style="width: 100px;">Arm Market Size</th>
               <th style="width: 800px;">Competitors Variety</th>
-              <th style="width: 100px;">Competitors Market Size</th>
+              <th style="">Competitors Market Size</th>
             </tr>
           </thead>
           <tbody class="table-striped table-hover">
@@ -75,6 +76,7 @@
                   </tbody>
                 </table>
               </td>
+              <td class="col_price_approximate"><input type="text" :name="'items['+row.id+'][price_approximate]'" class="form-control float_positive" :value="item.data[row.id]?item.data[row.id]['price_approximate']:'0'"></td>
               <td class="col_sowing_periods">
                 <div v-for="i in 12" class="form-check form-check-inline">
                   <input class="form-check-input" type="checkbox" :id="'sowing_periods_'+row.id+'_'+i" :name="'items['+row.id+'][sowing_periods][]'" :value="i" :checked="item.data[row.id]?(item.data[row.id]['sowing_periods'].includes(','+i+',')):false"/><label class="form-check-label" :for="'sowing_periods_'+row.id+'_'+i">{{ labels.get('label_month_short_'+i) }}</label>
@@ -104,7 +106,7 @@
                     <td colspan="4">
                       <div class="input-group" >
                         <select class="form-control sel_competitor_variety">
-                          <option v-if="item.varieties_competitor[row.id]" v-for="variety in item.varieties_competitor[row.id]" :value="variety.id">
+                          <option v-if="item.varieties_competitor_ordered[row.id]" v-for="variety in item.varieties_competitor_ordered[row.id]" :value="variety.id">
                             {{variety.competitor_name+'-'+ variety.name}}
                           </option>
                           <option value="0">Other</option>
@@ -150,6 +152,7 @@ let item=reactive({
   location_upazilas:{},
   location_unions: {},
   varieties_competitor: {},
+  varieties_competitor_ordered: {},
   rows:[]
 })
 $(document).ready(function()
@@ -254,6 +257,7 @@ const getItem=async ()=>{
       item.location_upazilas=res.data.location_upazilas;
       item.location_unions=res.data.location_unions;
       item.varieties_competitor=res.data.varieties_competitor;
+      item.varieties_competitor_ordered=res.data.varieties_competitor_ordered;
       let rows=[];
       //let prev_crop_name="";
       for(let i=0;i<taskData.crop_types.length;i++){

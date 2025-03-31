@@ -103,6 +103,10 @@ export default {
         en:"Uazila Market Size",
         bn:"Crop"
     },
+    label_price_approximate:{
+        en:"Approximate Price",
+        bn:"Crop"
+    },
     label_sowing_periods:{
         en:"Sowing Periods",
         bn:"Crop"

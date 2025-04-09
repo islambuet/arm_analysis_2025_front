@@ -262,12 +262,20 @@
       for(let variety_id in type_data['competitor_info'])
       {
         competitor_info[variety_id]={};
-        competitor_info[variety_id]['competitor_name']=(varieties_object[variety_id]?varieties_object[variety_id]['competitor_name']:variety_id);
-        competitor_info[variety_id]['competitor_variety']=(varieties_object[variety_id]?varieties_object[variety_id]['name']:variety_id);
+        competitor_info[variety_id]['variety_id']=variety_id;
+        if(variety_id==0){
+          competitor_info[variety_id]['competitor_name']="";
+          competitor_info[variety_id]['competitor_variety']='Other';
+        }
+        else{
+          competitor_info[variety_id]['competitor_name']=(varieties_object[variety_id]?varieties_object[variety_id]['competitor_name']:variety_id);
+          competitor_info[variety_id]['competitor_variety']=(varieties_object[variety_id]?varieties_object[variety_id]['name']:variety_id);
+        }
+
         competitor_info[variety_id]['competitor_variety_market_size']=type_data['competitor_info'][variety_id]['competitor_variety_market_size'];
         competitor_info[variety_id]['competitor_variety_sales_reason']=type_data['competitor_info'][variety_id]['competitor_variety_sales_reason'];
       }
-      return Object.values(competitor_info);
+      return competitor_info;
     }
     const getUpazilaInfo=(type_data)=>{
       let upazila_info={};
@@ -342,8 +350,20 @@
                 }
                 if(!(['competitor_name','competitor_variety','competitor_variety_market_size','competitor_variety_sales_reason'].every(r=>taskData.columns.hidden.includes(r)))){
                   let competitor_info=getCompetitorInfo(type_data)
-                  rows[type_data['crop_id']]['competitor_info'].push(...competitor_info);
-                  rows[type_data['crop_id']]['num_rows']=Math.max(rows[type_data['crop_id']]['num_rows'],rows[type_data['crop_id']]['competitor_info'].length)
+                  for(let variety_id in competitor_info){
+                    let index_of_exits=rows[type_data['crop_id']]['competitor_info'].findIndex(x => x['variety_id'] == variety_id)
+                    if(index_of_exits>-1){
+                      rows[type_data['crop_id']]['competitor_info'][index_of_exits]['competitor_variety_market_size']=(+rows[type_data['crop_id']]['competitor_info'][index_of_exits]['competitor_variety_market_size'])+(+competitor_info[variety_id]['competitor_variety_market_size']);
+                      if(competitor_info[variety_id]['competitor_variety_sales_reason'].length>0){
+                        rows[type_data['crop_id']]['competitor_info'][index_of_exits]['competitor_variety_sales_reason']=(rows[type_data['crop_id']]['competitor_info'][index_of_exits]['competitor_variety_sales_reason'])+' , '+(competitor_info[variety_id]['competitor_variety_sales_reason']);
+                      }
+                    }
+                    else {
+                      rows[type_data['crop_id']]['competitor_info'].push(competitor_info[variety_id]);
+                      rows[type_data['crop_id']]['num_rows'] = Math.max(rows[type_data['crop_id']]['num_rows'], rows[type_data['crop_id']]['competitor_info'].length)
+                    }
+                  }
+
                 }
                 if(!(['upazila_name','upazila_market_size','unions_name'].every(r=>taskData.columns.hidden.includes(r)))){
                   let upazila_info=getUpazilaInfo(type_data)
@@ -409,8 +429,20 @@
                 }
                 if(!(['competitor_name','competitor_variety','competitor_variety_market_size','competitor_variety_sales_reason'].every(r=>taskData.columns.hidden.includes(r)))){
                   let competitor_info=getCompetitorInfo(type_data)
-                  rows[type_data['type_id']]['competitor_info'].push(...competitor_info);
-                  rows[type_data['type_id']]['num_rows']=Math.max(rows[type_data['type_id']]['num_rows'],rows[type_data['type_id']]['competitor_info'].length)
+                  for(let variety_id in competitor_info){
+                    let index_of_exits=rows[type_data['type_id']]['competitor_info'].findIndex(x => x['variety_id'] == variety_id)
+                    if(index_of_exits>-1){
+                      rows[type_data['type_id']]['competitor_info'][index_of_exits]['competitor_variety_market_size']=(+rows[type_data['type_id']]['competitor_info'][index_of_exits]['competitor_variety_market_size'])+(+competitor_info[variety_id]['competitor_variety_market_size']);
+                      if(competitor_info[variety_id]['competitor_variety_sales_reason'].length>0){
+                        rows[type_data['type_id']]['competitor_info'][index_of_exits]['competitor_variety_sales_reason']=(rows[type_data['type_id']]['competitor_info'][index_of_exits]['competitor_variety_sales_reason'])+' , '+(competitor_info[variety_id]['competitor_variety_sales_reason']);
+                      }
+                    }
+                    else {
+                      rows[type_data['type_id']]['competitor_info'].push(competitor_info[variety_id]);
+                      rows[type_data['type_id']]['num_rows'] = Math.max(rows[type_data['type_id']]['num_rows'], rows[type_data['type_id']]['competitor_info'].length)
+                    }
+                  }
+
                 }
                 if(!(['upazila_name','upazila_market_size','unions_name'].every(r=>taskData.columns.hidden.includes(r)))){
                   let upazila_info=Object.values(getUpazilaInfo(type_data));

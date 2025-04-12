@@ -87,6 +87,10 @@ export default {
         en:"Type",
         bn:"Type"
     },
+    label_market_size_location_total:{
+        en:"Location Total Market Size",
+        bn:"Crop"
+    },
     label_market_size_total:{
         en:"Total Market Size",
         bn:"Crop"

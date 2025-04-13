@@ -128,33 +128,38 @@
     for(let i in taskData.varieties){
       varieties_object[taskData.varieties[i]['id']]=taskData.varieties[i];
     }
-    let location_unions_object={};
-    for(let i in taskData.location_unions){
-      location_unions_object[taskData.location_unions[i]['id']]=taskData.location_unions[i];
-    }
-    let division_districts_ids={};
-    for(let i in taskData.location_divisions){
-      division_districts_ids[taskData.location_divisions[i]['id']]=[];
+    let location_territories_object={};
+    for(let i in taskData.location_territories){
+      let id=taskData.location_territories[i]['id'];
+      location_territories_object[id]=taskData.location_territories[i];
+      location_territories_object[id]['upazila_ids']=[];
     }
 
-    let district_upazilas_ids={};
+    let location_divisions_object={};
+    for(let i in taskData.location_divisions){
+      let id=taskData.location_divisions[i]['id'];
+      location_divisions_object[id]=taskData.location_divisions[i];
+      location_divisions_object[id]['district_ids']=[];
+    }
+
     let location_districts_object={};
     for(let i in taskData.location_districts){
-      location_districts_object[taskData.location_districts[i]['id']]=taskData.location_districts[i];
-      district_upazilas_ids[taskData.location_districts[i]['id']]=[];
-      division_districts_ids[taskData.location_districts[i]['division_id']].push(taskData.location_districts[i]['id']);
-    }
-
-    let territory_upazilas_ids={};
-    for(let i in taskData.location_territories){
-      territory_upazilas_ids[taskData.location_territories[i]['id']]=[];
+      let id=taskData.location_districts[i]['id'];
+      location_districts_object[id]=taskData.location_districts[i];
+      location_districts_object[id]['upazila_ids']=[]
+      location_divisions_object[taskData.location_districts[i]['division_id']]['district_ids'].push(id);
     }
 
     let location_upazilas_object={};
     for(let i in taskData.location_upazilas){
-      location_upazilas_object[taskData.location_upazilas[i]['id']]=taskData.location_upazilas[i];
-      district_upazilas_ids[taskData.location_upazilas[i]['district_id']].push(taskData.location_upazilas[i]['id']);
-      territory_upazilas_ids[taskData.location_upazilas[i]['territory_id']].push(taskData.location_upazilas[i]['id']);
+      let id=taskData.location_upazilas[i]['id'];
+      location_upazilas_object[id]=taskData.location_upazilas[i];
+      location_districts_object[taskData.location_upazilas[i]['district_id']]['upazila_ids'].push(id);
+      location_territories_object[taskData.location_upazilas[i]['territory_id']]['upazila_ids'].push(id);
+    }
+    let location_unions_object={};
+    for(let i in taskData.location_unions){
+      location_unions_object[taskData.location_unions[i]['id']]=taskData.location_unions[i];
     }
 
     const setInputFields=async ()=>{
@@ -503,8 +508,8 @@
             if($('#territory_id').val()>0){
               location_type='Territory';
               location_id=$('#territory_id').val();
-              for(let i in territory_upazilas_ids[location_id]){
-                locations.push(location_upazilas_object[territory_upazilas_ids[location_id][i]]);
+              for(let i in location_territories_object[location_id]['upazila_ids']){
+                locations.push(location_upazilas_object[location_territories_object[location_id]['upazila_ids'][i]]);
               }
             }
             else if($('#area_id').val()>0){
@@ -569,7 +574,7 @@
                   let upazila_info=getUpazilaInfo(type_data)
                   let territory_id=$('#territory_id').val();
                     for(let upazila_id in upazila_info){
-                      if(upazila_id==0 || (territory_upazilas_ids[territory_id].includes(+upazila_id))){//checking in case upazilla changed.
+                      if(upazila_id==0 || (location_territories_object[territory_id]['upazila_ids'].includes(+upazila_id))){//checking in case upazilla changed.
                         rows[type_data['crop_id']]['market_size_total_'+upazila_id]+=(+upazila_info[upazila_id]['upazila_market_size']);//only this upazila data form api.
                       }
                     }
@@ -625,15 +630,15 @@
             else if($('#district_id').val()>0){
               location_type='District';
               location_id=$('#district_id').val();
-              for(let i in district_upazilas_ids[location_id]){
-                locations.push(location_upazilas_object[district_upazilas_ids[location_id][i]]);
+              for(let i in location_districts_object[location_id]['upazila_ids']){
+                locations.push(location_upazilas_object[location_districts_object[location_id]['upazila_ids'][i]]);
               }
             }
             else if($('#division_id').val()>0){
               location_type='Division';
               location_id=$('#division_id').val();
-              for(let i in division_districts_ids[location_id]){
-                locations.push(location_districts_object[division_districts_ids[location_id][i]]);
+              for(let i in location_divisions_object[location_id]['district_ids']){
+                locations.push(location_districts_object[location_divisions_object[location_id]['district_ids'][i]]);
               }
             }
             else{
@@ -646,7 +651,7 @@
               columns_all.push({'group':'market_size_arm','key':'market_size_arm_'+locations[index].id,'label':labels.get('label_market_size_arm')+'</br>('+locations[index].name+')'})
               columns_all.push({'group':'market_size_competitor','key':'market_size_competitor_'+locations[index].id,'label':labels.get('label_market_size_competitor')+'</br>('+locations[index].name+')'})
             }
-            if($('#district_id').val()>0){
+            if(location_type=='District'){
               columns_all.push({'group':'market_size_total','key':'market_size_total_0','label':labels.get('label_market_size_total')+'</br>(other)'})
               columns_all.push({'group':'market_size_arm','key':'market_size_arm_0','label':labels.get('label_market_size_arm')+'</br>(other)'})
               columns_all.push({'group':'market_size_competitor','key':'market_size_competitor_0','label':labels.get('label_market_size_competitor')+'</br>(other)'})
@@ -673,7 +678,7 @@
                   rows[crop['id']]['market_size_arm_'+locations[index].id]=0;
                   rows[crop['id']]['market_size_competitor_'+locations[index].id]=0;
                 }
-                if($('#district_id').val()>0){
+                if(location_type=='District'){
                   rows[crop['id']]['market_size_total_0']=0;
                   rows[crop['id']]['market_size_arm_0']=0;
                   rows[crop['id']]['market_size_competitor_0']=0;
@@ -694,7 +699,7 @@
                   let upazila_info=getUpazilaInfo(type_data)
                   let district_id=$('#district_id').val();
                   for(let upazila_id in upazila_info){
-                    if(upazila_id==0 || (district_upazilas_ids[district_id].includes(+upazila_id))){//checking in case upazilla changed.
+                    if(upazila_id==0 || (location_districts_object[district_id]['upazila_ids'].includes(+upazila_id))){//checking in case upazilla changed.
                       rows[type_data['crop_id']]['market_size_total_'+upazila_id]+=(+upazila_info[upazila_id]['upazila_market_size']);//only this upazila data form api.
                     }
                   }
@@ -709,8 +714,8 @@
 
                 }
                 else{
-                  for(let division_id in district_upazilas_ids){
-                    if(division_districts_ids[division_id].includes(type_data['district_id'])){
+                  for(let division_id in location_divisions_object){
+                    if(location_divisions_object[division_id]['district_ids'].includes(type_data['district_id'])){
                       rows[type_data['crop_id']]['market_size_total_'+division_id]+=(+type_data['market_size_total']);
                       rows[type_data['crop_id']]['market_size_arm_'+division_id]+=(+type_data['market_size_arm']);
                       rows[type_data['crop_id']]['market_size_competitor_'+division_id]+=(+type_data['market_size_competitor']);

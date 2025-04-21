@@ -1,7 +1,7 @@
 <template>
     <template  v-for="(inputItem, key) in inputItems" :key="key">
       <template v-if="inputItem.type=='hidden'">
-        <input type="hidden" :name="inputItem.name" :value="inputItem.default" />
+        <input type="hidden" :id="key" :name="inputItem.name" :value="inputItem.default" />
       </template>
       <template v-else-if="inputItem.type=='textarea'">
         <input-template-textarea :input-item="inputItem" :input-key="key"/>

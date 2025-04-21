@@ -44,6 +44,7 @@ let taskData=reactive({
   varieties:[],
   principals :[],
   competitors:[],
+  user_locations:{},
 
 })
 labels.add([{language:globalVariables.language,file:'tasks'+taskData.api_url+'/labels.js'}])
@@ -67,6 +68,7 @@ const init=async ()=>{
       taskData.location_districts=res.data.location_districts;
       taskData.location_upazilas=res.data.location_upazilas;
       taskData.location_unions=res.data.location_unions;
+      taskData.user_locations=res.data.user_locations;
       taskData.crops=res.data.crops;
       taskData.crop_types=res.data.crop_types;
       taskData.varieties=res.data.varieties;

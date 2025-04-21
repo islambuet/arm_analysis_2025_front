@@ -16,7 +16,7 @@ export default {
         bn:"কর্মচারী আইডি"
     },
     label_part_name:{
-        en:"part",
+        en:"Part",
         bn:"কর্মচারী আইডি"
     },
     label_area_id:{

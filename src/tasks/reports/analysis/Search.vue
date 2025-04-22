@@ -165,19 +165,25 @@
       location_districts_object[id]['upazila_ids']=[]
       location_divisions_object[taskData.location_districts[i]['division_id']]['district_ids'].push(id);
     }
+    let user_locations_country_wise={};
+    user_locations_country_wise['division_ids']=[];
+    user_locations_country_wise['district_ids']=[];
+    user_locations_country_wise['upazila_ids']=[];
 
     let location_upazilas_object={};
     for(let i in taskData.location_upazilas){
-      let id=taskData.location_upazilas[i]['id'];
-      let territory_id=taskData.location_upazilas[i]['territory_id'];
+      let upazila_id=taskData.location_upazilas[i]['id'];
       let district_id=taskData.location_upazilas[i]['district_id'];
+      let division_id=location_districts_object[district_id]['division_id']
+
+      let territory_id=taskData.location_upazilas[i]['territory_id'];
       let area_id=location_territories_object[territory_id]['area_id'];
       let part_id=location_areas_object[area_id]['part_id'];
 
-      location_upazilas_object[id]=taskData.location_upazilas[i];
+      location_upazilas_object[upazila_id]=taskData.location_upazilas[i];
 
-      location_districts_object[district_id]['upazila_ids'].push(id);
-      location_territories_object[territory_id]['upazila_ids'].push(id);
+      location_districts_object[district_id]['upazila_ids'].push(upazila_id);
+      location_territories_object[territory_id]['upazila_ids'].push(upazila_id);
 
       if(!location_territories_object[territory_id]['district_ids'].includes(district_id))
       {
@@ -191,7 +197,39 @@
       {
         location_parts_object[part_id]['district_ids'].push(district_id);
       }
-
+      let is_user_location=false;
+      if(taskData.user_locations.territory_id>0){
+        if(taskData.user_locations.territory_id==territory_id){
+          is_user_location=true;
+        }
+      }
+      else if(taskData.user_locations.area_id>0){
+        if(taskData.user_locations.area_id==area_id){
+          is_user_location=true;
+        }
+      }
+      else if(taskData.user_locations.part_id>0){
+        if(taskData.user_locations.part_id==part_id){
+          is_user_location=true;
+        }
+      }
+      else{
+        is_user_location=true;
+      }
+      if(is_user_location){
+        if(!user_locations_country_wise['division_ids'].includes(division_id))
+        {
+          user_locations_country_wise['division_ids'].push(division_id);
+        }
+        if(!user_locations_country_wise['district_ids'].includes(district_id))
+        {
+          user_locations_country_wise['district_ids'].push(district_id);
+        }
+        if(!user_locations_country_wise['upazila_ids'].includes(upazila_id))
+        {
+          user_locations_country_wise['upazila_ids'].push(upazila_id);
+        }
+      }
     }
     let location_unions_object={};
     for(let i in taskData.location_unions){
@@ -229,6 +267,7 @@
       item.inputFields1=inputFields;
       //inputFields2
       inputFields={}
+
       key='part_id';
       inputFields[key] = {
         name: 'options[' +key +']',
@@ -238,30 +277,81 @@
         default:item.data[key],
         mandatory:false
       };
+      if(taskData.user_locations.part_id>0){
+        inputFields[key] = {
+          name: 'options[' +key +']',
+          label: labels.get('label_'+key),
+          type:'hidden',
+          default:taskData.user_locations.part_id,
+          mandatory:true
+        };
+        key='part_name';
+        inputFields[key] = {
+          name: key,
+          label: labels.get('label_'+key),
+          type:'textonly',
+          default: location_parts_object[taskData.user_locations.part_id]['name'],
+          mandatory:false
+        };
+      }
       key='area_id';
       inputFields[key] = {
         name: 'options[' +key +']',
         label: labels.get('label_'+key),
         type:'dropdown',
-        options:[],
+        options:(taskData.user_locations.part_id>0)?taskData.location_areas.filter((temp)=>{ if(temp.part_id==taskData.user_locations.part_id){temp.value=temp.id.toString();temp.label=temp.name;return true}}):[],
         default:item.data[key],
         mandatory:false
       };
+      if(taskData.user_locations.area_id>0){
+        inputFields[key] = {
+          name: 'options[' +key +']',
+          label: labels.get('label_'+key),
+          type:'hidden',
+          default:taskData.user_locations.area_id,
+          mandatory:true
+        };
+        key='area_name';
+        inputFields[key] = {
+          name: key,
+          label: labels.get('label_'+key),
+          type:'textonly',
+          default: location_areas_object[taskData.user_locations.area_id]['name'],
+          mandatory:false
+        };
+      }
       key='territory_id';
       inputFields[key] = {
         name: 'options[' +key +']',
         label: labels.get('label_'+key),
         type:'dropdown',
-        options:[],
+        options:(taskData.user_locations.area_id>0)?taskData.location_territories.filter((temp)=>{ if(temp.area_id==taskData.user_locations.area_id){temp.value=temp.id.toString();temp.label=temp.name;return true}}):[],
         default:item.data[key],
         mandatory:false
       };
+      if(taskData.user_locations.territory_id>0){
+        inputFields[key] = {
+          name: 'options[' +key +']',
+          label: labels.get('label_'+key),
+          type:'hidden',
+          default:taskData.user_locations.territory_id,
+          mandatory:true
+        };
+        key='territory_name';
+        inputFields[key] = {
+          name: key,
+          label: labels.get('label_'+key),
+          type:'textonly',
+          default: location_territories_object[taskData.user_locations.territory_id]['name'],
+          mandatory:false
+        };
+      }
       key='division_id';
       inputFields[key] = {
         name: 'options[' +key +']',
         label: labels.get('label_'+key),
         type:'dropdown',
-        options:taskData.location_divisions.map((item)=>{ return {value:item.id,label:item.name}}),
+        options:taskData.location_divisions.filter((temp)=>{ if(user_locations_country_wise['division_ids'].includes(temp.id)){temp.value=temp.id.toString();temp.label=temp.name;return true}}),
         default:item.data[key],
         mandatory:true
       };
@@ -1133,7 +1223,7 @@
       {
         let division_id=$(this).val();
         let key='district_id';
-        item.inputFields2[key].options=taskData.location_districts.filter((item)=>{ if(item.division_id==division_id){item.value=item.id.toString();item.label=item.name;return true}})
+        item.inputFields2[key].options=taskData.location_districts.filter((temp)=>{ if(temp.division_id==division_id && user_locations_country_wise['district_ids'].includes(temp.id)){temp.value=temp.id.toString();temp.label=temp.name;return true}})
         await systemFunctions.delay(1);
         $('#'+key).val('');
         key='upazila_id';
@@ -1146,7 +1236,7 @@
       {
         let district_id=$(this).val();
         let key='upazila_id';
-        item.inputFields2[key].options=taskData.location_upazilas.filter((item)=>{ if(item.district_id==district_id){item.value=item.id.toString();item.label=item.name;return true}})
+        item.inputFields2[key].options=taskData.location_upazilas.filter((temp)=>{ if(temp.district_id==district_id && user_locations_country_wise['upazila_ids'].includes(temp.id) ){temp.value=temp.id.toString();temp.label=temp.name;return true}})
         await systemFunctions.delay(1);
         $('#'+key).val('');
       })

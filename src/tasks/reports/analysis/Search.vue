@@ -61,7 +61,7 @@
         <template v-for="row in taskData.itemsFiltered">
           <tr v-for="index  in row['num_rows']" >
             <template v-for="(column,key) in taskData.columns.all">
-              <td :class="((['market_size_location_total','market_size_total','market_size_arm','market_size_competitor','competitor_variety_market_size','price_approximate','upazila_market_size'].indexOf(column.group) != -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
+              <td :class="((['market_size_location_total','market_size_total','market_size_arm','market_size_arm_percentage','market_size_competitor','market_size_competitor_percentage','competitor_variety_market_size','price_approximate','upazila_market_size'].indexOf(column.group) != -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
                 <template v-if="column.group=='competitor_variety' && row['competitor_info'].length>(index-1)">{{row['competitor_info'][index-1][column.key]}}</template>
                 <template v-else-if="column.group=='competitor_variety_market_size' && row['competitor_info'].length>(index-1)">{{row['competitor_info'][index-1][column.key]}}</template>
                 <template v-else-if="column.group=='competitor_variety_sales_reason' && row['competitor_info'].length>(index-1)">{{row['competitor_info'][index-1][column.key]}}</template>
@@ -455,18 +455,24 @@
     }
     const search=async ()=>{
       show_report.value=false;
+      let options={};
+      $('#formSearch :input').each(function() {
+        options[$(this).attr('id')]=$(this).val();
+      });
       let formData=new FormData(document.getElementById('formSearch'))
       await axios.post(taskData.api_url+'/get-items',formData).then((res)=>{
         if (res.data.error == "") {
           taskData.itemsFiltered=[];
           let columns_all=[];
           let rows={};
-          let report_format=$('#report_format').val();
-          if(report_format=='crop_marketsize'){
+
+          if(options['report_format']=='crop_marketsize'){
             columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
             columns_all.push({'group':'market_size_total','key':'market_size_total','label':labels.get('label_market_size_total')})
             columns_all.push({'group':'market_size_arm','key':'market_size_arm','label':labels.get('label_market_size_arm')})
+            columns_all.push({'group':'market_size_arm_percentage','key':'market_size_arm_percentage','label':labels.get('label_market_size_arm_percentage')})
             columns_all.push({'group':'market_size_competitor','key':'market_size_competitor','label':labels.get('label_market_size_competitor')})
+            columns_all.push({'group':'market_size_competitor_percentage','key':'market_size_competitor_percentage','label':labels.get('label_market_size_competitor_percentage')})
             columns_all.push({'group':'competitor_variety','key':'competitor_name','label':labels.get('label_competitor_name')})
             columns_all.push({'group':'competitor_variety','key':'competitor_variety','label':labels.get('label_competitor_variety')})
             columns_all.push({'group':'competitor_variety_market_size','key':'competitor_variety_market_size','label':labels.get('label_competitor_variety_market_size')})
@@ -478,8 +484,8 @@
             for(let i in taskData.crops){
               let crop=taskData.crops[i];
               let row_available=false;
-              if($('#crop_id').val()>0){
-                if($('#crop_id').val()==crop['id']){
+              if(options['crop_id']>0){
+                if(options['crop_id']==crop['id']){
                   row_available=true;
                 }
               }
@@ -492,7 +498,9 @@
                 rows[crop['id']]['crop_name']=(crops_object[crop['id']]?crops_object[crop['id']]['name']:crop['id']);
                 rows[crop['id']]['market_size_total']=0;
                 rows[crop['id']]['market_size_arm']=0;
+                rows[crop['id']]['market_size_arm_percentage']='-';
                 rows[crop['id']]['market_size_competitor']=0;
+                rows[crop['id']]['market_size_competitor_percentage']='-';
                 rows[crop['id']]['competitor_info']=[];
                 rows[crop['id']]['sowing_periods']={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0}
                 rows[crop['id']]['upazila_info']=[];
@@ -500,11 +508,15 @@
             }
             for(let i in res.data.items){
               let type_data=res.data.items[i];
-              if(rows[type_data['crop_id']])
+              if(rows[type_data['crop_id']] && (user_locations_country_wise['district_ids'].includes(type_data['district_id'])))
               {
                 rows[type_data['crop_id']]['market_size_total']+=(+type_data['market_size_total']);
                 rows[type_data['crop_id']]['market_size_arm']+=(+type_data['market_size_arm']);
                 rows[type_data['crop_id']]['market_size_competitor']+=(+type_data['market_size_competitor']);
+                if(rows[type_data['crop_id']]['market_size_total']>0){
+                  rows[type_data['crop_id']]['market_size_arm_percentage']=(rows[type_data['crop_id']]['market_size_arm']*100/rows[type_data['crop_id']]['market_size_total']).toFixed(2)
+                  rows[type_data['crop_id']]['market_size_competitor_percentage']=(rows[type_data['crop_id']]['market_size_competitor']*100/rows[type_data['crop_id']]['market_size_total']).toFixed(2)
+                }
                 for(let month_key=1;month_key<13;month_key++){
                   if(type_data['sowing_periods'].indexOf(','+month_key+',')>-1){
                     rows[type_data['crop_id']]['sowing_periods'][month_key]=1;
@@ -544,12 +556,14 @@
             }
 
           }
-          else if(report_format=='type_marketsize'){
+          else if(options['report_format']=='type_marketsize'){
             columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
             columns_all.push({'group':'type_name','key':'type_name','label':labels.get('label_type_name')})
             columns_all.push({'group':'market_size_total','key':'market_size_total','label':labels.get('label_market_size_total')})
             columns_all.push({'group':'market_size_arm','key':'market_size_arm','label':labels.get('label_market_size_arm')})
+            columns_all.push({'group':'market_size_arm_percentage','key':'market_size_arm_percentage','label':labels.get('label_market_size_arm_percentage')})
             columns_all.push({'group':'market_size_competitor','key':'market_size_competitor','label':labels.get('label_market_size_competitor')})
+            columns_all.push({'group':'market_size_competitor_percentage','key':'market_size_competitor_percentage','label':labels.get('label_market_size_competitor_percentage')})
             columns_all.push({'group':'price_approximate','key':'price_approximate','label':labels.get('label_price_approximate')})
             columns_all.push({'group':'competitor_variety','key':'competitor_name','label':labels.get('label_competitor_name')})
             columns_all.push({'group':'competitor_variety','key':'competitor_variety','label':labels.get('label_competitor_variety')})
@@ -563,13 +577,13 @@
             for(let i in taskData.crop_types){
               let crop_type=taskData.crop_types[i];
               let row_available=false;
-              if($('#crop_id').val()>0){
-                if($('#crop_type_id').val()>0){
-                  if($('#crop_type_id').val()==crop_type['id']){
+              if(options['crop_id']>0){
+                if(options['crop_type_id']>0){
+                  if(options['crop_type_id']==crop_type['id']){
                     row_available=true;
                   }
                 }
-                else if($('#crop_id').val()==crop_type['crop_id']){
+                else if(options['crop_id']==crop_type['crop_id']){
                   row_available=true;
                 }
               }
@@ -583,7 +597,9 @@
                 rows[crop_type['id']]['type_name']=crop_type['name'];
                 rows[crop_type['id']]['market_size_total']=0;
                 rows[crop_type['id']]['market_size_arm']=0;
+                rows[crop_type['id']]['market_size_arm_percentage']='-';
                 rows[crop_type['id']]['market_size_competitor']=0;
+                rows[crop_type['id']]['market_size_competitor_percentage']='-';
                 rows[crop_type['id']]['price_approximate']=0;
                 rows[crop_type['id']]['competitor_info']=[];
                 rows[crop_type['id']]['sowing_periods']={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0}
@@ -592,11 +608,15 @@
             }
             for(let i in res.data.items){
               let type_data=res.data.items[i];
-              if(rows[type_data['type_id']])
+              if(rows[type_data['type_id']] && (user_locations_country_wise['district_ids'].includes(type_data['district_id'])))
               {
                 rows[type_data['type_id']]['market_size_total']+=(+type_data['market_size_total']);
                 rows[type_data['type_id']]['market_size_arm']+=(+type_data['market_size_arm']);
                 rows[type_data['type_id']]['market_size_competitor']+=(+type_data['market_size_competitor']);
+                if(rows[type_data['type_id']]['market_size_total']>0){
+                  rows[type_data['type_id']]['market_size_arm_percentage']=(rows[type_data['type_id']]['market_size_arm']*100/rows[type_data['type_id']]['market_size_total']).toFixed(2)
+                  rows[type_data['type_id']]['market_size_competitor_percentage']=(rows[type_data['type_id']]['market_size_competitor']*100/rows[type_data['type_id']]['market_size_total']).toFixed(2)
+                }
                 rows[type_data['type_id']]['price_approximate']=Math.max(type_data['price_approximate'],rows[type_data['type_id']]['price_approximate']);
                 for(let month_key=1;month_key<13;month_key++){
                   if(type_data['sowing_periods'].indexOf(','+month_key+',')>-1){
@@ -628,28 +648,28 @@
               }
             }
           }
-          else if(report_format=='crop_arm_location'){
+          else if(options['report_format']=='crop_arm_location'){
             columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
             let location_type='';
             let location_id=0;
             let locations=[];
-            if($('#territory_id').val()>0){
+            if(options['territory_id']>0){
               location_type='Territory';
-              location_id=$('#territory_id').val();
+              location_id=options['territory_id'];
               for(let i in location_territories_object[location_id]['upazila_ids']){
                 locations.push(location_upazilas_object[location_territories_object[location_id]['upazila_ids'][i]]);
               }
             }
-            else if($('#area_id').val()>0){
+            else if(options['area_id']>0){
               location_type='Area';
-              location_id=$('#area_id').val();
+              location_id=options['area_id'];
               for(let i in location_areas_object[location_id]['territory_ids']){
                 locations.push(location_territories_object[location_areas_object[location_id]['territory_ids'][i]]);
               }
             }
-            else if($('#part_id').val()>0){
+            else if(options['part_id']>0){
               location_type='Part';
-              location_id=$('#part_id').val();
+              location_id=options['part_id'];
               locations=taskData.location_areas.filter((temp)=>{ if(temp.part_id==location_id){return true}})
             }
             else{
@@ -660,19 +680,22 @@
             for(let index in locations){
               columns_all.push({'group':'market_size_total','key':'market_size_total_'+locations[index].id,'label':labels.get('label_market_size_total')+'</br>('+locations[index].name+')'})
               columns_all.push({'group':'market_size_arm','key':'market_size_arm_'+locations[index].id,'label':labels.get('label_market_size_arm')+'</br>('+locations[index].name+')'})
+              columns_all.push({'group':'market_size_arm_percentage','key':'market_size_arm_percentage_'+locations[index].id,'label':labels.get('label_market_size_arm_percentage')+'</br>('+locations[index].name+')'})
               columns_all.push({'group':'market_size_competitor','key':'market_size_competitor_'+locations[index].id,'label':labels.get('label_market_size_competitor')+'</br>('+locations[index].name+')'})
+              columns_all.push({'group':'market_size_competitor_percentage','key':'market_size_competitor_percentage_'+locations[index].id,'label':labels.get('label_market_size_competitor_percentage')+'</br>('+locations[index].name+')'})
             }
             if(location_type=='Territory'){
               columns_all.push({'group':'market_size_total','key':'market_size_total_0','label':labels.get('label_market_size_total')+'</br>(other)'})
               columns_all.push({'group':'market_size_arm','key':'market_size_arm_0','label':labels.get('label_market_size_arm')+'</br>(other)'})
+              columns_all.push({'group':'market_size_arm_percentage','key':'market_size_arm_percentage_0','label':labels.get('label_market_size_arm_percentage')+'</br>(other)'})
               columns_all.push({'group':'market_size_competitor','key':'market_size_competitor_0','label':labels.get('label_market_size_competitor')+'</br>(other)'})
+              columns_all.push({'group':'market_size_competitor_percentage','key':'market_size_competitor_percentage_0','label':labels.get('label_market_size_competitor_percentage')+'</br>(other)'})
             }
             for(let i in taskData.crops){
-
               let crop=taskData.crops[i];
               let row_available=false;
-              if($('#crop_id').val()>0){
-                if($('#crop_id').val()==crop['id']){
+              if(options['crop_id']>0){
+                if(options['crop_id']==crop['id']){
                   row_available=true;
                 }
               }
@@ -687,22 +710,27 @@
                 for(let index in locations){
                   rows[crop['id']]['market_size_total_'+locations[index].id]=0;
                   rows[crop['id']]['market_size_arm_'+locations[index].id]=0;
+                  rows[crop['id']]['market_size_arm_percentage_'+locations[index].id]='-';
                   rows[crop['id']]['market_size_competitor_'+locations[index].id]=0;
+                  rows[crop['id']]['market_size_competitor_percentage_'+locations[index].id]='-';
                 }
                 if(location_type=='Territory'){
                   rows[crop['id']]['market_size_total_0']=0;
                   rows[crop['id']]['market_size_arm_0']=0;
+                  rows[crop['id']]['market_size_arm_percentage_0']='-';
                   rows[crop['id']]['market_size_competitor_0']=0;
+                  rows[crop['id']]['market_size_competitor_percentage_0']='-';
                 }
               }
             }
+
             for(let i in res.data.items){
               let type_data=res.data.items[i];
-              if(rows[type_data['crop_id']])
+              if(rows[type_data['crop_id']] && (user_locations_country_wise['district_ids'].includes(type_data['district_id'])))
               {
-                if($('#territory_id').val()>0){
+                if(options['territory_id']>0){
                   let upazila_info=getUpazilaInfo(type_data)
-                  let territory_id=$('#territory_id').val();
+                  let territory_id=options['territory_id'];
                     for(let upazila_id in upazila_info){
                       if(upazila_id==0 || (location_territories_object[territory_id]['upazila_ids'].includes(+upazila_id))){//checking in case upazilla changed.
                         rows[type_data['crop_id']]['market_size_total_'+upazila_id]+=(+upazila_info[upazila_id]['upazila_market_size']);//only this upazila data form api.
@@ -711,7 +739,7 @@
                   rows[type_data['crop_id']]['market_size_location_total']+=(+type_data['market_size_total']);
 
                 }
-                else if($('#area_id').val()>0){
+                else if(options['area_id']>0){
                   let upazila_info=getUpazilaInfo(type_data)
                   for(let upazila_id in upazila_info){
                     if(upazila_id==0){
@@ -728,12 +756,16 @@
                   }
                   rows[type_data['crop_id']]['market_size_location_total']+=(+type_data['market_size_total']);
                 }
-                else if($('#part_id').val()>0){
+                else if(options['part_id']>0){
                   for(let area_id in location_areas_object){
                     if(location_areas_object[area_id]['district_ids'].includes(type_data['district_id'])){
                       rows[type_data['crop_id']]['market_size_total_'+area_id]+=(+type_data['market_size_total']);
                       rows[type_data['crop_id']]['market_size_arm_'+area_id]+=(+type_data['market_size_arm']);
                       rows[type_data['crop_id']]['market_size_competitor_'+area_id]+=(+type_data['market_size_competitor']);
+                      if(rows[type_data['crop_id']]['market_size_total_'+area_id]>0){
+                        rows[type_data['crop_id']]['market_size_arm_percentage_'+area_id]=(rows[type_data['crop_id']]['market_size_arm_'+area_id]*100/rows[type_data['crop_id']]['market_size_total_'+area_id]).toFixed(2)
+                        rows[type_data['crop_id']]['market_size_competitor_percentage_'+area_id]=(rows[type_data['crop_id']]['market_size_competitor_'+area_id]*100/rows[type_data['crop_id']]['market_size_total_'+area_id]).toFixed(2)
+                      }
                     }
                   }
                   rows[type_data['crop_id']]['market_size_location_total']+=(+type_data['market_size_total']);
@@ -744,6 +776,10 @@
                       rows[type_data['crop_id']]['market_size_total_'+part_id]+=(+type_data['market_size_total']);
                       rows[type_data['crop_id']]['market_size_arm_'+part_id]+=(+type_data['market_size_arm']);
                       rows[type_data['crop_id']]['market_size_competitor_'+part_id]+=(+type_data['market_size_competitor']);
+                      if(rows[type_data['crop_id']]['market_size_total_'+part_id]>0){
+                        rows[type_data['crop_id']]['market_size_arm_percentage_'+part_id]=(rows[type_data['crop_id']]['market_size_arm_'+part_id]*100/rows[type_data['crop_id']]['market_size_total_'+part_id]).toFixed(2)
+                        rows[type_data['crop_id']]['market_size_competitor_percentage_'+part_id]=(rows[type_data['crop_id']]['market_size_competitor_'+part_id]*100/rows[type_data['crop_id']]['market_size_total_'+part_id]).toFixed(2)
+                      }
                     }
                   }
                   rows[type_data['crop_id']]['market_size_location_total']+=(+type_data['market_size_total']);
@@ -751,29 +787,29 @@
               }
             }
           }
-          else if(report_format=='type_arm_location'){
+          else if(options['report_format']=='type_arm_location'){
             columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
             columns_all.push({'group':'type_name','key':'type_name','label':labels.get('label_type_name')})
             let location_type='';
             let location_id=0;
             let locations=[];
-            if($('#territory_id').val()>0){
+            if(options['territory_id']>0){
               location_type='Territory';
-              location_id=$('#territory_id').val();
+              location_id=options['territory_id'];
               for(let i in location_territories_object[location_id]['upazila_ids']){
                 locations.push(location_upazilas_object[location_territories_object[location_id]['upazila_ids'][i]]);
               }
             }
-            else if($('#area_id').val()>0){
+            else if(options['area_id']>0){
               location_type='Area';
-              location_id=$('#area_id').val();
+              location_id=options['area_id'];
               for(let i in location_areas_object[location_id]['territory_ids']){
                 locations.push(location_territories_object[location_areas_object[location_id]['territory_ids'][i]]);
               }
             }
-            else if($('#part_id').val()>0){
+            else if(options['part_id']>0){
               location_type='Part';
-              location_id=$('#part_id').val();
+              location_id=options['part_id'];
               locations=taskData.location_areas.filter((temp)=>{ if(temp.part_id==location_id){return true}})
             }
             else{
@@ -784,23 +820,27 @@
             for(let index in locations){
               columns_all.push({'group':'market_size_total','key':'market_size_total_'+locations[index].id,'label':labels.get('label_market_size_total')+'</br>('+locations[index].name+')'})
               columns_all.push({'group':'market_size_arm','key':'market_size_arm_'+locations[index].id,'label':labels.get('label_market_size_arm')+'</br>('+locations[index].name+')'})
+              columns_all.push({'group':'market_size_arm_percentage','key':'market_size_arm_percentage_'+locations[index].id,'label':labels.get('label_market_size_arm_percentage')+'</br>('+locations[index].name+')'})
               columns_all.push({'group':'market_size_competitor','key':'market_size_competitor_'+locations[index].id,'label':labels.get('label_market_size_competitor')+'</br>('+locations[index].name+')'})
+              columns_all.push({'group':'market_size_competitor_percentage','key':'market_size_competitor_percentage_'+locations[index].id,'label':labels.get('label_market_size_competitor_percentage')+'</br>('+locations[index].name+')'})
             }
             if(location_type=='Territory'){
               columns_all.push({'group':'market_size_total','key':'market_size_total_0','label':labels.get('label_market_size_total')+'</br>(other)'})
               columns_all.push({'group':'market_size_arm','key':'market_size_arm_0','label':labels.get('label_market_size_arm')+'</br>(other)'})
+              columns_all.push({'group':'market_size_arm_percentage','key':'market_size_arm_percentage_0','label':labels.get('label_market_size_arm_percentage')+'</br>(other)'})
               columns_all.push({'group':'market_size_competitor','key':'market_size_competitor_0','label':labels.get('label_market_size_competitor')+'</br>(other)'})
+              columns_all.push({'group':'market_size_competitor_percentage','key':'market_size_competitor_percentage_0','label':labels.get('label_market_size_competitor_percentage')+'</br>(other)'})
             }
             for(let i in taskData.crop_types){
               let crop_type=taskData.crop_types[i];
               let row_available=false;
-              if($('#crop_id').val()>0){
-                if($('#crop_type_id').val()>0){
-                  if($('#crop_type_id').val()==crop_type['id']){
+              if(options['crop_id']>0){
+                if(options['crop_type_id']>0){
+                  if(options['crop_type_id']==crop_type['id']){
                     row_available=true;
                   }
                 }
-                else if($('#crop_id').val()==crop_type['crop_id']){
+                else if(options['crop_id']==crop_type['crop_id']){
                   row_available=true;
                 }
               }
@@ -816,22 +856,26 @@
                 for(let index in locations){
                   rows[crop_type['id']]['market_size_total_'+locations[index].id]=0;
                   rows[crop_type['id']]['market_size_arm_'+locations[index].id]=0;
+                  rows[crop_type['id']]['market_size_arm_percentage_'+locations[index].id]='-';
                   rows[crop_type['id']]['market_size_competitor_'+locations[index].id]=0;
+                  rows[crop_type['id']]['market_size_competitor_percentage_'+locations[index].id]='-';
                 }
                 if(location_type=='Territory'){
                   rows[crop_type['id']]['market_size_total_0']=0;
                   rows[crop_type['id']]['market_size_arm_0']=0;
+                  rows[crop_type['id']]['market_size_arm_percentage_0']='-';
                   rows[crop_type['id']]['market_size_competitor_0']=0;
+                  rows[crop_type['id']]['market_size_competitor_percentage_0']='-';
                 }
               }
             }
             for(let i in res.data.items){
               let type_data=res.data.items[i];
-              if(rows[type_data['crop_id']])
+              if(rows[type_data['type_id']] && (user_locations_country_wise['district_ids'].includes(type_data['district_id'])))
               {
-                if($('#territory_id').val()>0){
+                if(options['territory_id']>0){
                   let upazila_info=getUpazilaInfo(type_data)
-                  let territory_id=$('#territory_id').val();
+                  let territory_id=options['territory_id'];
                   for(let upazila_id in upazila_info){
                     if(upazila_id==0 || (location_territories_object[territory_id]['upazila_ids'].includes(+upazila_id))){//checking in case upazilla changed.
                       rows[type_data['type_id']]['market_size_total_'+upazila_id]+=(+upazila_info[upazila_id]['upazila_market_size']);//only this upazila data form api.
@@ -840,7 +884,7 @@
                   rows[type_data['type_id']]['market_size_location_total']+=(+type_data['market_size_total']);
 
                 }
-                else if($('#area_id').val()>0){
+                else if(options['area_id']>0){
                   let upazila_info=getUpazilaInfo(type_data)
                   for(let upazila_id in upazila_info){
                     if(upazila_id==0){
@@ -857,12 +901,16 @@
                   }
                   rows[type_data['type_id']]['market_size_location_total']+=(+type_data['market_size_total']);
                 }
-                else if($('#part_id').val()>0){
+                else if(options['part_id']>0){
                   for(let area_id in location_areas_object){
                     if(location_areas_object[area_id]['district_ids'].includes(type_data['district_id'])){
                       rows[type_data['type_id']]['market_size_total_'+area_id]+=(+type_data['market_size_total']);
                       rows[type_data['type_id']]['market_size_arm_'+area_id]+=(+type_data['market_size_arm']);
                       rows[type_data['type_id']]['market_size_competitor_'+area_id]+=(+type_data['market_size_competitor']);
+                      if(rows[type_data['type_id']]['market_size_total_'+area_id]>0){
+                        rows[type_data['type_id']]['market_size_arm_percentage_'+area_id]=(rows[type_data['type_id']]['market_size_arm_'+area_id]*100/rows[type_data['type_id']]['market_size_total_'+area_id]).toFixed(2)
+                        rows[type_data['type_id']]['market_size_competitor_percentage_'+area_id]=(rows[type_data['type_id']]['market_size_competitor_'+area_id]*100/rows[type_data['type_id']]['market_size_total_'+area_id]).toFixed(2)
+                      }
                     }
                   }
                   rows[type_data['type_id']]['market_size_location_total']+=(+type_data['market_size_total']);
@@ -873,6 +921,10 @@
                       rows[type_data['type_id']]['market_size_total_'+part_id]+=(+type_data['market_size_total']);
                       rows[type_data['type_id']]['market_size_arm_'+part_id]+=(+type_data['market_size_arm']);
                       rows[type_data['type_id']]['market_size_competitor_'+part_id]+=(+type_data['market_size_competitor']);
+                      if(rows[type_data['type_id']]['market_size_total_'+part_id]>0){
+                        rows[type_data['type_id']]['market_size_arm_percentage_'+part_id]=(rows[type_data['type_id']]['market_size_arm_'+part_id]*100/rows[type_data['type_id']]['market_size_total_'+part_id]).toFixed(2)
+                        rows[type_data['type_id']]['market_size_competitor_percentage_'+part_id]=(rows[type_data['type_id']]['market_size_competitor_'+part_id]*100/rows[type_data['type_id']]['market_size_total_'+part_id]).toFixed(2)
+                      }
                     }
                   }
                   rows[type_data['type_id']]['market_size_location_total']+=(+type_data['market_size_total']);
@@ -880,242 +932,242 @@
               }
             }
           }
-          else if(report_format=='crop_country_location'){
-            columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
-
-            //arm and competitor total not showing or add future
-            let location_id=0;
-            let location_type='';
-            let locations=[];
-            if($('#upazila_id').val()>0){
-              location_type='Upazila';
-              location_id=$('#upazila_id').val();
-              locations.push(location_upazilas_object[location_id]);
-            }
-            else if($('#district_id').val()>0){
-              location_type='District';
-              location_id=$('#district_id').val();
-              for(let i in location_districts_object[location_id]['upazila_ids']){
-                locations.push(location_upazilas_object[location_districts_object[location_id]['upazila_ids'][i]]);
-              }
-            }
-            else if($('#division_id').val()>0){
-              location_type='Division';
-              location_id=$('#division_id').val();
-              for(let i in location_divisions_object[location_id]['district_ids']){
-                locations.push(location_districts_object[location_divisions_object[location_id]['district_ids'][i]]);
-              }
-            }
-            else{
-              location_type='National';
-              locations=taskData.location_divisions;
-            }
-            columns_all.push({'group':'market_size_location_total','key':'market_size_location_total','label':'Total Market Size</br>('+location_type+')'})
-            for(let index in locations){
-              columns_all.push({'group':'market_size_total','key':'market_size_total_'+locations[index].id,'label':labels.get('label_market_size_total')+'</br>('+locations[index].name+')'})
-              columns_all.push({'group':'market_size_arm','key':'market_size_arm_'+locations[index].id,'label':labels.get('label_market_size_arm')+'</br>('+locations[index].name+')'})
-              columns_all.push({'group':'market_size_competitor','key':'market_size_competitor_'+locations[index].id,'label':labels.get('label_market_size_competitor')+'</br>('+locations[index].name+')'})
-            }
-            if(location_type=='District'){
-              columns_all.push({'group':'market_size_total','key':'market_size_total_0','label':labels.get('label_market_size_total')+'</br>(other)'})
-              columns_all.push({'group':'market_size_arm','key':'market_size_arm_0','label':labels.get('label_market_size_arm')+'</br>(other)'})
-              columns_all.push({'group':'market_size_competitor','key':'market_size_competitor_0','label':labels.get('label_market_size_competitor')+'</br>(other)'})
-            }
-            for(let i in taskData.crops){
-
-              let crop=taskData.crops[i];
-              let row_available=false;
-              if($('#crop_id').val()>0){
-                if($('#crop_id').val()==crop['id']){
-                  row_available=true;
-                }
-              }
-              else{
-                row_available=true;
-              }
-              if(row_available){
-                rows[crop['id']]={}
-                rows[crop['id']]['num_rows']=1;
-                rows[crop['id']]['crop_name']=(crops_object[crop['id']]?crops_object[crop['id']]['name']:crop['id']);
-                rows[crop['id']]['market_size_location_total']=0;
-                for(let index in locations){
-                  rows[crop['id']]['market_size_total_'+locations[index].id]=0;
-                  rows[crop['id']]['market_size_arm_'+locations[index].id]=0;
-                  rows[crop['id']]['market_size_competitor_'+locations[index].id]=0;
-                }
-                if(location_type=='District'){
-                  rows[crop['id']]['market_size_total_0']=0;
-                  rows[crop['id']]['market_size_arm_0']=0;
-                  rows[crop['id']]['market_size_competitor_0']=0;
-                }
-              }
-            }
-            for(let i in res.data.items){
-              let type_data=res.data.items[i];
-              if(rows[type_data['crop_id']])
-              {
-                if($('#upazila_id').val()>0){
-                  let upazila_id=$('#upazila_id').val();
-                  rows[type_data['crop_id']]['market_size_total_'+upazila_id]+=(+type_data['market_size_total']);//only this upazila data form api.no need to get individual size
-                  rows[type_data['crop_id']]['market_size_location_total']+=(+type_data['market_size_total']);//only this upazila data form api.no need to get individual size
-
-                }
-                else if($('#district_id').val()>0){
-                  let upazila_info=getUpazilaInfo(type_data)
-                  let district_id=$('#district_id').val();
-                  for(let upazila_id in upazila_info){
-                    if(upazila_id==0 || (location_districts_object[district_id]['upazila_ids'].includes(+upazila_id))){//checking in case upazilla changed.
-                      rows[type_data['crop_id']]['market_size_total_'+upazila_id]+=(+upazila_info[upazila_id]['upazila_market_size']);//only this upazila data form api.
-                    }
-                  }
-                  rows[type_data['crop_id']]['market_size_location_total']+=(+type_data['market_size_total']);
-                }
-                else if($('#division_id').val()>0){
-                  rows[type_data['crop_id']]['market_size_total_'+type_data['district_id']]+=(+type_data['market_size_total']);
-                  rows[type_data['crop_id']]['market_size_arm_'+type_data['district_id']]+=(+type_data['market_size_arm']);
-                  rows[type_data['crop_id']]['market_size_competitor_'+type_data['district_id']]+=(+type_data['market_size_competitor']);
-
-                  rows[type_data['crop_id']]['market_size_location_total']+=(+type_data['market_size_total']);
-
-                }
-                else{
-                  for(let division_id in location_divisions_object){
-                    if(location_divisions_object[division_id]['district_ids'].includes(type_data['district_id'])){
-                      rows[type_data['crop_id']]['market_size_total_'+division_id]+=(+type_data['market_size_total']);
-                      rows[type_data['crop_id']]['market_size_arm_'+division_id]+=(+type_data['market_size_arm']);
-                      rows[type_data['crop_id']]['market_size_competitor_'+division_id]+=(+type_data['market_size_competitor']);
-
-                      rows[type_data['crop_id']]['market_size_location_total']+=(+type_data['market_size_total']);
-                      break;
-                    }
-                  }
-                }
-
-              }
-            }
-
-          }
-          else if(report_format=='type_country_location'){
-            columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
-            columns_all.push({'group':'type_name','key':'type_name','label':labels.get('label_type_name')})
-
-            //arm and competitor total not showing or add future
-            let location_id=0;
-            let location_type='';
-            let locations=[];
-            if($('#upazila_id').val()>0){
-              location_type='Upazila';
-              location_id=$('#upazila_id').val();
-              locations.push(location_upazilas_object[location_id]);
-            }
-            else if($('#district_id').val()>0){
-              location_type='District';
-              location_id=$('#district_id').val();
-              for(let i in location_districts_object[location_id]['upazila_ids']){
-                locations.push(location_upazilas_object[location_districts_object[location_id]['upazila_ids'][i]]);
-              }
-            }
-            else if($('#division_id').val()>0){
-              location_type='Division';
-              location_id=$('#division_id').val();
-              for(let i in location_divisions_object[location_id]['district_ids']){
-                locations.push(location_districts_object[location_divisions_object[location_id]['district_ids'][i]]);
-              }
-            }
-            else{
-              location_type='National';
-              locations=taskData.location_divisions;
-            }
-            columns_all.push({'group':'market_size_location_total','key':'market_size_location_total','label':'Total Market Size</br>('+location_type+')'})
-            for(let index in locations){
-              columns_all.push({'group':'market_size_total','key':'market_size_total_'+locations[index].id,'label':labels.get('label_market_size_total')+'</br>('+locations[index].name+')'})
-              columns_all.push({'group':'market_size_arm','key':'market_size_arm_'+locations[index].id,'label':labels.get('label_market_size_arm')+'</br>('+locations[index].name+')'})
-              columns_all.push({'group':'market_size_competitor','key':'market_size_competitor_'+locations[index].id,'label':labels.get('label_market_size_competitor')+'</br>('+locations[index].name+')'})
-            }
-            if(location_type=='District'){
-              columns_all.push({'group':'market_size_total','key':'market_size_total_0','label':labels.get('label_market_size_total')+'</br>(other)'})
-              columns_all.push({'group':'market_size_arm','key':'market_size_arm_0','label':labels.get('label_market_size_arm')+'</br>(other)'})
-              columns_all.push({'group':'market_size_competitor','key':'market_size_competitor_0','label':labels.get('label_market_size_competitor')+'</br>(other)'})
-            }
-            for(let i in taskData.crop_types){
-              let crop_type=taskData.crop_types[i];
-              let row_available=false;
-              if($('#crop_id').val()>0){
-                if($('#crop_type_id').val()>0){
-                  if($('#crop_type_id').val()==crop_type['id']){
-                    row_available=true;
-                  }
-                }
-                else if($('#crop_id').val()==crop_type['crop_id']){
-                  row_available=true;
-                }
-              }
-              else{
-                row_available=true;
-              }
-              if(row_available){
-                rows[crop_type['id']]={}
-                rows[crop_type['id']]['num_rows']=1;
-                rows[crop_type['id']]['crop_name']=(crops_object[crop_type['crop_id']]?crops_object[crop_type['crop_id']]['name']:crop_type['crop_id']);
-                rows[crop_type['id']]['type_name']=crop_type['name'];
-                rows[crop_type['id']]['market_size_location_total']=0;
-                for(let index in locations){
-                  rows[crop_type['id']]['market_size_total_'+locations[index].id]=0;
-                  rows[crop_type['id']]['market_size_arm_'+locations[index].id]=0;
-                  rows[crop_type['id']]['market_size_competitor_'+locations[index].id]=0;
-                }
-                if(location_type=='District'){
-                  rows[crop_type['id']]['market_size_total_0']=0;
-                  rows[crop_type['id']]['market_size_arm_0']=0;
-                  rows[crop_type['id']]['market_size_competitor_0']=0;
-                }
-              }
-            }
-            for(let i in res.data.items){
-              let type_data=res.data.items[i];
-              if(rows[type_data['type_id']])
-              {
-                if($('#upazila_id').val()>0){
-                  let upazila_id=$('#upazila_id').val();
-                  rows[type_data['type_id']]['market_size_total_'+upazila_id]+=(+type_data['market_size_total']);//only this upazila data form api.no need to get individual size
-                  rows[type_data['type_id']]['market_size_location_total']+=(+type_data['market_size_total']);//only this upazila data form api.no need to get individual size
-
-                }
-                else if($('#district_id').val()>0){
-                  let upazila_info=getUpazilaInfo(type_data)
-                  let district_id=$('#district_id').val();
-                  for(let upazila_id in upazila_info){
-                    if(upazila_id==0 || (location_districts_object[district_id]['upazila_ids'].includes(+upazila_id))){//checking in case upazilla changed.
-                      rows[type_data['type_id']]['market_size_total_'+upazila_id]+=(+upazila_info[upazila_id]['upazila_market_size']);//only this upazila data form api.
-                    }
-                  }
-                  rows[type_data['type_id']]['market_size_location_total']+=(+type_data['market_size_total']);
-                }
-                else if($('#division_id').val()>0){
-                  rows[type_data['type_id']]['market_size_total_'+type_data['district_id']]+=(+type_data['market_size_total']);
-                  rows[type_data['type_id']]['market_size_arm_'+type_data['district_id']]+=(+type_data['market_size_arm']);
-                  rows[type_data['type_id']]['market_size_competitor_'+type_data['district_id']]+=(+type_data['market_size_competitor']);
-
-                  rows[type_data['type_id']]['market_size_location_total']+=(+type_data['market_size_total']);
-
-                }
-                else{
-                  for(let division_id in location_divisions_object){
-                    if(location_divisions_object[division_id]['district_ids'].includes(type_data['district_id'])){
-                      rows[type_data['type_id']]['market_size_total_'+division_id]+=(+type_data['market_size_total']);
-                      rows[type_data['type_id']]['market_size_arm_'+division_id]+=(+type_data['market_size_arm']);
-                      rows[type_data['type_id']]['market_size_competitor_'+division_id]+=(+type_data['market_size_competitor']);
-
-                      rows[type_data['type_id']]['market_size_location_total']+=(+type_data['market_size_total']);
-                      break;
-                    }
-                  }
-                }
-
-              }
-            }
-
-          }
+          // else if(report_format=='crop_country_location'){
+          //   columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
+          //
+          //   //arm and competitor total not showing or add future
+          //   let location_id=0;
+          //   let location_type='';
+          //   let locations=[];
+          //   if($('#upazila_id').val()>0){
+          //     location_type='Upazila';
+          //     location_id=$('#upazila_id').val();
+          //     locations.push(location_upazilas_object[location_id]);
+          //   }
+          //   else if($('#district_id').val()>0){
+          //     location_type='District';
+          //     location_id=$('#district_id').val();
+          //     for(let i in location_districts_object[location_id]['upazila_ids']){
+          //       locations.push(location_upazilas_object[location_districts_object[location_id]['upazila_ids'][i]]);
+          //     }
+          //   }
+          //   else if($('#division_id').val()>0){
+          //     location_type='Division';
+          //     location_id=$('#division_id').val();
+          //     for(let i in location_divisions_object[location_id]['district_ids']){
+          //       locations.push(location_districts_object[location_divisions_object[location_id]['district_ids'][i]]);
+          //     }
+          //   }
+          //   else{
+          //     location_type='National';
+          //     locations=taskData.location_divisions;
+          //   }
+          //   columns_all.push({'group':'market_size_location_total','key':'market_size_location_total','label':'Total Market Size</br>('+location_type+')'})
+          //   for(let index in locations){
+          //     columns_all.push({'group':'market_size_total','key':'market_size_total_'+locations[index].id,'label':labels.get('label_market_size_total')+'</br>('+locations[index].name+')'})
+          //     columns_all.push({'group':'market_size_arm','key':'market_size_arm_'+locations[index].id,'label':labels.get('label_market_size_arm')+'</br>('+locations[index].name+')'})
+          //     columns_all.push({'group':'market_size_competitor','key':'market_size_competitor_'+locations[index].id,'label':labels.get('label_market_size_competitor')+'</br>('+locations[index].name+')'})
+          //   }
+          //   if(location_type=='District'){
+          //     columns_all.push({'group':'market_size_total','key':'market_size_total_0','label':labels.get('label_market_size_total')+'</br>(other)'})
+          //     columns_all.push({'group':'market_size_arm','key':'market_size_arm_0','label':labels.get('label_market_size_arm')+'</br>(other)'})
+          //     columns_all.push({'group':'market_size_competitor','key':'market_size_competitor_0','label':labels.get('label_market_size_competitor')+'</br>(other)'})
+          //   }
+          //   for(let i in taskData.crops){
+          //
+          //     let crop=taskData.crops[i];
+          //     let row_available=false;
+          //     if($('#crop_id').val()>0){
+          //       if($('#crop_id').val()==crop['id']){
+          //         row_available=true;
+          //       }
+          //     }
+          //     else{
+          //       row_available=true;
+          //     }
+          //     if(row_available){
+          //       rows[crop['id']]={}
+          //       rows[crop['id']]['num_rows']=1;
+          //       rows[crop['id']]['crop_name']=(crops_object[crop['id']]?crops_object[crop['id']]['name']:crop['id']);
+          //       rows[crop['id']]['market_size_location_total']=0;
+          //       for(let index in locations){
+          //         rows[crop['id']]['market_size_total_'+locations[index].id]=0;
+          //         rows[crop['id']]['market_size_arm_'+locations[index].id]=0;
+          //         rows[crop['id']]['market_size_competitor_'+locations[index].id]=0;
+          //       }
+          //       if(location_type=='District'){
+          //         rows[crop['id']]['market_size_total_0']=0;
+          //         rows[crop['id']]['market_size_arm_0']=0;
+          //         rows[crop['id']]['market_size_competitor_0']=0;
+          //       }
+          //     }
+          //   }
+          //   for(let i in res.data.items){
+          //     let type_data=res.data.items[i];
+          //     if(rows[type_data['crop_id']])
+          //     {
+          //       if($('#upazila_id').val()>0){
+          //         let upazila_id=$('#upazila_id').val();
+          //         rows[type_data['crop_id']]['market_size_total_'+upazila_id]+=(+type_data['market_size_total']);//only this upazila data form api.no need to get individual size
+          //         rows[type_data['crop_id']]['market_size_location_total']+=(+type_data['market_size_total']);//only this upazila data form api.no need to get individual size
+          //
+          //       }
+          //       else if($('#district_id').val()>0){
+          //         let upazila_info=getUpazilaInfo(type_data)
+          //         let district_id=$('#district_id').val();
+          //         for(let upazila_id in upazila_info){
+          //           if(upazila_id==0 || (location_districts_object[district_id]['upazila_ids'].includes(+upazila_id))){//checking in case upazilla changed.
+          //             rows[type_data['crop_id']]['market_size_total_'+upazila_id]+=(+upazila_info[upazila_id]['upazila_market_size']);//only this upazila data form api.
+          //           }
+          //         }
+          //         rows[type_data['crop_id']]['market_size_location_total']+=(+type_data['market_size_total']);
+          //       }
+          //       else if($('#division_id').val()>0){
+          //         rows[type_data['crop_id']]['market_size_total_'+type_data['district_id']]+=(+type_data['market_size_total']);
+          //         rows[type_data['crop_id']]['market_size_arm_'+type_data['district_id']]+=(+type_data['market_size_arm']);
+          //         rows[type_data['crop_id']]['market_size_competitor_'+type_data['district_id']]+=(+type_data['market_size_competitor']);
+          //
+          //         rows[type_data['crop_id']]['market_size_location_total']+=(+type_data['market_size_total']);
+          //
+          //       }
+          //       else{
+          //         for(let division_id in location_divisions_object){
+          //           if(location_divisions_object[division_id]['district_ids'].includes(type_data['district_id'])){
+          //             rows[type_data['crop_id']]['market_size_total_'+division_id]+=(+type_data['market_size_total']);
+          //             rows[type_data['crop_id']]['market_size_arm_'+division_id]+=(+type_data['market_size_arm']);
+          //             rows[type_data['crop_id']]['market_size_competitor_'+division_id]+=(+type_data['market_size_competitor']);
+          //
+          //             rows[type_data['crop_id']]['market_size_location_total']+=(+type_data['market_size_total']);
+          //             break;
+          //           }
+          //         }
+          //       }
+          //
+          //     }
+          //   }
+          //
+          // }
+          // else if(report_format=='type_country_location'){
+          //   columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
+          //   columns_all.push({'group':'type_name','key':'type_name','label':labels.get('label_type_name')})
+          //
+          //   //arm and competitor total not showing or add future
+          //   let location_id=0;
+          //   let location_type='';
+          //   let locations=[];
+          //   if($('#upazila_id').val()>0){
+          //     location_type='Upazila';
+          //     location_id=$('#upazila_id').val();
+          //     locations.push(location_upazilas_object[location_id]);
+          //   }
+          //   else if($('#district_id').val()>0){
+          //     location_type='District';
+          //     location_id=$('#district_id').val();
+          //     for(let i in location_districts_object[location_id]['upazila_ids']){
+          //       locations.push(location_upazilas_object[location_districts_object[location_id]['upazila_ids'][i]]);
+          //     }
+          //   }
+          //   else if($('#division_id').val()>0){
+          //     location_type='Division';
+          //     location_id=$('#division_id').val();
+          //     for(let i in location_divisions_object[location_id]['district_ids']){
+          //       locations.push(location_districts_object[location_divisions_object[location_id]['district_ids'][i]]);
+          //     }
+          //   }
+          //   else{
+          //     location_type='National';
+          //     locations=taskData.location_divisions;
+          //   }
+          //   columns_all.push({'group':'market_size_location_total','key':'market_size_location_total','label':'Total Market Size</br>('+location_type+')'})
+          //   for(let index in locations){
+          //     columns_all.push({'group':'market_size_total','key':'market_size_total_'+locations[index].id,'label':labels.get('label_market_size_total')+'</br>('+locations[index].name+')'})
+          //     columns_all.push({'group':'market_size_arm','key':'market_size_arm_'+locations[index].id,'label':labels.get('label_market_size_arm')+'</br>('+locations[index].name+')'})
+          //     columns_all.push({'group':'market_size_competitor','key':'market_size_competitor_'+locations[index].id,'label':labels.get('label_market_size_competitor')+'</br>('+locations[index].name+')'})
+          //   }
+          //   if(location_type=='District'){
+          //     columns_all.push({'group':'market_size_total','key':'market_size_total_0','label':labels.get('label_market_size_total')+'</br>(other)'})
+          //     columns_all.push({'group':'market_size_arm','key':'market_size_arm_0','label':labels.get('label_market_size_arm')+'</br>(other)'})
+          //     columns_all.push({'group':'market_size_competitor','key':'market_size_competitor_0','label':labels.get('label_market_size_competitor')+'</br>(other)'})
+          //   }
+          //   for(let i in taskData.crop_types){
+          //     let crop_type=taskData.crop_types[i];
+          //     let row_available=false;
+          //     if($('#crop_id').val()>0){
+          //       if($('#crop_type_id').val()>0){
+          //         if($('#crop_type_id').val()==crop_type['id']){
+          //           row_available=true;
+          //         }
+          //       }
+          //       else if($('#crop_id').val()==crop_type['crop_id']){
+          //         row_available=true;
+          //       }
+          //     }
+          //     else{
+          //       row_available=true;
+          //     }
+          //     if(row_available){
+          //       rows[crop_type['id']]={}
+          //       rows[crop_type['id']]['num_rows']=1;
+          //       rows[crop_type['id']]['crop_name']=(crops_object[crop_type['crop_id']]?crops_object[crop_type['crop_id']]['name']:crop_type['crop_id']);
+          //       rows[crop_type['id']]['type_name']=crop_type['name'];
+          //       rows[crop_type['id']]['market_size_location_total']=0;
+          //       for(let index in locations){
+          //         rows[crop_type['id']]['market_size_total_'+locations[index].id]=0;
+          //         rows[crop_type['id']]['market_size_arm_'+locations[index].id]=0;
+          //         rows[crop_type['id']]['market_size_competitor_'+locations[index].id]=0;
+          //       }
+          //       if(location_type=='District'){
+          //         rows[crop_type['id']]['market_size_total_0']=0;
+          //         rows[crop_type['id']]['market_size_arm_0']=0;
+          //         rows[crop_type['id']]['market_size_competitor_0']=0;
+          //       }
+          //     }
+          //   }
+          //   for(let i in res.data.items){
+          //     let type_data=res.data.items[i];
+          //     if(rows[type_data['type_id']])
+          //     {
+          //       if($('#upazila_id').val()>0){
+          //         let upazila_id=$('#upazila_id').val();
+          //         rows[type_data['type_id']]['market_size_total_'+upazila_id]+=(+type_data['market_size_total']);//only this upazila data form api.no need to get individual size
+          //         rows[type_data['type_id']]['market_size_location_total']+=(+type_data['market_size_total']);//only this upazila data form api.no need to get individual size
+          //
+          //       }
+          //       else if($('#district_id').val()>0){
+          //         let upazila_info=getUpazilaInfo(type_data)
+          //         let district_id=$('#district_id').val();
+          //         for(let upazila_id in upazila_info){
+          //           if(upazila_id==0 || (location_districts_object[district_id]['upazila_ids'].includes(+upazila_id))){//checking in case upazilla changed.
+          //             rows[type_data['type_id']]['market_size_total_'+upazila_id]+=(+upazila_info[upazila_id]['upazila_market_size']);//only this upazila data form api.
+          //           }
+          //         }
+          //         rows[type_data['type_id']]['market_size_location_total']+=(+type_data['market_size_total']);
+          //       }
+          //       else if($('#division_id').val()>0){
+          //         rows[type_data['type_id']]['market_size_total_'+type_data['district_id']]+=(+type_data['market_size_total']);
+          //         rows[type_data['type_id']]['market_size_arm_'+type_data['district_id']]+=(+type_data['market_size_arm']);
+          //         rows[type_data['type_id']]['market_size_competitor_'+type_data['district_id']]+=(+type_data['market_size_competitor']);
+          //
+          //         rows[type_data['type_id']]['market_size_location_total']+=(+type_data['market_size_total']);
+          //
+          //       }
+          //       else{
+          //         for(let division_id in location_divisions_object){
+          //           if(location_divisions_object[division_id]['district_ids'].includes(type_data['district_id'])){
+          //             rows[type_data['type_id']]['market_size_total_'+division_id]+=(+type_data['market_size_total']);
+          //             rows[type_data['type_id']]['market_size_arm_'+division_id]+=(+type_data['market_size_arm']);
+          //             rows[type_data['type_id']]['market_size_competitor_'+division_id]+=(+type_data['market_size_competitor']);
+          //
+          //             rows[type_data['type_id']]['market_size_location_total']+=(+type_data['market_size_total']);
+          //             break;
+          //           }
+          //         }
+          //       }
+          //
+          //     }
+          //   }
+          //
+          // }
 
           taskData.itemsFiltered=Object.values(rows);
           taskData.columns.all=columns_all;
@@ -1171,17 +1223,17 @@
         let columns_selectable=[];
         let columns_hidden=[]
         if(report_format=='crop_marketsize'){
-          columns_selectable=['market_size_total','market_size_arm','market_size_competitor','competitor_variety','competitor_variety_market_size','competitor_variety_sales_reason','sowing_periods','upazila_name','upazila_market_size','unions_name'];
+          columns_selectable=['market_size_total','market_size_arm','market_size_arm_percentage','market_size_competitor','market_size_competitor_percentage','competitor_variety','competitor_variety_market_size','competitor_variety_sales_reason','sowing_periods','upazila_name','upazila_market_size','unions_name'];
           columns_hidden=['competitor_variety','competitor_variety_market_size','competitor_variety_sales_reason','sowing_periods','upazila_name','upazila_market_size','unions_name'];
 
         }
         else if(report_format=='type_marketsize'){
-          columns_selectable=['market_size_total','market_size_arm','market_size_competitor','price_approximate','competitor_variety','competitor_variety_market_size','competitor_variety_sales_reason','sowing_periods','upazila_name','upazila_market_size','unions_name'];
+          columns_selectable=['market_size_total','market_size_arm','market_size_arm_percentage','market_size_competitor','market_size_competitor_percentage','price_approximate','competitor_variety','competitor_variety_market_size','competitor_variety_sales_reason','sowing_periods','upazila_name','upazila_market_size','unions_name'];
           columns_hidden=['competitor_variety','competitor_variety_market_size','competitor_variety_sales_reason','sowing_periods','upazila_name','upazila_market_size','unions_name'];
         }
         else if((report_format=='crop_arm_location')||(report_format=='type_arm_location') || (report_format=='crop_country_location' )|| (report_format=='type_country_location' )){
-          columns_selectable=['market_size_location_total','market_size_total','market_size_arm','market_size_competitor'];
-          columns_hidden=['market_size_arm','market_size_competitor'];
+          columns_selectable=['market_size_location_total','market_size_total','market_size_arm','market_size_arm_percentage','market_size_competitor','market_size_competitor_percentage'];
+          columns_hidden=['market_size_arm','market_size_arm_percentage','market_size_competitor','market_size_competitor_percentage'];
         }
         taskData.columns.selectable=columns_selectable;
         taskData.columns.hidden=columns_hidden;

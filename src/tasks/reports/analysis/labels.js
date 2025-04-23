@@ -99,8 +99,16 @@ export default {
         en:"Arm Market Size",
         bn:"Crop"
     },
+    label_market_size_arm_percentage:{
+        en:"Arm Market Size Percentage",
+        bn:"Crop"
+    },
     label_market_size_competitor:{
         en:"Competitor Market Size",
+        bn:"Variety"
+    },
+    label_market_size_competitor_percentage:{
+        en:"Competitor Market Size Percentage",
         bn:"Variety"
     },
     label_upazila_market_size:{

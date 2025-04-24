@@ -1196,7 +1196,7 @@
                     rows[type_data['type_id']]['market_size_arm_percentage_'+division_id]=(rows[type_data['type_id']]['market_size_arm_'+division_id]*100/rows[type_data['type_id']]['market_size_total_'+division_id]).toFixed(2)
                     rows[type_data['type_id']]['market_size_competitor_percentage_'+division_id]=(rows[type_data['type_id']]['market_size_competitor_'+division_id]*100/rows[type_data['type_id']]['market_size_total_'+division_id]).toFixed(2)
                   }
-                  rows[type_data['crop_id']]['market_size_location_total']+=(+type_data['market_size_total']);
+                  rows[type_data['type_id']]['market_size_location_total']+=(+type_data['market_size_total']);
                 }
               }
             }

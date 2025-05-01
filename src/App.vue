@@ -50,8 +50,8 @@
   const init=async ()=>{
     await axios.get('/user/initialize').then((res)=>{
       if (res.data.error == "") {
-        if(res.data.current_analysis_id){
-          globalVariables.current_analysis_id=res.data.current_analysis_id;
+        if(res.data.fiscal_year_starting_month){
+          globalVariables.fiscal_year_starting_month=res.data.fiscal_year_starting_month;
         }
         if(res.data.user){
           systemFunctions.setUser(res.data.user);

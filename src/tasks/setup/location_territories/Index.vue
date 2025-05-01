@@ -40,7 +40,7 @@
     items: {data:[]},   //from Laravel server with pagination and info
     itemsFiltered: [],    //for display
     columns:{all:{},hidden:[],sort:{key:'',dir:''}},
-    pagination: {current_page: 1,per_page_options: [10,20,50,100,500,1000],per_page:50,show_all_items:true},
+    pagination: {current_page: 1,per_page_options: [10,20,50,100,500,1000],per_page:-1,show_all_items:true},
     location_parts:[],
     location_areas:[],
   })

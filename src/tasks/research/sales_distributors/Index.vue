@@ -40,16 +40,18 @@
     items: {data:[]},   //from Laravel server with pagination and info
     itemsFiltered: [],    //for display
     columns:{all:{},hidden:[],sort:{key:'',dir:''}},
-    pagination: {current_page: 1,per_page_options: [10,20,50,100,500,1000],per_page:-1,show_all_items:true},
-    user_locations:{},
-    crops:[],
-    crop_types2:[],
-    competitor_varieties:[],
+    pagination: {current_page: 1,per_page_options: [10,20,50,100,500,1000],per_page:20,show_all_items:true},
     location_parts:[],
-    location_areas :[],
+    location_areas:[],
     location_territories:[],
+    distributors:[],
+    crops:[],
+    crop_types:[],
+    varieties :[],
+    pack_sizes :[]
   })
   labels.add([{language:globalVariables.language,file:'tasks'+taskData.api_url+'/labels.js'}])
+
   const routing=async ()=>{
     await getItems(taskData.pagination);//Load at least once
     if(route.path==taskData.api_url){
@@ -99,13 +101,14 @@
     await axios.get(taskData.api_url+'/initialize').then((res)=>{
       if (res.data.error == "") {
         taskData.permissions=res.data.permissions;
-        taskData.user_locations=res.data.user_locations;
-        taskData.crops=res.data.crops;
-        taskData.crop_types2=res.data.crop_types2;
-        taskData.competitor_varieties=res.data.competitor_varieties;
         taskData.location_parts=res.data.location_parts;
         taskData.location_areas=res.data.location_areas;
         taskData.location_territories=res.data.location_territories;
+        taskData.distributors=res.data.distributors;
+        taskData.crops=res.data.crops;
+        taskData.crop_types=res.data.crop_types;
+        taskData.varieties=res.data.varieties;
+        taskData.pack_sizes=res.data.pack_sizes;
         if(res.data.hidden_columns){
           taskData.columns.hidden=res.data.hidden_columns;
         }

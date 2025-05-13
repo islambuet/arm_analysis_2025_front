@@ -41,13 +41,19 @@
     item.detailFields= {};
     await systemFunctions.delay(1);
     let detailFields={}
-    let key='crop_name';
+    let key='id';
     detailFields[key] = {
       label: labels.get('label_'+key),
-      type:'text',
+      type:'hidden',
       values:[item.data[key]],
     };
-    key='crop_type2_name';
+    key='sales_at';
+    detailFields[key] = {
+      label: labels.get('label_'+key),
+      type:'date',
+      values:[item.data[key]],
+    };
+    key='invoice_no';
     detailFields[key] = {
       label: labels.get('label_'+key),
       type:'text',
@@ -71,24 +77,59 @@
       type:'text',
       values:[item.data[key]],
     };
-    key='market_size';
+    key='distributor_name';
     detailFields[key] = {
       label: labels.get('label_'+key),
       type:'text',
       values:[item.data[key]],
     };
-    key='sowing_periods';
-    let sowing_periods=item.data[key].split(",");
-    let sowing_periods_names=[];
-    for(let i=0;i<sowing_periods.length;i++){
-      if(sowing_periods[i]>0){
-        sowing_periods_names.push(labels.get('label_month_short_'+sowing_periods[i]))
-      }
-    }
+    key='crop_name';
     detailFields[key] = {
       label: labels.get('label_'+key),
       type:'text',
-      values:sowing_periods_names
+      values:[item.data[key]],
+    };
+    key='crop_type_name';
+    detailFields[key] = {
+      label: labels.get('label_'+key),
+      type:'text',
+      values:[item.data[key]],
+    };
+    key='variety_name';
+    detailFields[key] = {
+      label: labels.get('label_'+key),
+      type:'text',
+      values:[item.data[key]],
+    };
+    key='pack_size_name';
+    detailFields[key] = {
+      label: labels.get('label_'+key),
+      type:'text',
+      values:[item.data[key]],
+    };
+    key='quantity';
+    detailFields[key] = {
+      label: labels.get('label_'+key),
+      type:'number',
+      values:[item.data[key]],
+    };
+    key='unit_price';
+    detailFields[key] = {
+      label: labels.get('label_'+key),
+      type:'number',
+      values:[item.data[key]],
+    };
+    key='amount';
+    detailFields[key] = {
+      label: labels.get('label_'+key),
+      type:'number',
+      values:[item.data[key]],
+    };
+    key='status';
+    detailFields[key] = {
+      label: labels.get('label_'+key),
+      type:'text',
+      values:[item.data[key]],
     };
     key='created_at';
     detailFields[key] = {

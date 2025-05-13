@@ -1,6 +1,7 @@
 <template>    
     <div class="card d-print-none mb-2">
         <div class="card-body">
+            <router-link v-if="taskData.permissions.action_1"  :to="taskData.api_url+'/add'" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" ><i class="feather icon-plus-circle"></i> {{labels.get('action_1')}}</router-link>
             <button type="button" v-if="taskData.permissions.action_4" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" onclick="window.print();"><i class="feather icon-printer"></i> {{labels.get('action_4')}}</button>
             <button type="button" v-if="taskData.permissions.action_5" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="systemFunctions.exportCsv(taskData.columns,taskData.itemsFiltered,taskData.api_url.substring(1)+'.csv')"><i class="feather icon-download"></i> {{labels.get('action_5')}}</button>
             <button type="button" v-if="taskData.permissions.action_8" class="mr-2 mb-2 btn btn-sm" :class="[show_column_controls?'bg-gradient-success':'bg-gradient-primary']" @click="show_column_controls = !show_column_controls"><i class="feather icon-command"></i> {{labels.get('action_8')}}</button>
@@ -38,7 +39,7 @@
             </div>
           </td>
           <template v-for="(column,key) in taskData.columns.all">
-            <td :class="((['id','ordering'].indexOf(key) != -1)?'text-right':'')+(column.class?(' '+column.class):'col_9')" v-if="taskData.columns.hidden.indexOf(key)<0" :key="'td_'+key">
+            <td :class="((['id','quantity','unit_price','amount'].indexOf(key) != -1)?'text-right':'')+(column.class?(' '+column.class):'col_9')" v-if="taskData.columns.hidden.indexOf(key)<0" :key="'td_'+key">
               {{ item[key] }}
             </td>
           </template>
@@ -67,8 +68,6 @@
     const router =useRouter()
     let taskData = inject('taskData')
     let show_column_controls=ref(false)
-
-
     const setColumns=()=>{
       let columns={}
       let key='id';
@@ -81,16 +80,16 @@
         filter:{from:'',to:''},
         class:'col_1'
       };
-      key='crop_name';
+      key='sales_at';
       columns[key]={
         label: labels.get('label_'+key),
         hideable:true,
         filterable:true,
         sortable:true,
-        type:'dropdown',
-        filter:{from:'',to:'',options:taskData.crops.map((item)=>{ return {value:item.name,label:item.name}}),}
+        type:'date',
+        filter:{from:'',to:''}
       };
-      key='crop_type2_name';
+      key='invoice_no';
       columns[key]={
         label: labels.get('label_'+key),
         hideable:true,
@@ -125,6 +124,92 @@
         sortable:true,
         type:'text',
         filter:{from:'',to:''}
+      };
+      key='distributor_name';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:false,
+        filterable:true,
+        sortable:true,
+        type:'text',
+        filter:{from:'',to:''}
+      };
+      key='crop_name';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:true,
+        sortable:true,
+        type:'dropdown',
+        filter:{from:'',to:'',options:taskData.crops.map((item)=>{ return {value:item.name,label:item.name}}),}
+      };
+      key='crop_type_name';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:true,
+        sortable:true,
+        type:'text',
+        filter:{from:'',to:''}
+      };
+      key='variety_name';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:true,
+        sortable:true,
+        type:'text',
+        filter:{from:'',to:''}
+      };
+      key='pack_size_name';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:false,
+        filterable:true,
+        sortable:true,
+        type:'text',
+        filter:{from:'',to:''}
+      };
+
+      key='quantity';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:false,
+        sortable:true,
+        type:'number',
+        filter:{from:'',to:''},
+        class:'col_1'
+      };
+      key='unit_price';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:false,
+        sortable:true,
+        type:'number',
+        filter:{from:'',to:''},
+        class:'col_1'
+      };
+      key='amount';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:false,
+        sortable:true,
+        type:'number',
+        filter:{from:'',to:''},
+        class:'col_1'
+      };
+      key='status';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        sortable:true,
+        filterable:true,
+        type:'dropdown',
+        filter:{from:'',to:'',options:[{value:'Active',label:'Active'},{value:'In-Active',label:'In-Active'}]},
+        class:'col_1'
       };
       key='created_at';
       columns[key]={

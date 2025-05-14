@@ -72,6 +72,13 @@
       type:'text',
       values:[item.data[key]],
     };
+
+    key='value';
+    detailFields[key] = {
+      label: labels.get('label_'+key),
+      type:'number',
+      values:[item.data[key]],
+    };
     key='ordering';
     detailFields[key] = {
       label: labels.get('label_'+key),

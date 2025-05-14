@@ -39,5 +39,9 @@ export default {
         en:"Variety",
         bn:"কর্মচারী আইডি"
     },
+    label_value:{
+        en:"Value(gm)",
+        bn:"কর্মচারী আইডি"
+    },
 
 }

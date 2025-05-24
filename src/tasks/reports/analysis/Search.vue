@@ -1201,6 +1201,12 @@
               }
             }
           }
+          for(let key in rows){
+            if(rows[key]['competitor_info'])
+            {
+              rows[key]['competitor_info'].sort((a,b) => b.competitor_variety_market_size - a.competitor_variety_market_size);
+            }
+          }
           taskData.itemsFiltered=Object.values(rows);
           taskData.columns.all=columns_all;
           calculateTableWidth();

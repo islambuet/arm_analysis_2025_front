@@ -32,5 +32,6 @@ export default reactive({
   loadListData:true,
   starting_year:2025, //TODO change it to 2023
   current_year:new Date().getFullYear(),
+  sales_starting_year:2022,
   fiscal_year_starting_month:6
 })

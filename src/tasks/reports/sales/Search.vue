@@ -61,23 +61,8 @@
         <template v-for="row in taskData.itemsFiltered">
           <tr v-for="index  in row['num_rows']" >
             <template v-for="(column,key) in taskData.columns.all">
-              <td :class="((['market_size_location_total','market_size_total','market_size_arm','market_size_arm_percentage','market_size_competitor','market_size_competitor_percentage','competitor_variety_market_size','price_approximate','upazila_market_size'].indexOf(column.group) != -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
-                <template v-if="column.group=='competitor_variety' && row['competitor_info'].length>(index-1)">{{row['competitor_info'][index-1][column.key]}}</template>
-                <template v-else-if="column.group=='competitor_variety_market_size' && row['competitor_info'].length>(index-1)">{{row['competitor_info'][index-1][column.key]}}</template>
-                <template v-else-if="column.group=='competitor_variety_sales_reason' && row['competitor_info'].length>(index-1)">{{row['competitor_info'][index-1][column.key]}}</template>
-
-                <template v-else-if="column.group=='upazila_name' && row['upazila_info'].length>(index-1)">{{row['upazila_info'][index-1][column.key]}}</template>
-                <template v-else-if="column.group=='upazila_market_size' && row['upazila_info'].length>(index-1)">{{row['upazila_info'][index-1][column.key]}}</template>
-                <template v-else-if="column.group=='unions_name' && row['upazila_info'].length>(index-1)">
-                  <template v-for="union_name in row['upazila_info'][index-1]['unions']">
-                    {{union_name}} , <br>
-                  </template>
-                </template>
-
-                <template v-else-if="column.group=='sowing_periods'">
-                  <template v-for="(month_value,month_key) in row[column.key]"><template v-if="month_value==1">{{labels.get('label_month_short_'+month_key)}} , <br></template></template>
-                </template>
-                <template v-else-if="index==1">{{ row[column.key] }}</template>
+              <td :class="((['quantity','unit_price','market_size_arm','amount'].indexOf(column.group) != -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
+                <template v-if="index==1">{{ row[column.key] }}</template>
                 <template v-else>&nbsp</template>
               </td>
             </template>
@@ -107,15 +92,18 @@
     let table_width=ref(0)
     let show_column_controls=ref(false)
     let item=reactive({
-
       exists:false,
       inputFields1:{},
       inputFields2:{},
       inputFields3:{},
       data:{
-
       }
     })
+    let current_month=new Date().getMonth();
+    let current_fiscal_year= (globalVariables.current_year);
+    if(current_month<globalVariables.fiscal_year_starting_month){
+      current_fiscal_year--;
+    }
     let crops_object={};
     for(let i in taskData.crops){
       crops_object[taskData.crops[i]['id']]=taskData.crops[i];
@@ -130,110 +118,23 @@
     }
     let location_parts_object={};
     for(let i in taskData.location_parts){
-      let id=taskData.location_parts[i]['id'];
-      location_parts_object[id]=taskData.location_parts[i];
-      location_parts_object[id]['area_ids']=[];
-      location_parts_object[id]['district_ids']=[];
+      let part_id=taskData.location_parts[i]['id'];
+      location_parts_object[part_id]=taskData.location_parts[i];
     }
     let location_areas_object={};
     for(let i in taskData.location_areas){
-      let id=taskData.location_areas[i]['id'];
-      location_areas_object[id]=taskData.location_areas[i];
-      location_areas_object[id]['territory_ids']=[];
-      location_areas_object[id]['district_ids']=[];
+      let area_id=taskData.location_areas[i]['id'];
+      location_areas_object[area_id]=taskData.location_areas[i];
     }
     let location_territories_object={};
     for(let i in taskData.location_territories){
-      let id=taskData.location_territories[i]['id'];
-      location_territories_object[id]=taskData.location_territories[i];
-      location_territories_object[id]['upazila_ids']=[];
-      location_territories_object[id]['district_ids']=[];
-      location_areas_object[taskData.location_territories[i]['area_id']]['territory_ids'].push(id);
+      let territory_id=taskData.location_territories[i]['id'];
+      location_territories_object[territory_id]=taskData.location_territories[i];
     }
-
-    let location_divisions_object={};
-    for(let i in taskData.location_divisions){
-      let id=taskData.location_divisions[i]['id'];
-      location_divisions_object[id]=taskData.location_divisions[i];
-      location_divisions_object[id]['district_ids']=[];
-    }
-
-    let location_districts_object={};
-    for(let i in taskData.location_districts){
-      let id=taskData.location_districts[i]['id'];
-      location_districts_object[id]=taskData.location_districts[i];
-      location_districts_object[id]['upazila_ids']=[]
-      location_divisions_object[taskData.location_districts[i]['division_id']]['district_ids'].push(id);
-    }
-    let user_locations_country_wise={};
-    user_locations_country_wise['division_ids']=[];
-    user_locations_country_wise['district_ids']=[];
-    user_locations_country_wise['upazila_ids']=[];
-
-    let location_upazilas_object={};
-    for(let i in taskData.location_upazilas){
-      let upazila_id=taskData.location_upazilas[i]['id'];
-      let district_id=taskData.location_upazilas[i]['district_id'];
-      let division_id=location_districts_object[district_id]['division_id']
-
-      let territory_id=taskData.location_upazilas[i]['territory_id'];
-      let area_id=location_territories_object[territory_id]['area_id'];
-      let part_id=location_areas_object[area_id]['part_id'];
-
-      location_upazilas_object[upazila_id]=taskData.location_upazilas[i];
-
-      location_districts_object[district_id]['upazila_ids'].push(upazila_id);
-      location_territories_object[territory_id]['upazila_ids'].push(upazila_id);
-
-      if(!location_territories_object[territory_id]['district_ids'].includes(district_id))
-      {
-        location_territories_object[territory_id]['district_ids'].push(district_id);
-      }
-      if(!location_areas_object[area_id]['district_ids'].includes(district_id))
-      {
-        location_areas_object[area_id]['district_ids'].push(district_id);
-      }
-      if(!location_parts_object[part_id]['district_ids'].includes(district_id))
-      {
-        location_parts_object[part_id]['district_ids'].push(district_id);
-      }
-      let is_user_location=false;
-      if(taskData.user_locations.territory_id>0){
-        if(taskData.user_locations.territory_id==territory_id){
-          is_user_location=true;
-        }
-      }
-      else if(taskData.user_locations.area_id>0){
-        if(taskData.user_locations.area_id==area_id){
-          is_user_location=true;
-        }
-      }
-      else if(taskData.user_locations.part_id>0){
-        if(taskData.user_locations.part_id==part_id){
-          is_user_location=true;
-        }
-      }
-      else{
-        is_user_location=true;
-      }
-      if(is_user_location){
-        if(!user_locations_country_wise['division_ids'].includes(division_id))
-        {
-          user_locations_country_wise['division_ids'].push(division_id);
-        }
-        if(!user_locations_country_wise['district_ids'].includes(district_id))
-        {
-          user_locations_country_wise['district_ids'].push(district_id);
-        }
-        if(!user_locations_country_wise['upazila_ids'].includes(upazila_id))
-        {
-          user_locations_country_wise['upazila_ids'].push(upazila_id);
-        }
-      }
-    }
-    let location_unions_object={};
-    for(let i in taskData.location_unions){
-      location_unions_object[taskData.location_unions[i]['id']]=taskData.location_unions[i];
+    let distributors_object={};
+    for(let i in taskData.distributors){
+      let distributor_id=taskData.distributors[i]['id'];
+      distributors_object[distributor_id]=taskData.distributors[i];
     }
 
     const setInputFields=async ()=>{
@@ -242,28 +143,62 @@
       item.inputFields3= {};
       await systemFunctions.delay(1);
       let inputFields={}
-      let key='analysis_year_id';
+      let key='report_format';
       inputFields[key] = {
         name: 'options[' +key +']',
         label: labels.get('label_'+key),
         type:'dropdown',
-        options:taskData.analysis_years.map((item)=>{ return {value:item.id,label:item.name}}),
-        default:taskData.analysis_years[taskData.analysis_years.length-1].id,
+        options:[{value:'crop_fiscal_year',label:'Crop - Fiscal Year'},{value:'type_fiscal_year',label:'Type - Fiscal Year'},{value:'variety_fiscal_year',label:'Variety - Fiscal Year'}],
+        default:'crop_fiscal_year',
         mandatory:true,
         noselect:true,
       };
-      key='report_format';
+      key='fiscal_year';
       inputFields[key] = {
         name: 'options[' +key +']',
         label: labels.get('label_'+key),
         type:'dropdown',
-        options:[{value:'crop_marketsize',label:'Crop - Market Size'},{value:'type_marketsize',label:'Type - Market Size'},
-          {value:'crop_arm_location',label:'Crop - ARM Location'},{value:'type_arm_location',label:'Type - ARM Location'},
-          {value:'crop_country_location',label:'Crop - Country Location'},{value:'type_country_location',label:'Type - Country Location'}],
-        default:'crop_marketsize',
-        mandatory:true,
+        options:new Array(current_fiscal_year-globalVariables.sales_starting_year+1).fill().map((temp,index) => {return {value:current_fiscal_year-index,label:(current_fiscal_year-index)+' - '+(current_fiscal_year-index+1)}}),
+        default:'',
+        mandatory:false
+      };
+      key='num_fiscal_years';
+      inputFields[key] = {
+        name: 'options[' +key +']',
+        label: labels.get('label_'+key),
+        type:'dropdown',
+        options:new Array(current_fiscal_year-globalVariables.sales_starting_year+1).fill().map((temp,index) => {return {value:index+1,label:index+1}}),
+        default:'',
+        mandatory:false,
         noselect:true,
       };
+      key='month';
+      inputFields[key] = {
+        name: 'options[' +key +']',
+        label: labels.get('label_'+key),
+        type:'dropdown',
+        options:new Array(12).fill().map((temp,index) => {return {value:index+1,label:labels.get('label_month_short_'+(index+1))}}),
+        default:'',
+        mandatory:false
+      };
+
+      key='sales_from';
+      inputFields[key] = {
+        name: 'options[' +key +']',
+        label: labels.get('label_'+key),
+        type:'date',
+        default:item.data[key],
+        mandatory:true
+      };
+      key='sales_to';
+      inputFields[key] = {
+        name: 'options[' +key +']',
+        label: labels.get('label_'+key),
+        type:'date',
+        default:item.data[key],
+        mandatory:true
+      };
+
       item.inputFields1=inputFields;
       //inputFields2
       inputFields={}
@@ -273,7 +208,7 @@
         name: 'options[' +key +']',
         label: labels.get('label_'+key),
         type:'dropdown',
-        options:taskData.location_parts.map((item)=>{ return {value:item.id,label:item.name}}),
+        options:taskData.location_parts.filter((temp)=>{ if(temp.status=='Active'){temp.value=temp.id.toString();temp.label=temp.name;return true}}),
         default:item.data[key],
         mandatory:false
       };
@@ -299,7 +234,7 @@
         name: 'options[' +key +']',
         label: labels.get('label_'+key),
         type:'dropdown',
-        options:(taskData.user_locations.part_id>0)?taskData.location_areas.filter((temp)=>{ if(temp.part_id==taskData.user_locations.part_id){temp.value=temp.id.toString();temp.label=temp.name;return true}}):[],
+        options:(taskData.user_locations.part_id>0)?taskData.location_areas.filter((temp)=>{ if((temp.part_id==taskData.user_locations.part_id)&&(temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}}):[],
         default:item.data[key],
         mandatory:false
       };
@@ -325,7 +260,7 @@
         name: 'options[' +key +']',
         label: labels.get('label_'+key),
         type:'dropdown',
-        options:(taskData.user_locations.area_id>0)?taskData.location_territories.filter((temp)=>{ if(temp.area_id==taskData.user_locations.area_id){temp.value=temp.id.toString();temp.label=temp.name;return true}}):[],
+        options:(taskData.user_locations.area_id>0)?taskData.location_territories.filter((temp)=>{ if((temp.area_id==taskData.user_locations.area_id) && (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}}):[],
         default:item.data[key],
         mandatory:false
       };
@@ -346,33 +281,16 @@
           mandatory:false
         };
       }
-      key='division_id';
+      key='distributor_id';
       inputFields[key] = {
         name: 'options[' +key +']',
         label: labels.get('label_'+key),
         type:'dropdown',
-        options:taskData.location_divisions.filter((temp)=>{ if(user_locations_country_wise['division_ids'].includes(temp.id)){temp.value=temp.id.toString();temp.label=temp.name;return true}}),
+        options:(taskData.user_locations.territory_id>0)?taskData.distributors.filter((temp)=>{ if((temp.territory_id==taskData.user_locations.territory_id) && (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}}):[],
         default:item.data[key],
-        mandatory:true
+        mandatory:false
       };
-      key='district_id';
-      inputFields[key] = {
-        name: 'options[' +key +']',
-        label: labels.get('label_'+key),
-        type:'dropdown',
-        options:[],
-        default:item.data[key],
-        mandatory:true
-      };
-      key='upazila_id';
-      inputFields[key] = {
-        name: 'options[' +key +']',
-        label: labels.get('label_'+key),
-        type:'dropdown',
-        options:[],
-        default:item.data[key],
-        mandatory:true
-      };
+
 
       item.inputFields2=inputFields;
       //inputFields3
@@ -382,7 +300,7 @@
         name: 'options[' +key +']',
         label: labels.get('label_'+key),
         type:'dropdown',
-        options:taskData.crops.map((item)=>{ return {value:item.id,label:item.name}}),
+        options:taskData.crops.filter((temp)=>{ if(temp.status=='Active'){temp.value=temp.id.toString();temp.label=temp.name;return true}}),
         default:item.data[key],
         mandatory:false
       };
@@ -395,6 +313,25 @@
         default:item.data[key],
         mandatory:false
       };
+      key='variety_id';
+      inputFields[key] = {
+        name: 'options[' +key +']',
+        label: labels.get('label_'+key),
+        type:'dropdown',
+        options:[],
+        default:item.data[key],
+        mandatory:true
+      };
+      key='pack_size_id';
+      inputFields[key] = {
+        name: 'options[' +key +']',
+        label: labels.get('label_'+key),
+        type:'dropdown',
+        options:[],
+        default:item.data[key],
+        mandatory:true
+      };
+
       item.inputFields3=inputFields;
 
 
@@ -465,6 +402,7 @@
           taskData.itemsFiltered=[];
           let columns_all=[];
           let rows={};
+          console.log(res.data.items)
 
           if(options['report_format']=='crop_marketsize'){
             columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
@@ -1251,87 +1189,6 @@
       }
       calculateTableWidth();
     }
-    $(document).ready(async function()
-    {
-      $(document).off("change", "#report_format");
-      $(document).on("change",'#report_format',function()
-      {
-        show_report.value=false;
-        let report_format=$(this).val();
-        let columns_selectable=[];
-        let columns_hidden=[]
-        if(report_format=='crop_marketsize'){
-          columns_selectable=['market_size_total','market_size_arm','market_size_arm_percentage','market_size_competitor','market_size_competitor_percentage','competitor_variety','competitor_variety_market_size','competitor_variety_sales_reason','sowing_periods','upazila_name','upazila_market_size','unions_name'];
-          columns_hidden=['competitor_variety','competitor_variety_market_size','competitor_variety_sales_reason','sowing_periods','upazila_name','upazila_market_size','unions_name'];
-
-        }
-        else if(report_format=='type_marketsize'){
-          columns_selectable=['market_size_total','market_size_arm','market_size_arm_percentage','market_size_competitor','market_size_competitor_percentage','price_approximate','competitor_variety','competitor_variety_market_size','competitor_variety_sales_reason','sowing_periods','upazila_name','upazila_market_size','unions_name'];
-          columns_hidden=['competitor_variety','competitor_variety_market_size','competitor_variety_sales_reason','sowing_periods','upazila_name','upazila_market_size','unions_name'];
-        }
-        else if((report_format=='crop_arm_location')||(report_format=='type_arm_location') || (report_format=='crop_country_location' )|| (report_format=='type_country_location' )){
-          columns_selectable=['market_size_location_total','market_size_total','market_size_arm','market_size_arm_percentage','market_size_competitor','market_size_competitor_percentage'];
-          columns_hidden=['market_size_arm','market_size_arm_percentage','market_size_competitor','market_size_competitor_percentage'];
-        }
-        taskData.columns.selectable=columns_selectable;
-        taskData.columns.hidden=columns_hidden;
-      })
-      await systemFunctions.delay(2);
-      $('#report_format').trigger('change');
-
-      $(document).off("change", "#crop_id");
-      $(document).on("change",'#crop_id',function()
-      {
-        let crop_id=$(this).val();
-        let key='crop_type_id';
-        item.inputFields3[key].options=taskData.crop_types.filter((item)=>{ if(item.crop_id==crop_id){item.value=item.id.toString();item.label=item.name;return true}})
-      })
-
-      $(document).off("change", "#part_id");
-      $(document).on("change",'#part_id',async function()
-      {
-        let part_id=$(this).val();
-        let key='area_id';
-        item.inputFields2[key].options=taskData.location_areas.filter((item)=>{ if(item.part_id==part_id){item.value=item.id.toString();item.label=item.name;return true}})
-        await systemFunctions.delay(1);
-        $('#'+key).val('');
-        key='territory_id';
-        item.inputFields2[key].options=[];
-        $('#'+key).val('');
-      })
-      $(document).off("change", "#area_id");
-      $(document).on("change",'#area_id',async function()
-      {
-        let area_id=$(this).val();
-        let key='territory_id';
-        item.inputFields2[key].options=taskData.location_territories.filter((item)=>{ if(item.area_id==area_id){item.value=item.id.toString();item.label=item.name;return true}})
-        await systemFunctions.delay(1);
-        $('#'+key).val('');
-      })
-      $(document).off("change", "#division_id");
-      $(document).on("change",'#division_id',async function()
-      {
-        let division_id=$(this).val();
-        let key='district_id';
-        item.inputFields2[key].options=taskData.location_districts.filter((temp)=>{ if(temp.division_id==division_id && user_locations_country_wise['district_ids'].includes(temp.id)){temp.value=temp.id.toString();temp.label=temp.name;return true}})
-        await systemFunctions.delay(1);
-        $('#'+key).val('');
-        key='upazila_id';
-        item.inputFields2[key].options=[];
-        $('#'+key).val('');
-      })
-
-      $(document).off("change", "#district_id");
-      $(document).on("change",'#district_id',async function()
-      {
-        let district_id=$(this).val();
-        let key='upazila_id';
-        item.inputFields2[key].options=taskData.location_upazilas.filter((temp)=>{ if(temp.district_id==district_id && user_locations_country_wise['upazila_ids'].includes(temp.id) ){temp.value=temp.id.toString();temp.label=temp.name;return true}})
-        await systemFunctions.delay(1);
-        $('#'+key).val('');
-      })
-
-    });
     const calculateTableWidth=()=>{
       let width=0;
       for(let index in taskData.columns.all){
@@ -1341,9 +1198,125 @@
       }
       table_width.value=width;
     }
-
     setInputFields();
+    $(document).ready(async function()
+    {
+      $(document).off("change", "#report_format");
+      $(document).on("change",'#report_format',function()
+      {
+        show_report.value=false;
+        let report_format=$(this).val();
+        let columns_selectable=[];
+        let columns_hidden=[]
+        if((report_format=='crop_fiscal_year')||(report_format=='type_fiscal_year') || (report_format=='variety_fiscal_year' )){
+          columns_selectable=['quantity','amount'];
+        }
+        taskData.columns.selectable=columns_selectable;
+        taskData.columns.hidden=columns_hidden;
+      })
+      await systemFunctions.delay(2);
+      $('#report_format').trigger('change');
+      $("#sales_from").val(moment().startOf('month').format('YYYY-MM-DD'))
+      $("#sales_to").val(moment().endOf('month').format('YYYY-MM-DD'))
 
+      $(document).off("change", "#fiscal_year");
+      $(document).on("change",'#fiscal_year',async function()
+      {
+        let fiscal_year=$(this).val();
+        if(fiscal_year>0){
+          let start_date=moment(fiscal_year+'-'+globalVariables.fiscal_year_starting_month+'-01','YYYY-MM-DD');
+          let end_date=start_date.clone().add($("#num_fiscal_years").val(),'year').add(-1,'day')
+          $("#sales_from").val(start_date.format('YYYY-MM-DD'))
+          $("#sales_to").val(end_date.format('YYYY-MM-DD'))
+        }
+        else{
+          $("#sales_from").val(moment().startOf('month').format('YYYY-MM-DD'))
+          $("#sales_to").val(moment().endOf('month').format('YYYY-MM-DD'))
+        }
+      });
+      $(document).off("change", "#num_fiscal_years");
+      $(document).on("change",'#num_fiscal_years',async function()
+      {
+        $('#fiscal_year').trigger('change')
+      });
+
+      $(document).off("change", "#crop_id");
+      $(document).on("change",'#crop_id',async function()
+      {
+        let crop_id=$(this).val();
+        let key='crop_type_id';
+        item.inputFields3[key].options=taskData.crop_types.filter((temp)=>{ if((temp.crop_id==crop_id) && (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
+        await systemFunctions.delay(1);
+        $('#'+key).val('');
+        key='variety_id';
+        item.inputFields3[key].options=[];
+        $('#'+key).val('');
+        key='pack_size_id';
+        item.inputFields3[key].options=[];
+        $('#'+key).val('');
+      })
+      $(document).off("change", "#crop_type_id");
+      $(document).on("change",'#crop_type_id',async function()
+      {
+
+        let crop_type_id=$(this).val();
+        let key='variety_id';
+        console.log(crop_type_id)
+        item.inputFields3[key].options=taskData.varieties.filter((temp)=>{ if((temp.crop_type_id==crop_type_id) && (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
+        await systemFunctions.delay(1);
+        $('#'+key).val('');
+        key='pack_size_id';
+        item.inputFields3[key].options=[];
+        $('#'+key).val('');
+      })
+      $(document).off("change", "#variety_id");
+      $(document).on("change",'#variety_id',async function()
+      {
+        let variety_id=$(this).val();
+        let key='pack_size_id';
+        item.inputFields3[key].options=taskData.pack_sizes.filter((temp)=>{ if((temp.variety_id==variety_id)&& (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
+        await systemFunctions.delay(1);
+        $('#'+key).val('');
+      })
+
+      $(document).off("change", "#part_id");
+      $(document).on("change",'#part_id',async function()
+      {
+        let part_id=$(this).val();
+        let key='area_id';
+        item.inputFields2[key].options=taskData.location_areas.filter((temp)=>{ if((temp.part_id==part_id) && (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
+        await systemFunctions.delay(1);
+        $('#'+key).val('');
+        key='territory_id';
+        item.inputFields2[key].options=[];
+        $('#'+key).val('');
+        key='distributor_id';
+        item.inputFields2[key].options=[];
+        $('#'+key).val('');
+      })
+      $(document).off("change", "#area_id");
+      $(document).on("change",'#area_id',async function()
+      {
+        let area_id=$(this).val();
+        let key='territory_id';
+        item.inputFields2[key].options=taskData.location_territories.filter((temp)=>{ if((temp.area_id==area_id)&& (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
+        await systemFunctions.delay(1);
+        $('#'+key).val('');
+        key='distributor_id';
+        item.inputFields2[key].options=[];
+        $('#'+key).val('');
+      })
+      $(document).off("change", "#territory_id");
+      $(document).on("change",'#territory_id',async function()
+      {
+        let territory_id=$(this).val();
+        let key='distributor_id';
+        item.inputFields2[key].options=taskData.distributors.filter((temp)=>{ if((temp.territory_id==territory_id)&& (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
+        await systemFunctions.delay(1);
+        $('#'+key).val('');
+      })
+
+    });
 
 </script>
 

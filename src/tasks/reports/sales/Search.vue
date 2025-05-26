@@ -64,7 +64,7 @@
               <td :class="((['quantity','unit_price','market_size_arm','amount'].indexOf(column.group) != -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
                 <template v-if="index==1">
                   <template v-if="column.group=='amount'">{{ row[column.key]?row[column.key].toFixed(2):'' }}</template>
-                  <template v-else-if="column.group=='quantity'">{{ row[column.key].toFixed(3) }}</template>
+                  <template v-else-if="column.group=='quantity'">{{ row[column.key]?row[column.key].toFixed(3):'' }}</template>
                   <template v-else>{{ row[column.key] }}</template>
                 </template>
                 <template v-else>&nbsp</template>
@@ -547,7 +547,7 @@
           $("#sales_to").val(moment().endOf('month').format('YYYY-MM-DD'))
         }
       });
-      await systemFunctions.delay(2);
+      await systemFunctions.delay(10);
       $('#report_format').trigger('change');
       $('#fiscal_year').trigger('change')
 

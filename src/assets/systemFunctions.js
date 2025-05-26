@@ -95,6 +95,29 @@ export default{
         }
         return filterItems;
     },
+    exportCsvFromHtmlTable(htmlTable,outputFile){
+        let csvStr="";
+        let headers=$(htmlTable+' thead th');
+        if(headers.length>0){
+            $.each( headers, function( key, header ) {
+                csvStr=csvStr+'"'+$(header).text()+'",';
+            });
+            csvStr+="\n";
+        }
+        let rows=$(htmlTable+' tbody tr');
+        $.each( rows, function( key, row ) {
+            let cols=$(row).children('td');
+            $.each( cols, function( i, col ) {
+                csvStr=csvStr+'"'+$(col).text().replace()+'",';
+            });
+            csvStr+="\n";
+        });
+        let hiddenElement = document.createElement('a');
+        hiddenElement.href = 'data:text/csv;charset=utf-8,%EF%BB%BF' + encodeURI(csvStr);
+        hiddenElement.target = '_blank';
+        hiddenElement.download = outputFile+'.csv';
+        hiddenElement.click();
+    },
     exportCsv(columns,data,filename="output.csv")
     {
         let csvStr="";

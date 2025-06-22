@@ -48,6 +48,7 @@
     crops:[],
     crop_types:[],
     varieties :[],
+    pack_sizes :[]
   })
   labels.add([{language:globalVariables.language,file:'tasks'+taskData.api_url+'/labels.js'}])
 
@@ -107,6 +108,7 @@
         taskData.crops=res.data.crops;
         taskData.crop_types=res.data.crop_types;
         taskData.varieties=res.data.varieties;
+        taskData.pack_sizes=res.data.pack_sizes;
         if(res.data.hidden_columns){
           taskData.columns.hidden=res.data.hidden_columns;
         }

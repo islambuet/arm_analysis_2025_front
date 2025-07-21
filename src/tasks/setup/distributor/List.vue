@@ -80,6 +80,15 @@
         filter:{from:'',to:''},
         class:'col_1'
       };
+      key='district_name';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:true,
+        sortable:true,
+        type:'dropdown',
+        filter:{from:'',to:'',options:taskData.location_districts.map((item)=>{ return {value:item.name,label:item.name}}),}
+      };
       key='part_name';
       columns[key]={
         label: labels.get('label_'+key),

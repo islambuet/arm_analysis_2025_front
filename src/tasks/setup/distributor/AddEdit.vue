@@ -79,6 +79,15 @@ const setInputFields=async ()=>{
     default:item.data[key],
     mandatory:true
   };
+  key='district_id';
+  inputFields[key] = {
+    name: 'item[' +key +']',
+    label: labels.get('label_'+key),
+    type:'dropdown',
+    options:taskData.location_districts.map((item)=>{ return {value:item.id,label:item.name}}),
+    default:item.data[key],
+    mandatory:true
+  };
   key='part_id';
   inputFields[key] = {
     name: 'crop_id',

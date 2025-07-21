@@ -15,6 +15,14 @@ export default {
         en:"Details of Distributor",
         bn:'ব্যবহারকারীর বিবরণ'
     },
+    label_district_id:{
+        en:"District",
+        bn:"কর্মচারী আইডি"
+    },
+    label_district_name:{
+        en:"District",
+        bn:"কর্মচারী আইডি"
+    },
     label_part_id:{
         en:"Part",
         bn:"কর্মচারী আইডি"

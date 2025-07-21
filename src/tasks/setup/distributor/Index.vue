@@ -44,6 +44,7 @@
     location_parts:[],
     location_areas:[],
     location_territories:[],
+    location_districts:[],
   })
   labels.add([{language:globalVariables.language,file:'tasks'+taskData.api_url+'/labels.js'}])
 
@@ -99,6 +100,7 @@
         taskData.location_parts=res.data.location_parts;
         taskData.location_areas=res.data.location_areas;
         taskData.location_territories=res.data.location_territories;
+        taskData.location_districts=res.data.location_districts;
         if(res.data.hidden_columns){
           taskData.columns.hidden=res.data.hidden_columns;
         }

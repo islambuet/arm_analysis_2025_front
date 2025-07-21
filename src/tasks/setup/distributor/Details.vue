@@ -47,7 +47,12 @@
       type:'hidden',
       values:[item.data[key]],
     };
-
+    key='district_name';
+    detailFields[key] = {
+      label: labels.get('label_'+key),
+      type:'text',
+      values:[item.data[key]],
+    };
     key='part_name';
     detailFields[key] = {
       label: labels.get('label_'+key),

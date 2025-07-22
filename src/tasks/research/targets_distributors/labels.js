@@ -99,5 +99,13 @@ export default {
         en:"Amount",
         bn:"কর্মচারী আইডি"
     },
+    label_total_type_entered:{
+        en:"# of types data",
+        bn:"কর্মচারী আইডি"
+    },
+    label_fiscal_year :{
+        en:"Fiscal Year",
+        bn:'ব্যবহারকারীরা'
+    },
 
 }

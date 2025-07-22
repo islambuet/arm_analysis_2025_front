@@ -40,7 +40,7 @@
     items: {data:[]},   //from Laravel server with pagination and info
     itemsFiltered: [],    //for display
     columns:{all:{},hidden:[],sort:{key:'',dir:''}},
-    pagination: {current_page: 1,per_page_options: [10,20,50,100,500,1000],per_page:20,show_all_items:true},
+    pagination: {current_page: 1,per_page_options: [10,20,50,100,500,1000],per_page:-1,show_all_items:true},
     location_parts:[],
     location_areas:[],
     location_territories:[],
@@ -48,7 +48,7 @@
     crops:[],
     crop_types:[],
     varieties :[],
-    pack_sizes :[]
+    user_locations:{},
   })
   labels.add([{language:globalVariables.language,file:'tasks'+taskData.api_url+'/labels.js'}])
 
@@ -80,7 +80,17 @@
       await axios.get(taskData.api_url+'/get-items?page='+ pagination.current_page+'&perPage='+ pagination.per_page)
           .then(res => {
             if(res.data.error==''){
-              taskData.items= res.data.items;
+              let items={};
+              items['data']=[];
+              for(let i in taskData.distributors){
+                let districtData=taskData.distributors[i];
+                districtData['total_type_entered']=res.data.items[districtData['id']]?res.data.items[districtData['id']]['total_type_entered']:0;
+                items['data'].push(districtData)
+              }
+              items['current_page']=1;
+              items['last_page1']=1;
+              items['total']=items['data'].length;
+              taskData.items= items;
               taskData.setFilteredItems();
             }
             else{
@@ -108,7 +118,7 @@
         taskData.crops=res.data.crops;
         taskData.crop_types=res.data.crop_types;
         taskData.varieties=res.data.varieties;
-        taskData.pack_sizes=res.data.pack_sizes;
+        taskData.user_locations=res.data.user_locations;
         if(res.data.hidden_columns){
           taskData.columns.hidden=res.data.hidden_columns;
         }

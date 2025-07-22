@@ -1,14 +1,16 @@
-<template>    
-    <div class="card d-print-none mb-2">
-        <div class="card-body">
-            <router-link v-if="taskData.permissions.action_1"  :to="taskData.api_url+'/add'" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" ><i class="feather icon-plus-circle"></i> {{labels.get('action_1')}}</router-link>
-            <button type="button" v-if="taskData.permissions.action_4" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" onclick="window.print();"><i class="feather icon-printer"></i> {{labels.get('action_4')}}</button>
-            <button type="button" v-if="taskData.permissions.action_5" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="systemFunctions.exportCsv(taskData.columns,taskData.itemsFiltered,taskData.api_url.substring(1)+'.csv')"><i class="feather icon-download"></i> {{labels.get('action_5')}}</button>
-            <button type="button" v-if="taskData.permissions.action_8" class="mr-2 mb-2 btn btn-sm" :class="[show_column_controls?'bg-gradient-success':'bg-gradient-primary']" @click="show_column_controls = !show_column_controls"><i class="feather icon-command"></i> {{labels.get('action_8')}}</button>
-            <button type="button" v-if="taskData.permissions.action_0" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="taskData.reloadItems(taskData.pagination)"><i class="feather icon-rotate-cw"></i> {{labels.get('label_refresh')}}</button>
-        </div>            
+<template>
+  <div class="card d-print-none mb-2">
+    <div class="card-body">
+      <div class="row mb-2">
+        <div class="col-4">
+          <label class="font-weight-bold float-right">{{labels.get('label_fiscal_year')}}</label>
+        </div>
+        <div class="col-lg-4 col-8">
+          <label class="font-weight-bold">{{current_fiscal_year+'-'+(current_fiscal_year+1)}} </label>
+        </div>
+      </div>
     </div>
-  <ColumnControl :url="taskData.api_url.substring(1)" :columns="taskData.columns"  v-if="show_column_controls"/>
+  </div>
   <div class="card mb-2">
     <div class="card-header d-print-none">
       {{labels.get('label_task')}}
@@ -47,7 +49,7 @@
         </tr>
         </tbody>
       </table>
-      <Pagination :items = "taskData.items" :onChangePageOption="taskData.reloadItems" :pagination="taskData.pagination"/>
+
     </div>
   </div>
 </template>
@@ -63,30 +65,26 @@
     import ColumnSort from '@/components/ColumnSort.vue';
     import ColumnFilter from '@/components/ColumnFilter.vue';
     import Pagination from '@/components/Pagination.vue';
+    import globalVariables from "@/assets/globalVariables";
 
 
     const router =useRouter()
     let taskData = inject('taskData')
     let show_column_controls=ref(false)
+    let current_month=new Date().getMonth();
+    let current_fiscal_year= (globalVariables.current_year);
+    if(current_month<globalVariables.fiscal_year_starting_month){
+      current_fiscal_year--;
+    }
     const setColumns=()=>{
       let columns={}
-      let key='id';
+      let key='name';
       columns[key]={
         label: labels.get('label_'+key),
-        hideable:true,
+        hideable:false,
         filterable:true,
         sortable:true,
-        type:'number',
-        filter:{from:'',to:''},
-        class:'col_1'
-      };
-      key='year';
-      columns[key]={
-        label: labels.get('label_'+key),
-        hideable:true,
-        filterable:true,
-        sortable:true,
-        type:'date',
+        type:'text',
         filter:{from:'',to:''}
       };
       key='part_name';
@@ -116,43 +114,7 @@
         type:'text',
         filter:{from:'',to:''}
       };
-      key='distributor_name';
-      columns[key]={
-        label: labels.get('label_'+key),
-        hideable:false,
-        filterable:true,
-        sortable:true,
-        type:'text',
-        filter:{from:'',to:''}
-      };
-      key='crop_name';
-      columns[key]={
-        label: labels.get('label_'+key),
-        hideable:true,
-        filterable:true,
-        sortable:true,
-        type:'dropdown',
-        filter:{from:'',to:'',options:taskData.crops.map((item)=>{ return {value:item.name,label:item.name}}),}
-      };
-      key='crop_type_name';
-      columns[key]={
-        label: labels.get('label_'+key),
-        hideable:true,
-        filterable:true,
-        sortable:true,
-        type:'text',
-        filter:{from:'',to:''}
-      };
-      key='variety_name';
-      columns[key]={
-        label: labels.get('label_'+key),
-        hideable:true,
-        filterable:true,
-        sortable:true,
-        type:'text',
-        filter:{from:'',to:''}
-      };
-      key='quantity';
+      key='total_type_entered';
       columns[key]={
         label: labels.get('label_'+key),
         hideable:true,
@@ -161,45 +123,6 @@
         type:'number',
         filter:{from:'',to:''},
         class:'col_1'
-      };
-      key='unit_price';
-      columns[key]={
-        label: labels.get('label_'+key),
-        hideable:true,
-        filterable:false,
-        sortable:true,
-        type:'number',
-        filter:{from:'',to:''},
-        class:'col_1'
-      };
-      key='amount';
-      columns[key]={
-        label: labels.get('label_'+key),
-        hideable:true,
-        filterable:false,
-        sortable:true,
-        type:'number',
-        filter:{from:'',to:''},
-        class:'col_1'
-      };
-      key='status';
-      columns[key]={
-        label: labels.get('label_'+key),
-        hideable:true,
-        sortable:true,
-        filterable:true,
-        type:'dropdown',
-        filter:{from:'',to:'',options:[{value:'Active',label:'Active'},{value:'In-Active',label:'In-Active'}]},
-        class:'col_1'
-      };
-      key='created_at';
-      columns[key]={
-        label: labels.get('label_'+key),
-        hideable:true,
-        filterable:true,
-        sortable:true,
-        type:'date',
-        filter:{from:'',to:''}
       };
       taskData.columns.all=columns
     }

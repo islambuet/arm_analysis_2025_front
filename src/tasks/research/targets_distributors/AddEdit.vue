@@ -224,7 +224,7 @@ for(let i in taskData.varieties){
 }
 let item=reactive({
   id:0,
-  exists:true,
+  exists:false,
   inputFields:{crop_types:[],varieties_arm:[],varieties_competitor:[]},
   data:{}
 })

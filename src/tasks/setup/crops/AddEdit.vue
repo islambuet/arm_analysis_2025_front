@@ -85,7 +85,7 @@ const setInputFields=async ()=>{
     label: labels.get('label_'+key),
     type:'text',
     default:item.data[key],
-    mandatory:true
+    mandatory:false
   };
   key='replica';
   inputFields[key] = {

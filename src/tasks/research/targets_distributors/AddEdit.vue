@@ -57,8 +57,8 @@
               <label class="font-weight-bold float-right">{{labels.get('label_month_start')}}</label>
             </div>
             <div class="col-lg-4 col-8">
-              <select id="type_id" name="item[month_start]" class="form-control">
-                <option value="">{{labels.get('label_select')}}</option>
+              <select id="month_start" name="item[month_start]" class="form-control" v-model="item.data.month_start">
+                <option value="0">{{labels.get('label_select')}}</option>
                 <option v-for="i in 12" :value="i">
                   {{labels.get('label_month_short_'+i)}}
                 </option>
@@ -70,8 +70,8 @@
               <label class="font-weight-bold float-right">{{labels.get('label_month_end')}}</label>
             </div>
             <div class="col-lg-4 col-8">
-              <select id="type_id" name="item[month_start]" class="form-control">
-                <option value="">{{labels.get('label_select')}}</option>
+              <select id="month_end" name="item[month_end]" class="form-control" v-model="item.data.month_end">
+                <option value="0">{{labels.get('label_select')}}</option>
                 <option v-for="i in 12" :value="i">
                   {{labels.get('label_month_short_'+i)}}
                 </option>
@@ -83,30 +83,49 @@
               <label class="font-weight-bold float-right">{{labels.get('label_pocket_market')}}</label>
             </div>
             <div class="col-lg-4 col-8">
-              <input type="text" name="item[pocket_market]" class="form-control">
+              <input type="text" name="item[pocket_market]" class="form-control" :value="item.data.pocket_market">
             </div>
           </div>
           <div class="row mb-2">
             <div class="col-4">
 
             </div>
-            <div class="col-lg-4 col-8">
+            <div class="col-8">
               <table class="table table-bordered">
                 <thead>
                 <tr>
                   <th>Major Competitor Variety</th>
                   <th>Proposed ARM Variety</th>
+                  <th></th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="row in item.inputFields.varieties_competitor">
-                  <td >
-                    <input type="checkbox"> {{row.name}}
+                <tr>
+                  <td>
+                    <select id="competitor_variety_major" class="form-control">
+                      <option value="0">{{labels.get('label_select')}}</option>
+                      <option v-for="row in item.inputFields.varieties_competitor" :value="row.id">
+                        {{row.name}}
+                      </option>
+                    </select>
                   </td>
                   <td>
-                    <template v-for="v_arm in item.inputFields.varieties_arm">
-                      <input type="checkbox"> {{v_arm.name}} &nbsp;<br>
+                    <template v-for="row in item.inputFields.varieties_arm">
+                      <input type="checkbox" class="arm_variety_proposed" :value="row.id"> {{row.name}} &nbsp;<br>
                     </template>
+                  </td>
+                  <td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary btn_add_more_competitor_variety_major"><i class="bi bi-plus-circle"></i> {{labels.get('action_1')}}</button></td>
+                </tr>
+                <tr v-for="(arm_variety_ids,comp_variety_id) in item.data.competitor_variety_major">
+                  <td>{{varieties_object[comp_variety_id]?varieties_object[comp_variety_id].name:'NF'}}</td>
+                  <td>
+                    <template v-for="arm_variety_id in arm_variety_ids">
+                      {{(varieties_object[arm_variety_id]?varieties_object[arm_variety_id].name:'NF')}}<br>
+                    </template>
+                  </td>
+                  <td>
+                    <input type="hidden" name="item[competitor_variety_major][]" :value="comp_variety_id+',_'+arm_variety_ids.join('_')+'_'">
+                    <button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_competitor_variety_major"><i class="bi bi-dash-circle"></i> Remove </button>
                   </td>
                 </tr>
                 </tbody>
@@ -118,7 +137,7 @@
               <label class="font-weight-bold float-right">{{labels.get('label_distributor_recommendation')}}</label>
             </div>
             <div class="col-lg-4 col-8">
-              <textarea class="form-control"></textarea>
+              <textarea class="form-control" name="item[distributor_recommendation]">{{item.data.distributor_recommendation}}</textarea>
             </div>
           </div>
           <div class="row mb-2">
@@ -126,7 +145,7 @@
               <label class="font-weight-bold float-right">{{labels.get('label_manager_recommendation')}}</label>
             </div>
             <div class="col-lg-4 col-8">
-              <textarea class="form-control"></textarea>
+              <textarea class="form-control" name="item[manager_recommendation]">{{item.data.manager_recommendation}}</textarea>
             </div>
           </div>
           <div class="row mb-2">
@@ -134,7 +153,7 @@
               <label class="font-weight-bold float-right">{{labels.get('label_manager_suggestion')}}</label>
             </div>
             <div class="col-lg-4 col-8">
-              <textarea class="form-control"></textarea>
+              <textarea class="form-control" name="item[manager_suggestion]">{{item.data.manager_suggestion}}</textarea>
             </div>
           </div>
           <table class="table table-bordered">
@@ -159,111 +178,17 @@
                 -
               </td>
             </tr>
-            <tr>
-              <td>Forecast FY-{{current_fiscal_year+'-'+(current_fiscal_year+1)}}</td>
-              <td v-for="row in item.inputFields.varieties_arm">
-                <input type="text" class="form-control float_positive">
-              </td>
-            </tr>
-            <tr>
-              <td :colspan="item.inputFields.varieties_arm.length+1" class="text-center"><strong>Sales Activities For FY-{{current_fiscal_year+'-'+(current_fiscal_year+1)}}</strong></td>
-            </tr>
-            <tr>
-              <td># of Dealer Meeting </td>
-              <td v-for="row in item.inputFields.varieties_arm">
-                <input type="text" class="form-control float_positive">
-              </td>
-            </tr>
-            <tr>
-              <td># of Farmer Meeting </td>
-              <td v-for="row in item.inputFields.varieties_arm">
-                <input type="text" class="form-control float_positive">
-              </td>
-            </tr>
-            <tr>
-              <td># of Demo </td>
-              <td v-for="row in item.inputFields.varieties_arm">
-                <input type="text" class="form-control float_positive">
-              </td>
-            </tr>
-            <tr>
-              <td># of Result Sharing </td>
-              <td v-for="row in item.inputFields.varieties_arm">
-                <input type="text" class="form-control float_positive">
-              </td>
-            </tr>
-            <tr>
-              <td># of Field Day </td>
-              <td v-for="row in item.inputFields.varieties_arm">
-                <input type="text" class="form-control float_positive">
-              </td>
-            </tr>
-            <tr>
-              <td :colspan="item.inputFields.varieties_arm.length+1" class="text-center"><strong>Sales Activities For FY-{{(current_fiscal_year+1)+'-'+(current_fiscal_year+2)}}</strong></td>
-            </tr>
-            <tr>
-              <td># of Dealer Meeting </td>
-              <td v-for="row in item.inputFields.varieties_arm">
-                <input type="text" class="form-control float_positive">
-              </td>
-            </tr>
-            <tr>
-              <td># of Farmer Meeting </td>
-              <td v-for="row in item.inputFields.varieties_arm">
-                <input type="text" class="form-control float_positive">
-              </td>
-            </tr>
-            <tr>
-              <td># of Demo </td>
-              <td v-for="row in item.inputFields.varieties_arm">
-                <input type="text" class="form-control float_positive">
-              </td>
-            </tr>
-            <tr>
-              <td># of Result Sharing </td>
-              <td v-for="row in item.inputFields.varieties_arm">
-                <input type="text" class="form-control float_positive">
-              </td>
-            </tr>
-            <tr>
-              <td># of Field Day </td>
-              <td v-for="row in item.inputFields.varieties_arm">
-                <input type="text" class="form-control float_positive">
-              </td>
-            </tr>
-            <tr>
-              <td :colspan="item.inputFields.varieties_arm.length+1" class="text-center"><strong>Sales Activities For FY-{{(current_fiscal_year+2)+'-'+(current_fiscal_year+3)}}</strong></td>
-            </tr>
-            <tr>
-              <td># of Dealer Meeting </td>
-              <td v-for="row in item.inputFields.varieties_arm">
-                <input type="text" class="form-control float_positive">
-              </td>
-            </tr>
-            <tr>
-              <td># of Farmer Meeting </td>
-              <td v-for="row in item.inputFields.varieties_arm">
-                <input type="text" class="form-control float_positive">
-              </td>
-            </tr>
-            <tr>
-              <td># of Demo </td>
-              <td v-for="row in item.inputFields.varieties_arm">
-                <input type="text" class="form-control float_positive">
-              </td>
-            </tr>
-            <tr>
-              <td># of Result Sharing </td>
-              <td v-for="row in item.inputFields.varieties_arm">
-                <input type="text" class="form-control float_positive">
-              </td>
-            </tr>
-            <tr>
-              <td># of Field Day </td>
-              <td v-for="row in item.inputFields.varieties_arm">
-                <input type="text" class="form-control float_positive">
-              </td>
-            </tr>
+            <template v-for="i in 3">
+              <tr>
+                <td :colspan="item.inputFields.varieties_arm.length+1" class="text-center"><strong>Sales Activities For FY-{{(current_fiscal_year+i-1)+'-'+(current_fiscal_year+i)}}</strong></td>
+              </tr>
+              <tr v-for="key in ['forecast','dealer_meeting','farmer_meeting','num_demo','num_result_sharing','num_field_day']">
+                <td>{{labels.get('label_'+key)}}</td>
+                <td v-for="row in item.inputFields.varieties_arm">
+                  <input type="text" :name="'item['+key+']['+(i-1)+']['+row.id+']'" class="form-control float_positive" :value="item['data'][key][i-1]&&item['data'][key][i-1][row.id]?item['data'][key][i-1][row.id]:''">
+                </td>
+              </tr>
+            </template>
             </tbody>
           </table>
         </div>
@@ -293,28 +218,34 @@ let current_fiscal_year= (globalVariables.current_year);
 if(current_month<globalVariables.fiscal_year_starting_month){
   current_fiscal_year--;
 }
+let varieties_object={};
+for(let i in taskData.varieties){
+  varieties_object[taskData.varieties[i]['id']]=taskData.varieties[i];
+}
 let item=reactive({
   id:0,
-  exists:false,
+  exists:true,
   inputFields:{crop_types:[],varieties_arm:[],varieties_competitor:[]},
-  data:{
-    id:0,
-    month_start:3,
-    part_id:'',
-    area_id:'',
-    territory_id:'',
-    distributor_id:'',
-    crop_id:'',
-    crop_type_id:'',
-    variety_id:'',
-    year:'',
-    quantity:'',
-    unit_price:'',
-    amount:'',
-    status:'Active',
-  }
+  data:{}
 })
-
+const setItemDefaults=async ()=>{
+  item.data={
+    month_start:0,
+    month_end:0,
+    pocket_market:'',
+    competitor_variety_major: {},
+    distributor_recommendation:'',
+    manager_recommendation:'',
+    manager_suggestion:'',
+    forecast:{},
+    dealer_meeting:{},
+    farmer_meeting:{},
+    num_demo:{},
+    num_result_sharing:{},
+    num_field_day:{},
+  }
+}
+setItemDefaults();
 const save=async (save_and_new)=>{
   let formData=new FormData(document.getElementById('formSaveItem'))
   await axios.post(taskData.api_url+'/save-item',formData).then((res)=>{
@@ -345,7 +276,13 @@ const getItem=async ()=>{
   if($('#type_id').val()>0){
     await axios.post(taskData.api_url+'/get-item/'+ item.id,formData).then((res)=>{
       if (res.data.error == "") {
-        item.data=res.data.item;
+        if(res.data.item){
+          item.data=res.data.item;
+        }
+        else{
+          setItemDefaults();
+        }
+
         item.exists=true;
       }
       else{
@@ -374,5 +311,39 @@ $(document).ready(function()
     item.inputFields['varieties_competitor']=taskData.varieties.filter((temp)=>{ if(temp.crop_type_id==type_id && temp.whose=='Competitor'){temp.value=temp.id.toString();temp.label=temp.name;return true}})
     getItem();
   })
+  $(document).off("click", ".btn_add_more_competitor_variety_major");
+  $(document).on("click",'.btn_add_more_competitor_variety_major',function()
+  {
+    let competitor_variety_major=$('#competitor_variety_major').val();
+    if(competitor_variety_major>0){
+      let competitor_name=varieties_object[competitor_variety_major]?varieties_object[competitor_variety_major].name:'NF';
+
+      let arm_names='';
+      let arm_ids='_';
+      $('.arm_variety_proposed').each(function() {
+        if($(this).is(':checked')){
+          let arm_variety_id=$(this).val();
+          arm_ids+=(arm_variety_id+'_');
+          arm_names+=((varieties_object[arm_variety_id]?varieties_object[arm_variety_id].name:'NF')+'</br>')
+        }
+
+      });
+      if(arm_ids.length>1){
+        let html='<tr>';
+        html+=('<td>'+competitor_name+'</td>');
+        html+=('<td>'+arm_names+'</td>');
+        html+='<td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_competitor_variety_major"><i class="bi bi-dash-circle"></i> Remove </button>';
+        html+=('<input type="hidden" name="item[competitor_variety_major][]" value="'+(competitor_variety_major+','+arm_ids)+'"></td>');
+        html+='</tr>';
+        $(this).closest("tr").after(html);
+      }
+    }
+
+  })
+  $(document).off("click", ".btn_remove_competitor_variety_major");
+  $(document).on("click",'.btn_remove_competitor_variety_major',function(){
+    let row_type_id=$(this).closest('.row_type').attr('id');
+    $(this).closest('tr').remove();
+  });
 });
 </script>

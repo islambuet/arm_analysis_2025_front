@@ -169,13 +169,13 @@
             <tr>
               <td>Sales FY-{{(current_fiscal_year-2)+'-'+(current_fiscal_year-1)}}</td>
               <td v-for="row in item.inputFields.varieties_arm">
-                -
+                {{item.sales['year_2'] && item.sales['year_2'][row.id] ?item.sales['year_2'][row.id]['quantity'].toFixed(3):''}}
               </td>
             </tr>
             <tr>
               <td>Sales FY-{{(current_fiscal_year-1)+'-'+(current_fiscal_year)}}</td>
               <td v-for="row in item.inputFields.varieties_arm">
-                -
+                {{item.sales['year_1'] && item.sales['year_1'][row.id] ?item.sales['year_1'][row.id]['quantity'].toFixed(3):''}}
               </td>
             </tr>
             <template v-for="i in 3">
@@ -226,7 +226,8 @@ let item=reactive({
   id:0,
   exists:false,
   inputFields:{crop_types:[],varieties_arm:[],varieties_competitor:[]},
-  data:{}
+  data:{},
+  sales:{},
 })
 const setItemDefaults=async ()=>{
   item.data={
@@ -282,7 +283,7 @@ const getItem=async ()=>{
         else{
           setItemDefaults();
         }
-
+        item.sales=res.data.sales;
         item.exists=true;
       }
       else{
@@ -300,8 +301,11 @@ $(document).ready(function()
   $(document).off("change", "#crop_id");
   $(document).on("change",'#crop_id',async function()
   {
+    item.exists=false;
     let crop_id=$(this).val();
     item.inputFields['crop_types']=taskData.crop_types.filter((temp)=>{ if(temp.crop_id==crop_id){temp.value=temp.id.toString();temp.label=temp.name;return true}})
+    await systemFunctions.delay(1);
+    $('#type_id').val('');
   })
   $(document).off("change", "#type_id");
   $(document).on("change",'#type_id',async function()

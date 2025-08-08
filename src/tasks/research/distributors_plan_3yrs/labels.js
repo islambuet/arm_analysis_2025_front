@@ -1,18 +1,18 @@
 export default {
     label_task:{
-        en:"Distributors Target",
+        en:"Distributors Business Plan",
         bn:'ব্যবহারকারীরা'
     },
     label_new_task:{
-        en:"New Distributor Target",
+        en:"New Distributor Business Plan",
         bn:'নতুন ব্যবহারকারী'
     },
     label_edit_task:{
-        en:"Edit Distributor Target",
+        en:"Edit Distributor Business Plan",
         bn:'সম্পাদনা ব্যবহারকারী'
     },
     label_details_task:{
-        en:"Details of Distributor Target",
+        en:"Details of Distributor Business Plan",
         bn:'ব্যবহারকারীর বিবরণ'
     },
     label_part_id:{

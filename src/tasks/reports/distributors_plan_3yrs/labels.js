@@ -1,6 +1,6 @@
 export default {
     label_task:{
-        en:"ForeCast Report",
+        en:"Business Plan 3 Years Report",
         bn:'Variety Report'
     },
     label_fiscal_year :{

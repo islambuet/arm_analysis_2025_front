@@ -15,6 +15,22 @@
         <input type="hidden" name="item[fiscal_year]" :value="current_fiscal_year">
         <div class="row mb-2">
           <div class="col-4">
+            <label class="font-weight-bold float-right">{{labels.get('label_name')}}</label>
+          </div>
+          <div class="col-lg-4 col-8">
+            <label class="font-weight-bold">{{item.distributor.name}} </label>
+          </div>
+        </div>
+        <div class="row mb-2">
+          <div class="col-4">
+            <label class="font-weight-bold float-right">{{labels.get('label_territory_name')}}</label>
+          </div>
+          <div class="col-lg-4 col-8">
+            <label class="font-weight-bold">{{item.distributor.territory_name}} </label>
+          </div>
+        </div>
+        <div class="row mb-2">
+          <div class="col-4">
             <label class="font-weight-bold float-right">{{labels.get('label_fiscal_year')}}</label>
           </div>
           <div class="col-lg-4 col-8">
@@ -228,6 +244,7 @@ let item=reactive({
   inputFields:{crop_types:[],varieties_arm:[],varieties_competitor:[]},
   data:{},
   sales:{},
+  distributor:{}
 })
 const setItemDefaults=async ()=>{
   item.data={
@@ -294,6 +311,12 @@ const getItem=async ()=>{
 
 }
   item.id=route.params['item_id']?route.params['item_id']:0;
+for (let i in taskData.items.data){
+  if (taskData.items.data[i].id==item.id){
+    item.distributor=taskData.items.data[i];
+    break;
+  }
+}
 
 $(document).ready(function()
 {
@@ -329,6 +352,7 @@ $(document).ready(function()
           let arm_variety_id=$(this).val();
           arm_ids+=(arm_variety_id+'_');
           arm_names+=((varieties_object[arm_variety_id]?varieties_object[arm_variety_id].name:'NF')+'</br>')
+          $(this).prop('checked', false);
         }
 
       });
@@ -342,6 +366,7 @@ $(document).ready(function()
         $(this).closest("tr").after(html);
       }
     }
+    $('#competitor_variety_major').val(0);
 
   })
   $(document).off("click", ".btn_remove_competitor_variety_major");

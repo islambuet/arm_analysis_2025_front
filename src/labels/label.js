@@ -206,6 +206,10 @@ export default {
         en:"Year",
         bn:"কর্মচারী আইডি"
     },
+    label_fiscal_year :{
+        en:"Fiscal Year",
+        bn:'ব্যবহারকারীরা'
+    },
     label_trial_station :{
         en:"Trial Station",
         bn:"কর্মচারী আইডি"

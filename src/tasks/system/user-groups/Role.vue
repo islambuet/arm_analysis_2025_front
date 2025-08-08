@@ -150,8 +150,9 @@ const getItem=async ()=>{
 
           if($(this).is(':checked'))
           {
+            $('.parent_'+$(this).attr('data-id')).prop('checked', true);
             //$('.parent_'+$(this).attr('data-id')+':not(.header_action_3)').prop('checked', true);
-            $('.parent_'+$(this).attr('data-id')+':not(.header_action_3,.header_action_7,.header_action_8)').prop('checked', true);
+            //$('.parent_'+$(this).attr('data-id')+':not(.header_action_3,.header_action_7,.header_action_8)').prop('checked', true);
           }
           else
           {

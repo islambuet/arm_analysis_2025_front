@@ -61,9 +61,9 @@
         <template v-for="row in taskData.itemsFiltered">
           <tr v-for="index  in row['num_rows']" >
             <template v-for="(column,key) in taskData.columns.all">
-              <td :class="((['quantity','unit_price','market_size_arm','amount'].indexOf(column.group) != -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
+              <td :class="((['quantity','unit_price','achievement','amount'].indexOf(column.group) != -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
                 <template v-if="index==1">
-                  <template v-if="column.group=='amount'">{{ row[column.key]?row[column.key].toFixed(2):'' }}</template>
+                  <template v-if="column.group=='amount' || column.group=='achievement'">{{ row[column.key]?row[column.key].toFixed(2):'' }}</template>
                   <template v-else-if="column.group=='quantity'">{{ row[column.key]?row[column.key].toFixed(3):'' }}</template>
                   <template v-else>{{ row[column.key] }}</template>
                 </template>
@@ -147,62 +147,16 @@
       item.inputFields3= {};
       await systemFunctions.delay(1);
       let inputFields={}
-      let key='report_format';
-      inputFields[key] = {
-        name: 'options[' +key +']',
-        label: labels.get('label_'+key),
-        type:'dropdown',
-        options:[{value:'crop_fiscal_year',label:'Crop - Fiscal Year'},{value:'type_fiscal_year',label:'Type - Fiscal Year'},{value:'variety_fiscal_year',label:'Variety - Fiscal Year'}],
-        default:'crop_fiscal_year',
-        mandatory:true,
-        noselect:true,
-      };
-      key='fiscal_year';
+      let key='fiscal_year';
       inputFields[key] = {
         name: 'options[' +key +']',
         label: labels.get('label_'+key),
         type:'dropdown',
         options:new Array(current_fiscal_year-globalVariables.sales_starting_year+1).fill().map((temp,index) => {return {value:current_fiscal_year-index,label:(current_fiscal_year-index)+' - '+(current_fiscal_year-index+1)}}),
-        default:'',
-        mandatory:false
-      };
-      key='num_fiscal_years';
-      inputFields[key] = {
-        name: 'options[' +key +']',
-        label: labels.get('label_'+key),
-        type:'dropdown',
-        options:new Array(current_fiscal_year-globalVariables.sales_starting_year+1).fill().map((temp,index) => {return {value:index+1,label:index+1}}),
-        default:'',
-        mandatory:false,
+        default:current_fiscal_year,
+        mandatory:true,
         noselect:true,
       };
-      key='month';
-      inputFields[key] = {
-        name: 'options[' +key +']',
-        label: labels.get('label_'+key),
-        type:'dropdown',
-        options:new Array(12).fill().map((temp,index) => {return {value:index+1,label:labels.get('label_month_short_'+(index+1))}}),
-        default:'',
-        mandatory:false
-      };
-
-      key='sales_from';
-      inputFields[key] = {
-        name: 'options[' +key +']',
-        label: labels.get('label_'+key),
-        type:'date',
-        default:item.data[key],
-        mandatory:true
-      };
-      key='sales_to';
-      inputFields[key] = {
-        name: 'options[' +key +']',
-        label: labels.get('label_'+key),
-        type:'date',
-        default:item.data[key],
-        mandatory:true
-      };
-
       item.inputFields1=inputFields;
       //inputFields2
       inputFields={}
@@ -326,15 +280,6 @@
         default:item.data[key],
         mandatory:true
       };
-      key='pack_size_id';
-      inputFields[key] = {
-        name: 'options[' +key +']',
-        label: labels.get('label_'+key),
-        type:'dropdown',
-        options:[],
-        default:item.data[key],
-        mandatory:true
-      };
 
       item.inputFields3=inputFields;
 
@@ -358,133 +303,87 @@
           taskData.itemsFiltered=[];
           let columns_all=[];
           let rows={};
-          if((options['report_format']=='crop_fiscal_year')||(options['report_format']=='type_fiscal_year')||(options['report_format']=='variety_fiscal_year')){
-            let sales_data_key='crop_id';
-            columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
-            if(options['report_format']=='type_fiscal_year'){
-              columns_all.push({'group':'type_name','key':'type_name','label':labels.get('label_type_name')})
-              sales_data_key='crop_type_id';
-            }
-            else if(options['report_format']=='variety_fiscal_year'){
-              columns_all.push({'group':'type_name','key':'type_name','label':labels.get('label_type_name')})
-              columns_all.push({'group':'variety_name','key':'variety_name','label':labels.get('label_variety_name')})
-              sales_data_key='variety_id';
-            }
-            let fiscal_year=options['fiscal_year'];
-            if(!(fiscal_year>0)){
-              fiscal_year=current_fiscal_year;
-            }
-            for(let i=0;i<options['num_fiscal_years'];i++){
-              columns_all.push({'group':'quantity','key':'quantity_'+(+fiscal_year+i),'label':((+fiscal_year+i)+' - '+(+fiscal_year+i+1))+'</br>('+labels.get('label_quantity')+')'})
-              columns_all.push({'group':'amount','key':'amount_'+(+fiscal_year+i),'label':((+fiscal_year+i)+' - '+(+fiscal_year+i+1))+'</br>('+labels.get('label_amount')+')'})
-            }
-            if(options['report_format']=='crop_fiscal_year'){
-              for(let i in taskData.crops){
-                let crop=taskData.crops[i];
-                if(crop['status']!='Active')
-                  continue;
-                let row_available=false;
-                if(options['crop_id']>0){
-                  if(options['crop_id']==crop['id']){
-                    row_available=true;
-                  }
-                }
-                else{
-                  row_available=true;
-                }
-                if(row_available){
-                  rows[crop['id']]={}
-                  rows[crop['id']]['num_rows']=1;
-                  rows[crop['id']]['crop_name']=(crops_object[crop['id']]?crops_object[crop['id']]['name']:crop['id']);
-                }
-              }
-            }
-            else if(options['report_format']=='type_fiscal_year'){
-              for(let i in taskData.crop_types){
-                let crop_type=taskData.crop_types[i];
-                if(crop_type['status']!='Active')
-                  continue;
-                let row_available=false;
-                if(options['crop_id']>0){
-                  if(options['crop_type_id']>0){
-                    if(options['crop_type_id']==crop_type['id']){
-                      row_available=true;
-                    }
-                  }
-                  else if(options['crop_id']==crop_type['crop_id']){
-                    row_available=true;
-                  }
-                }
-                else{
-                  row_available=true;
-                }
-                if(row_available){
-                  rows[crop_type['id']]={}
-                  rows[crop_type['id']]['num_rows']=1;
-                  rows[crop_type['id']]['crop_name']=(crops_object[crop_type['crop_id']]?crops_object[crop_type['crop_id']]['name']:crop_type['crop_id']);
-                  rows[crop_type['id']]['type_name']=crop_type['name'];
-                }
-              }
-            }
-            else if(options['report_format']=='variety_fiscal_year'){
-              for(let i in taskData.varieties){
-                let variety=taskData.varieties[i];
-                if(variety['status']!='Active')
-                  continue;
-                if(variety['whose']!='ARM')
-                  continue;
-                let crop_type_id=variety['crop_type_id'];
-                let crop_id=crop_types_object[crop_type_id]['crop_id'];
-                let row_available=false;
-                if(options['crop_id']>0){
-                  if(options['crop_type_id']>0){
-                    if(options['variety_id']>0){
-                      if(options['variety_id']==variety['id']){
-                        row_available=true;
-                      }
-                    }
-                    else if(options['crop_type_id']==crop_type_id){
-                      row_available=true;
-                    }
-                  }
-                  else if(options['crop_id']==crop_id){
-                    row_available=true;
-                  }
-                }
-                else{
-                  row_available=true;
-                }
+          columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
+          columns_all.push({'group':'type_name','key':'type_name','label':labels.get('label_type_name')})
+          columns_all.push({'group':'variety_name','key':'variety_name','label':labels.get('label_variety_name')})
+          columns_all.push({'group':'quantity','key':'quantity_target','label':labels.get('label_quantity')+'</br>(target)'})
+          columns_all.push({'group':'amount','key':'amount_target','label':labels.get('label_amount')+'</br>(target)'})
+          columns_all.push({'group':'amount','key':'unit_price','label':labels.get('label_unit_price')})
+          columns_all.push({'group':'quantity','key':'quantity_sales','label':labels.get('label_quantity')+'</br>(sales)'})
+          columns_all.push({'group':'amount','key':'amount_sales','label':labels.get('label_amount')+'</br>(sales)'})
+          columns_all.push({'group':'quantity','key':'quantity_difference','label':labels.get('label_quantity')+'</br>(Difference)'})
+          columns_all.push({'group':'amount','key':'amount_difference','label':labels.get('label_amount')+'</br>(Difference)'})
 
-                if(row_available){
-                  rows[variety['id']]={}
-                  rows[variety['id']]['num_rows']=1;
-                  rows[variety['id']]['crop_name']=(crops_object[crop_id]?crops_object[crop_id]['name']:crop_id);
-                  rows[variety['id']]['type_name']=(crop_types_object[crop_type_id]?crop_types_object[crop_type_id]['name']:crop_type_id);
-                  rows[variety['id']]['variety_name']=variety['name'];
+          columns_all.push({'group':'achievement','key':'achievement','label':labels.get('label_achievement')})
+          for(let i in taskData.varieties){
+            let variety=taskData.varieties[i];
+            if(variety['status']!='Active')
+              continue;
+            if(variety['whose']!='ARM')
+              continue;
+            let crop_type_id=variety['crop_type_id'];
+            let crop_id=crop_types_object[crop_type_id]['crop_id'];
+            let row_available=false;
+            if(options['crop_id']>0){
+              if(options['crop_type_id']>0){
+                if(options['variety_id']>0){
+                  if(options['variety_id']==variety['id']){
+                    row_available=true;
+                  }
+                }
+                else if(options['crop_type_id']==crop_type_id){
+                  row_available=true;
                 }
               }
-            }
-            for(let id in rows){
-              for(let i=0;i<options['num_fiscal_years'];i++){
-                rows[id]['quantity_'+(+fiscal_year+i)]=0;
-                rows[id]['amount_'+(+fiscal_year+i)]=0;
+              else if(options['crop_id']==crop_id){
+                row_available=true;
               }
             }
-            for(let i in res.data.items){
-              let sales_data=res.data.items[i];
-              let date=moment(sales_data['sales_at'])
-              let year=date.year();
-              let month=date.month()+1;
-              if(month<globalVariables.fiscal_year_starting_month){
-                year--;
-              }
-              if(rows[sales_data[sales_data_key]] && rows[sales_data[sales_data_key]]['quantity_'+year]>=0){
-                rows[sales_data[sales_data_key]]['quantity_'+year]+=(+sales_data['quantity']);
-                rows[sales_data[sales_data_key]]['amount_'+year]+=(+sales_data['amount']);
-              }
+            else{
+              row_available=true;
             }
+            if(row_available){
+              rows[variety['id']]={}
+              rows[variety['id']]['num_rows']=1;
+              rows[variety['id']]['crop_name']=(crops_object[crop_id]?crops_object[crop_id]['name']:crop_id);
+              rows[variety['id']]['type_name']=(crop_types_object[crop_type_id]?crop_types_object[crop_type_id]['name']:crop_type_id);
+              rows[variety['id']]['variety_name']=variety['name'];
 
+              rows[variety['id']]['quantity_target']=0;
+              rows[variety['id']]['amount_target']=0;
+              rows[variety['id']]['unit_price']=0;
+              rows[variety['id']]['quantity_sales']=0;
+              rows[variety['id']]['amount_sales']=0;
+
+              rows[variety['id']]['quantity_difference']=0;
+              rows[variety['id']]['amount_difference']=0;
+              rows[variety['id']]['achievement']=0;
+            }
           }
+          for(let i in res.data.sales){
+            let datum=res.data.sales[i];
+            if(rows[datum['variety_id']]){
+              rows[datum['variety_id']]['quantity_sales']=datum['quantity']
+              rows[datum['variety_id']]['amount_sales']=datum['amount']
+              if(datum['quantity']>0){
+                rows[datum['variety_id']]['unit_price']=rows[datum['variety_id']]['amount_sales']/rows[datum['variety_id']]['quantity_sales'].toFixed(2);
+              }
+            }
+          }
+          for(let i in res.data.target){
+            let datum=res.data.target[i];
+            if(rows[datum['variety_id']]){
+              rows[datum['variety_id']]['quantity_target']=datum['quantity']
+              if(datum['quantity']>0){
+                rows[datum['variety_id']]['achievement']=((rows[datum['variety_id']]['quantity_sales']*100)/rows[datum['variety_id']]['quantity_target'])
+                rows[datum['variety_id']]['amount_target']=rows[datum['variety_id']]['quantity_target']*rows[datum['variety_id']]['unit_price'];
+                rows[datum['variety_id']]['quantity_difference']=rows[datum['variety_id']]['quantity_target']-rows[datum['variety_id']]['quantity_sales'];
+                rows[datum['variety_id']]['amount_difference']=rows[datum['variety_id']]['amount_target']-rows[datum['variety_id']]['amount_sales'];
+              }
+
+            }
+          }
+
           taskData.itemsFiltered=Object.values(rows);
           taskData.columns.all=columns_all;
           calculateTableWidth();
@@ -521,44 +420,8 @@
     setInputFields();
     $(document).ready(async function()
     {
-      $(document).off("change", "#report_format");
-      $(document).on("change",'#report_format',function()
-      {
-        show_report.value=false;
-        let report_format=$(this).val();
-        let columns_selectable=[];
-        let columns_hidden=[]
-        if((report_format=='crop_fiscal_year')||(report_format=='type_fiscal_year') || (report_format=='variety_fiscal_year' )){
-          columns_selectable=['quantity','amount'];
-        }
-        taskData.columns.selectable=columns_selectable;
-        taskData.columns.hidden=columns_hidden;
-      })
-      $(document).off("change", "#fiscal_year");
-      $(document).on("change",'#fiscal_year',async function()
-      {
-        let fiscal_year=$(this).val();
-        if(fiscal_year>0){
-          let start_date=moment(fiscal_year+'-'+globalVariables.fiscal_year_starting_month+'-01','YYYY-MM-DD');
-          let end_date=start_date.clone().add($("#num_fiscal_years").val(),'year').add(-1,'day')
-          $("#sales_from").val(start_date.format('YYYY-MM-DD'))
-          $("#sales_to").val(end_date.format('YYYY-MM-DD'))
-        }
-        else{
-          $("#sales_from").val(moment().startOf('month').format('YYYY-MM-DD'))
-          $("#sales_to").val(moment().endOf('month').format('YYYY-MM-DD'))
-        }
-      });
-      await systemFunctions.delay(10);
-      $('#report_format').trigger('change');
-      $('#fiscal_year').trigger('change')
-
-
-      $(document).off("change", "#num_fiscal_years");
-      $(document).on("change",'#num_fiscal_years',async function()
-      {
-        $('#fiscal_year').trigger('change')
-      });
+      taskData.columns.selectable=['quantity','amount','achievement'];
+      taskData.columns.hidden=[];
 
       $(document).off("change", "#crop_id");
       $(document).on("change",'#crop_id',async function()
@@ -571,33 +434,18 @@
         key='variety_id';
         item.inputFields3[key].options=[];
         $('#'+key).val('');
-        key='pack_size_id';
-        item.inputFields3[key].options=[];
-        $('#'+key).val('');
       })
       $(document).off("change", "#crop_type_id");
       $(document).on("change",'#crop_type_id',async function()
       {
-
         let crop_type_id=$(this).val();
         let key='variety_id';
-        console.log(crop_type_id)
         item.inputFields3[key].options=taskData.varieties.filter((temp)=>{ if((temp.crop_type_id==crop_type_id) && (temp.whose=='ARM') && (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
         await systemFunctions.delay(1);
         $('#'+key).val('');
-        key='pack_size_id';
-        item.inputFields3[key].options=[];
-        $('#'+key).val('');
       })
-      $(document).off("change", "#variety_id");
-      $(document).on("change",'#variety_id',async function()
-      {
-        let variety_id=$(this).val();
-        let key='pack_size_id';
-        item.inputFields3[key].options=taskData.pack_sizes.filter((temp)=>{ if((temp.variety_id==variety_id)&& (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
-        await systemFunctions.delay(1);
-        $('#'+key).val('');
-      })
+
+
 
       $(document).off("change", "#part_id");
       $(document).on("change",'#part_id',async function()

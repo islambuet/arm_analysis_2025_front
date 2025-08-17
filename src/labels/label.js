@@ -1,6 +1,6 @@
 export default {
     label_site_title:{
-        en:"RND 2023",
+        en:"Analysis 2025",
         bn:"RND সফটওয়্যার"
     },
     label_welcome:{

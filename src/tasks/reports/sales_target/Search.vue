@@ -103,11 +103,7 @@
       data:{
       }
     })
-    let current_month=new Date().getMonth();
-    let current_fiscal_year= (globalVariables.current_year);
-    if(current_month<globalVariables.fiscal_year_starting_month){
-      current_fiscal_year--;
-    }
+
     let crops_object={};
     for(let i in taskData.crops){
       crops_object[taskData.crops[i]['id']]=taskData.crops[i];
@@ -152,8 +148,8 @@
         name: 'options[' +key +']',
         label: labels.get('label_'+key),
         type:'dropdown',
-        options:new Array(current_fiscal_year-globalVariables.sales_starting_year+1).fill().map((temp,index) => {return {value:current_fiscal_year-index,label:(current_fiscal_year-index)+' - '+(current_fiscal_year-index+1)}}),
-        default:current_fiscal_year,
+        options:new Array(globalVariables.current_fiscal_year-globalVariables.sales_starting_year+1).fill().map((temp,index) => {return {value:globalVariables.current_fiscal_year-index,label:(globalVariables.current_fiscal_year-index)+' - '+(globalVariables.current_fiscal_year-index+1)}}),
+        default:globalVariables.current_fiscal_year,
         mandatory:true,
         noselect:true,
       };
@@ -379,6 +375,9 @@
                 rows[datum['variety_id']]['amount_target']=rows[datum['variety_id']]['quantity_target']*rows[datum['variety_id']]['unit_price'];
                 rows[datum['variety_id']]['quantity_difference']=rows[datum['variety_id']]['quantity_target']-rows[datum['variety_id']]['quantity_sales'];
                 rows[datum['variety_id']]['amount_difference']=rows[datum['variety_id']]['amount_target']-rows[datum['variety_id']]['amount_sales'];
+              }
+              else if(rows[datum['variety_id']]['quantity_sales']>0){
+                rows[datum['variety_id']]['achievement']=100;
               }
 
             }

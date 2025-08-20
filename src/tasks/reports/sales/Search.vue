@@ -103,11 +103,7 @@
       data:{
       }
     })
-    let current_month=new Date().getMonth();
-    let current_fiscal_year= (globalVariables.current_year);
-    if(current_month<globalVariables.fiscal_year_starting_month){
-      current_fiscal_year--;
-    }
+
     let crops_object={};
     for(let i in taskData.crops){
       crops_object[taskData.crops[i]['id']]=taskData.crops[i];
@@ -162,7 +158,7 @@
         name: 'options[' +key +']',
         label: labels.get('label_'+key),
         type:'dropdown',
-        options:new Array(current_fiscal_year-globalVariables.sales_starting_year+1).fill().map((temp,index) => {return {value:current_fiscal_year-index,label:(current_fiscal_year-index)+' - '+(current_fiscal_year-index+1)}}),
+        options:new Array(globalVariables.current_fiscal_year-globalVariables.sales_starting_year+1).fill().map((temp,index) => {return {value:globalVariables.current_fiscal_year-index,label:(globalVariables.current_fiscal_year-index)+' - '+(globalVariables.current_fiscal_year-index+1)}}),
         default:'',
         mandatory:false
       };
@@ -171,7 +167,7 @@
         name: 'options[' +key +']',
         label: labels.get('label_'+key),
         type:'dropdown',
-        options:new Array(current_fiscal_year-globalVariables.sales_starting_year+1).fill().map((temp,index) => {return {value:index+1,label:index+1}}),
+        options:new Array(globalVariables.current_fiscal_year-globalVariables.sales_starting_year+1).fill().map((temp,index) => {return {value:index+1,label:index+1}}),
         default:'',
         mandatory:false,
         noselect:true,
@@ -372,7 +368,7 @@
             }
             let fiscal_year=options['fiscal_year'];
             if(!(fiscal_year>0)){
-              fiscal_year=current_fiscal_year;
+              fiscal_year=globalVariables.current_fiscal_year;
             }
             for(let i=0;i<options['num_fiscal_years'];i++){
               columns_all.push({'group':'quantity','key':'quantity_'+(+fiscal_year+i),'label':((+fiscal_year+i)+' - '+(+fiscal_year+i+1))+'</br>('+labels.get('label_quantity')+')'})

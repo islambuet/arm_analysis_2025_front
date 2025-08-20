@@ -37,11 +37,6 @@ import {useRoute} from "vue-router/dist/vue-router";
 const route =useRoute()
 const router =useRouter()
 let taskData = inject('taskData')
-let current_month=new Date().getMonth();
-let current_fiscal_year= (globalVariables.current_year);
-if(current_month<globalVariables.fiscal_year_starting_month){
-  current_fiscal_year--;
-}
 
 let item=reactive({
   id:0,
@@ -57,7 +52,7 @@ let item=reactive({
     crop_id:'',
     crop_type_id:'',
     variety_id:'',
-    fiscal_year:current_fiscal_year,
+    fiscal_year:globalVariables.current_fiscal_year,
     quantity:'',
     status:'Active',
   }
@@ -87,7 +82,7 @@ const setInputFields=async ()=>{
     name: 'item[' +key +']',
     label: labels.get('label_'+key),
     type:'dropdown',
-    options:new Array(current_fiscal_year-globalVariables.sales_starting_year+1).fill().map((temp,index) => {return {value:current_fiscal_year-index,label:(current_fiscal_year-index)+' - '+(current_fiscal_year-index+1)}}),
+    options:new Array(globalVariables.current_fiscal_year-globalVariables.sales_starting_year+1).fill().map((temp,index) => {return {value:globalVariables.current_fiscal_year-index,label:(globalVariables.current_fiscal_year-index)+' - '+(globalVariables.current_fiscal_year-index+1)}}),
     default:item.data[key],
     mandatory:true,
     noselect:true,

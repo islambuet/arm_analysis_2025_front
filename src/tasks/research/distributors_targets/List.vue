@@ -63,6 +63,7 @@
     import ColumnSort from '@/components/ColumnSort.vue';
     import ColumnFilter from '@/components/ColumnFilter.vue';
     import Pagination from '@/components/Pagination.vue';
+    import globalVariables from "@/assets/globalVariables";
 
 
     const router =useRouter()
@@ -86,8 +87,9 @@
         hideable:true,
         filterable:true,
         sortable:true,
-        type:'date',
-        filter:{from:'',to:''}
+        type:'dropdown',
+        filter:{from:'',to:'',options:new Array(globalVariables.current_fiscal_year-globalVariables.sales_starting_year+1).fill().map((temp,index) => {return {value:globalVariables.current_fiscal_year-index,label:(globalVariables.current_fiscal_year-index)+' - '+(globalVariables.current_fiscal_year-index+1)}})}
+
       };
       key='part_name';
       columns[key]={

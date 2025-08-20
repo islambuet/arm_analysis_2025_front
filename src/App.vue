@@ -52,6 +52,9 @@
       if (res.data.error == "") {
         if(res.data.fiscal_year_starting_month){
           globalVariables.fiscal_year_starting_month=res.data.fiscal_year_starting_month;
+          if(globalVariables.current_month<globalVariables.fiscal_year_starting_month){
+            globalVariables.current_fiscal_year--;
+          }
         }
         if(res.data.user){
           systemFunctions.setUser(res.data.user);

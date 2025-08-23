@@ -1,6 +1,24 @@
 <template>
   <div class="card d-print-none mb-2">
     <div class="card-body">
+      <div class="row mb-2">
+        <div class="col-4">
+          <label class="font-weight-bold float-right">{{labels.get('label_fiscal_year')}} <span class="text-danger">*</span></label>
+        </div>
+        <div class="col-lg-4 col-8">
+          <div class="input-group" >
+            <select id="fiscal_year" class="form-control">
+              <option v-for="i in globalVariables.current_fiscal_year-globalVariables.starting_year+1" :value="i+globalVariables.starting_year-1" :selected="(i+globalVariables.starting_year-1)==taskData.fiscal_year">
+                {{i+globalVariables.starting_year-1}}-{{i+globalVariables.starting_year}}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card d-print-none mb-2">
+    <div class="card-body">
       <button type="button" v-if="taskData.permissions.action_4" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" onclick="window.print();"><i class="feather icon-printer"></i> {{labels.get('action_4')}}</button>
       <button type="button" v-if="taskData.permissions.action_5" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="systemFunctions.exportCsv(taskData.columns,taskData.itemsFiltered,taskData.api_url.substring(1)+'.csv')"><i class="feather icon-download"></i> {{labels.get('action_5')}}</button>
       <button type="button" v-if="taskData.permissions.action_8" class="mr-2 mb-2 btn btn-sm" :class="[show_column_controls?'bg-gradient-success':'bg-gradient-primary']" @click="show_column_controls = !show_column_controls"><i class="feather icon-command"></i> {{labels.get('action_8')}}</button>
@@ -33,7 +51,7 @@
           <td class="col_1 d-print-none">
             <button class="btn btn-sm bg-gradient-primary dropdown-toggle waves-effect waves-light" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{labels.get('label_action')}}</button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0; left: 0; transform: translate3d(0px, 38px, 0px);">
-              <router-link v-if="taskData.permissions.action_2"  :to="taskData.api_url+'/edit/'+item.id" class="dropdown-item text-info btn-sm" ><i class="feather icon-edit"></i> {{labels.get('label_edit')}}</router-link>
+              <router-link v-if="taskData.permissions.action_2"  :to="taskData.api_url+'/'+taskData.fiscal_year+'/edit/'+item.id" class="dropdown-item text-info btn-sm" ><i class="feather icon-edit"></i> {{labels.get('label_edit')}}</router-link>
             </div>
           </td>
           <template v-for="(column,key) in taskData.columns.all">
@@ -68,51 +86,16 @@
     let taskData = inject('taskData')
     let show_column_controls=ref(false)
 
-    const setColumns=()=>{
-      let columns={}
-      let key='name';
-      columns[key]={
-        label: labels.get('label_'+key),
-        hideable:false,
-        filterable:true,
-        sortable:true,
-        type:'text',
-        filter:{from:'',to:''}
-      };
-      key='crop_name';
-      columns[key]={
-        label: labels.get('label_'+key),
-        hideable:true,
-        filterable:true,
-        sortable:true,
-        type:'dropdown',
-        filter:{from:'',to:'',options:taskData.crops.map((item)=>{ return {value:item.name,label:item.name}}),}
-      };
-      key='crop_type_name';
-      columns[key]={
-        label: labels.get('label_'+key),
-        hideable:true,
-        filterable:true,
-        sortable:true,
-        type:'text',
-        filter:{from:'',to:''}
-      };
-      for(let i=0;i<taskData.incentive_slabs.length;i++){
-        let slab=taskData.incentive_slabs[i];
-        key='slab_'+slab.id;
-        columns[key]={
-          label: slab.name+'%+',
-          hideable:false,
-          filterable:false,
-          sortable:false,
-          type:'number',
-          filter:{from:'',to:''},
-          class:'col_1'
-        };
-      }
 
-      taskData.columns.all=columns
-    }
-    setColumns();
+    $(document).ready(function()
+    {
+      $(document).off("change", "#fiscal_year");
+      $(document).on("change",'#fiscal_year',function()
+      {
+        router.push(taskData.api_url+'/'+$('#fiscal_year').val())
+        globalVariables.loadListData=true;
+      })
+    });
+    taskData.setColumns();
 </script>
 

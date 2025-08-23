@@ -71,6 +71,7 @@
     import ColumnSort from '@/components/ColumnSort.vue';
     import ColumnFilter from '@/components/ColumnFilter.vue';
     import Pagination from '@/components/Pagination.vue';
+    import globalVariables from "@/assets/globalVariables";
 
 
     const router =useRouter()
@@ -107,6 +108,7 @@
       $(document).on("change",'#analysis_year_id',function()
       {
         router.push(taskData.api_url+'/'+$('#analysis_year_id').val())
+        globalVariables.loadListData=true;
       })
     });
     setColumns();

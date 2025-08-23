@@ -47,6 +47,12 @@
       type:'hidden',
       values:[item.data[key]],
     };
+    key='fiscal_year';
+    detailFields[key] = {
+      label: labels.get('label_'+key),
+      type:'text',
+      values:[item.data[key]],
+    };
     key='name';
     detailFields[key] = {
       label: labels.get('label_'+key),

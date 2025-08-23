@@ -19,7 +19,7 @@
   import systemFunctions from "@/assets/systemFunctions";
   import toastFunctions from "@/assets/toastFunctions";
   import labels from '@/labels'
-  import {provide, reactive, watch} from 'vue'
+  import {provide, reactive, ref, watch} from 'vue'
   import {useRoute,useRouter} from 'vue-router';
   import axios from 'axios';
 
@@ -30,11 +30,9 @@
   globalVariables.loadListData=true;
   const route =useRoute()
   const router =useRouter()
-
   let taskData=reactive({
     api_url:systemFunctions.getTaskBaseURL(import.meta.url),
     method:'list',
-
     permissions:{},
     
     items: {data:[]},   //from Laravel server with pagination and info
@@ -45,22 +43,27 @@
     crop_types:[],
     varieties :[],
     incentive_slabs:[],
+    fiscal_year:0
   })
   labels.add([{language:globalVariables.language,file:'tasks'+taskData.api_url+'/labels.js'}])
 
   const routing=async ()=>{
+    let fiscal_year=route.params['fiscal_year']?route.params['fiscal_year']:0;
+    if(fiscal_year==0 ){
+      fiscal_year=globalVariables.current_fiscal_year;
+      await router.push(taskData.api_url+'/'+fiscal_year)
+      return;
+    }
+    taskData.fiscal_year=fiscal_year
     await getItems(taskData.pagination);//Load at least once
-    if(route.path==taskData.api_url){
+    if(route.path==(taskData.api_url+'/'+taskData.fiscal_year)){
       taskData.method='list';
     }
-    else if(route.path==taskData.api_url+'/add'){
-      taskData.method='add';
-    }
-    else if(route.path.indexOf(taskData.api_url+'/edit/')!=-1)
+    else if(route.path.indexOf(taskData.api_url+'/'+taskData.fiscal_year+'/edit/')!=-1)
     {
       taskData.method='edit';
     }
-    else if(route.path.indexOf(taskData.api_url+'/details/')!=-1)
+    else if(route.path.indexOf(taskData.api_url+'/'+taskData.fiscal_year+'/details/')!=-1)
     {
       taskData.method='details';
     }
@@ -73,9 +76,10 @@
   const getItems=async(pagination)=>{
     if(globalVariables.loadListData)
     {
-      await axios.get(taskData.api_url+'/get-items?page='+ pagination.current_page+'&perPage='+ pagination.per_page)
+      await axios.get(taskData.api_url+'/'+taskData.fiscal_year+'/get-items?page='+ pagination.current_page+'&perPage='+ pagination.per_page)
           .then(res => {
             if(res.data.error==''){
+              taskData.setColumns();
               let items={};
               items['data']=[];
               for(let i in taskData.varieties){
@@ -111,6 +115,52 @@
   taskData.reloadItems=(pagination)=>{
     globalVariables.loadListData=true;
     getItems(pagination);
+  }
+  taskData.setColumns=()=>{
+    let columns={}
+    let key='name';
+    columns[key]={
+      label: labels.get('label_'+key),
+      hideable:false,
+      filterable:true,
+      sortable:true,
+      type:'text',
+      filter:{from:'',to:''}
+    };
+    key='crop_name';
+    columns[key]={
+      label: labels.get('label_'+key),
+      hideable:true,
+      filterable:true,
+      sortable:true,
+      type:'dropdown',
+      filter:{from:'',to:'',options:taskData.crops.map((item)=>{ return {value:item.name,label:item.name}}),}
+    };
+    key='crop_type_name';
+    columns[key]={
+      label: labels.get('label_'+key),
+      hideable:true,
+      filterable:true,
+      sortable:true,
+      type:'text',
+      filter:{from:'',to:''}
+    };
+    for(let i=0;i<taskData.incentive_slabs.length;i++){
+      let slab=taskData.incentive_slabs[i];
+      key='slab_'+slab.id;
+      if(slab.fiscal_year==taskData.fiscal_year){
+        columns[key]={
+          label: slab.name+'%+',
+          hideable:false,
+          filterable:false,
+          sortable:false,
+          type:'number',
+          filter:{from:'',to:''},
+          class:'col_1'
+        };
+      }
+    }
+    taskData.columns.all=columns
   }
   const init=async ()=>{
     await axios.get(taskData.api_url+'/initialize').then((res)=>{

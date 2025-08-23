@@ -1,7 +1,7 @@
 <template>
   <div class="card d-print-none mb-2">
     <div class="card-body">
-      <router-link :to="taskData.api_url" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" ><i class="feather icon-corner-up-left"></i> {{labels.get('label_back')}}</router-link>
+      <router-link :to="taskData.api_url+'/'+taskData.fiscal_year" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" ><i class="feather icon-corner-up-left"></i> {{labels.get('label_back')}}</router-link>
       <template v-if="item.exists">
         <button  type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="save(false)"><i class="feather icon-save"></i> {{labels.get('label_save')}}</button>
       </template>
@@ -16,6 +16,7 @@
       <form id="formSaveItem">
         <input type="hidden" name="save_token" id="save_token" :value="new Date().getTime()">
         <input type="hidden" name="item[variety_id]" :value="item.id">
+        <input type="hidden" name="item[fiscal_year]" :value="taskData.fiscal_year">
         <div class="row mb-2">
           <div class="col-4">
             <label class="font-weight-bold float-right">{{labels.get('label_crop_name')}}</label>
@@ -40,14 +41,17 @@
             <label class="font-weight-bold">{{item.variety.name}} </label>
           </div>
         </div>
-        <div class="row mb-2" v-for="slab in taskData.incentive_slabs">
-          <div class="col-4">
-            <label class="font-weight-bold float-right">{{slab.name}}% +</label>
+        <template v-for="slab in taskData.incentive_slabs">
+          <div class="row mb-2"  v-if="slab.fiscal_year==taskData.fiscal_year">
+            <div class="col-4">
+              <label class="font-weight-bold float-right">{{slab.name}}% +</label>
+            </div>
+            <div class="col-lg-4 col-8">
+              <input type="text" :name="'item[incentive]['+slab.id+']'" class="form-control float_positive" :value="item.incentive[slab.id]?item.incentive[slab.id]:''">
+            </div>
           </div>
-          <div class="col-lg-4 col-8">
-            <input type="text" :name="'item[incentive]['+slab.id+']'" class="form-control float_positive" :value="item.incentive[slab.id]?item.incentive[slab.id]:''">
-          </div>
-        </div>
+        </template>
+
       </form>
     </div>
   </div>
@@ -83,7 +87,7 @@ const save=async (save_and_new)=>{
     if (res.data.error == "") {
       globalVariables.loadListData=true;
       toastFunctions.showSuccessfullySavedMessage();
-      router.push(taskData.api_url)
+      router.push(taskData.api_url+'/'+taskData.fiscal_year)
     }
     else{
       toastFunctions.showResponseError(res.data)
@@ -92,7 +96,7 @@ const save=async (save_and_new)=>{
 
 }
 const getItem=async ()=>{
-  await axios.get(taskData.api_url+'/get-item/'+ item.id).then((res)=>{
+  await axios.get(taskData.api_url+'/'+taskData.fiscal_year+'/get-item/'+ item.id).then((res)=>{
     if (res.data.error == "") {
       item.incentive=res.data.incentive;
       item.exists=true;

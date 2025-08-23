@@ -53,6 +53,12 @@
       type:'text',
       values:[item.data[key]],
     };
+    key='fiscal_year';
+    detailFields[key] = {
+      label: labels.get('label_'+key),
+      type:'text',
+      values:[item.data[key]],
+    };
     key='area_name';
     detailFields[key] = {
       label: labels.get('label_'+key),

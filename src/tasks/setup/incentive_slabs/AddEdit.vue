@@ -43,11 +43,9 @@ let item=reactive({
   inputFields:{},
   data:{
     id:0,
+    fiscal_year:globalVariables.current_fiscal_year,
     name:'',
     ordering:99,
-    expected_delivery_at:'',
-    expected_sowing_at:'',
-    expected_reporting_at:'',
     status:'Active',
   }
 })
@@ -71,6 +69,16 @@ const setInputFields=async ()=>{
     default:item.data[key],
     mandatory:true
   };
+  key='fiscal_year';
+  inputFields[key] = {
+    name: 'item[' +key +']',
+    label: labels.get('label_'+key),
+    type:'dropdown',
+    options:new Array(globalVariables.current_fiscal_year-globalVariables.sales_starting_year+1).fill().map((temp,index) => {return {value:globalVariables.current_fiscal_year-index,label:(globalVariables.current_fiscal_year-index)+' - '+(globalVariables.current_fiscal_year-index+1)}}),
+    default:item.data[key],
+    mandatory:true,
+    noselect:true,
+  };
   key='name';
   inputFields[key] = {
     name: 'item[' +key +']',
@@ -78,14 +86,6 @@ const setInputFields=async ()=>{
     type:'text',
     default:item.data[key],
     mandatory:true
-  };
-  key='ordering';
-  inputFields[key] = {
-    name: 'item[' +key +']',
-    label: labels.get('label_'+key),
-    type:'number',
-    default:item.data[key],
-    mandatory:false
   };
   key='status';
   inputFields[key] = {

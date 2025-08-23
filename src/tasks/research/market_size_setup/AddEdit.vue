@@ -1,7 +1,7 @@
 <template>
   <div class="card d-print-none mb-2">
     <div class="card-body">
-      <router-link :to="taskData.api_url" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" ><i class="feather icon-corner-up-left"></i> {{labels.get('label_back')}}</router-link>
+      <router-link :to="taskData.api_url+'/'+taskData.analysis_year_id" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" ><i class="feather icon-corner-up-left"></i> {{labels.get('label_back')}}</router-link>
       <template v-if="item.exists">
         <button  type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="save(false)"><i class="feather icon-save"></i> Save and Back</button>
         <button  type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="save(true)"><i class="feather icon-plus-square"></i> Save and Edit</button>
@@ -242,7 +242,7 @@ const save=async (save_and_new)=>{
         $('#save_token').val(new Date().getTime());
       }
       else{
-        router.push(taskData.api_url)
+        router.push(taskData.api_url+'/'+taskData.analysis_year_id)
       }
 
     }

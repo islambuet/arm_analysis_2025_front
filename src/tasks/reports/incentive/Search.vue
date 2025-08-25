@@ -336,7 +336,7 @@
           columns_all.push({'group':'quantity_difference','key':'quantity_difference','label':labels.get('label_quantity')+'</br>(Difference)'})
           columns_all.push({'group':'achievement','key':'achievement','label':labels.get('label_achievement')})
           columns_all.push({'group':'quantity_incentive','key':'quantity_incentive','label':labels.get('label_quantity_incentive')})
-          columns_all.push({'group':'amount_incentive','key':'amount_incentive','label':labels.get('label_amount_incentive')})
+          columns_all.push({'group':'amount_incentive','key':'amount_incentive','label':labels.get('label_amount')+' incentive</br>('+manager_incentive+'%)'})
 
           for(let i in taskData.varieties){
             let variety=taskData.varieties[i];
@@ -401,7 +401,7 @@
               rows[datum['variety_id']]['quantity_sales']=datum['quantity']
               rows[datum['variety_id']]['amount_sales']=datum['amount']
               if(datum['quantity']>0){
-                rows[datum['variety_id']]['unit_price']=rows[datum['variety_id']]['amount_sales']/rows[datum['variety_id']]['quantity_sales'].toFixed(2);
+                rows[datum['variety_id']]['unit_price']=rows[datum['variety_id']]['amount_sales']/rows[datum['variety_id']]['quantity_sales'];
                 rows[datum['variety_id']]['unit_price_net']=(rows[datum['variety_id']]['unit_price']-(rows[datum['variety_id']]['unit_price']*net_sale_adjustment/100))
               }
             }
@@ -442,9 +442,44 @@
 
             }
           }
+
+          let row_total={}
+          row_total['id']=0;
+          row_total['num_rows']=1;
+          row_total['crop_name']='Total';
+          row_total['type_name']='';
+          row_total['variety_name']='';
+          row_total['quantity_sales']=0;
+          row_total['amount_sales']=0;
+          row_total['unit_price']=0;
+          row_total['unit_price_net']=0;
+
+          row_total['quantity_target']=0;
+
+          for(let i in incentive_slabs){
+            row_total['quantity_achievable_'+incentive_slabs[i].id]=0;
+            row_total['amount_achievable_'+incentive_slabs[i].id]=0;
+          }
+
+          row_total['quantity_difference']=0;
+          row_total['achievement']=0;
+          row_total['quantity_incentive']=0;
+          row_total['amount_incentive']=0;
+
+
+
           for(let i in rows_array){
             rows_array[i]=rows[rows_array[i]['id']]
+            for(let j in incentive_slabs){
+              row_total['amount_achievable_'+incentive_slabs[j].id]+=rows_array[i]['amount_achievable_'+incentive_slabs[j].id];
+              if(isNaN(row_total['amount_achievable_'+incentive_slabs[j].id])){
+                console.log(rows_array[i],j)
+              }
+            }
+            row_total['amount_incentive']+=rows_array[i]['amount_incentive'];
           }
+          console.log(row_total)
+          rows_array.unshift(row_total)
           taskData.itemsFiltered=rows_array;
           taskData.columns.all=columns_all;
           calculateTableWidth();
@@ -482,7 +517,7 @@
     $(document).ready(async function()
     {
       taskData.columns.selectable=['quantity_sales','amount_sales','unit_price','unit_price_net','quantity_target','quantity_achievable','amount_achievable','quantity_difference','achievement','quantity_incentive','amount_incentive'];
-      taskData.columns.hidden=[];
+      taskData.columns.hidden=['amount_sales','unit_price','quantity_achievable','amount_achievable','quantity_difference','quantity_incentive'];
 
       $(document).off("change", "#crop_id");
       $(document).on("change",'#crop_id',async function()

@@ -517,7 +517,7 @@
     $(document).ready(async function()
     {
       taskData.columns.selectable=['quantity_sales','amount_sales','unit_price','unit_price_net','quantity_target','quantity_achievable','amount_achievable','quantity_difference','achievement','quantity_incentive','amount_incentive'];
-      taskData.columns.hidden=['amount_sales','unit_price','quantity_achievable','amount_achievable','quantity_difference','quantity_incentive'];
+      taskData.columns.hidden=['amount_sales','unit_price','unit_price_net','quantity_achievable','amount_achievable','quantity_incentive'];
 
       $(document).off("change", "#crop_id");
       $(document).on("change",'#crop_id',async function()

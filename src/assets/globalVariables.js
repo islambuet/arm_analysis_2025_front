@@ -30,7 +30,7 @@ export default reactive({
     this.user = getNotLoggedUser();
   },
   loadListData:true,
-  starting_year:2025,
+  starting_year:2023,
   current_year:new Date().getFullYear(),
   current_month:new Date().getMonth(),
   current_fiscal_year:new Date().getFullYear(),

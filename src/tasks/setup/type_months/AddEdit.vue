@@ -50,8 +50,18 @@ let item=reactive({
     territory_id:'',
     crop_id:'',
     type_id:'',
-    month_start:'',
-    month_end:'',
+    month_1:0,
+    month_2:0,
+    month_3:0,
+    month_4:0,
+    month_5:0,
+    month_6:0,
+    month_7:0,
+    month_8:0,
+    month_9:0,
+    month_10:0,
+    month_11:0,
+    month_12:0,
   }
 })
 const setInputFields=async ()=>{
@@ -121,25 +131,18 @@ const setInputFields=async ()=>{
     default:item.data[key],
     mandatory:true
   };
-  key='month_start';
-  inputFields[key] = {
-    name: 'item[' +key +']',
-    label: labels.get('label_'+key),
-    type:'dropdown',
-    options:new Array(12).fill().map((temp,index) => {return {value:index+1,label:labels.get('label_month_short_'+(index+1))}}),
-    default:item.data[key],
-    mandatory:true
-  };
-
-  key='month_end';
-  inputFields[key] = {
-    name: 'item[' +key +']',
-    label: labels.get('label_'+key),
-    type:'dropdown',
-    options:new Array(12).fill().map((temp,index) => {return {value:index+1,label:labels.get('label_month_short_'+(index+1))}}),
-    default:item.data[key],
-    mandatory:true
-  };
+  for(let i=1;i<13;i++){
+    key='month_'+i;
+    inputFields[key] = {
+      name: 'item[' +key +']',
+      label: labels.get('label_month_short_'+i),
+      type:'dropdown',
+      options:[{label:"No",value:0},{label:"Yes",value:1}],
+      default:item.data[key],
+      mandatory:true,
+      noselect:true,
+    };
+  }
   item.inputFields=inputFields;
 
 }

@@ -52,7 +52,7 @@
                     </option>
                   </select>
                 </td>
-                <td></td>
+                <td><input type="text" class="form-control float_positive" id="quantity" value=""></td>
 
                 <td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary btn_add_more_variety"><i class="bi bi-plus-circle"></i> {{labels.get('action_1')}}</button></td>
               </tr>
@@ -380,12 +380,13 @@
           let html=('<tr><td>'+crop_name+'</td>');
             html+=('<td>'+type_name+'</td>');
             html+=('<td>'+variety_name+'</td>');
-            html+=('<td><input type="text" class="form-control float_positive" name="item[stock]['+variety_id+']" value=""></td>');
+            html+=('<td><input type="text" class="form-control float_positive" name="item[stock]['+variety_id+']" value="'+$('#quantity').val()+'"></td>');
             html+='<td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_variety"><i class="bi bi-dash-circle"></i> Remove </button>';
             html+='</tr>';
             $(this).closest("tr").after(html);
         }
         $('#variety_id').val('');
+        $('#quantity').val('')
       })
       $(document).off("click", ".btn_remove_variety");
       $(document).on("click",'.btn_remove_variety',function(){

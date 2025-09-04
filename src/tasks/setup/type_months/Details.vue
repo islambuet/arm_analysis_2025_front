@@ -78,18 +78,16 @@
       type:'text',
       values:[item.data[key]],
     };
-    key='month_start';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'number',
-      values:[labels.get('label_month_short_'+item.data[key])],
-    };
-    key='month_end';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'text',
-      values:[labels.get('label_month_short_'+item.data[key])],
-    };
+    for(let i=1;i<13;i++){
+      key='month_'+i;
+      detailFields[key] = {
+        label: labels.get('label_month_short_'+i),
+        type:'number',
+        values:[item.data[key]],
+      };
+    }
+
+
     key='created_at';
     detailFields[key] = {
       label: labels.get('label_'+key),

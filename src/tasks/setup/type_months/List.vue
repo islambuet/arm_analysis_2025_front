@@ -127,26 +127,18 @@
         type:'text',
         filter:{from:'',to:''}
       };
-      key='month_start';
-      columns[key]={
-        label: labels.get('label_'+key),
-        hideable:true,
-        filterable:false,
-        sortable:true,
-        type:'number',
-        filter:{from:'',to:''},
-        class:'col_1'
-      };
-      key='month_end';
-      columns[key]={
-        label: labels.get('label_'+key),
-        hideable:true,
-        filterable:false,
-        sortable:true,
-        type:'number',
-        filter:{from:'',to:''},
-        class:'col_1'
-      };
+      for(let i=1;i<13;i++){
+        key='month_'+i;
+        columns[key]={
+          label: labels.get('label_month_short_'+i),
+          hideable:true,
+          filterable:false,
+          sortable:false,
+          type:'number',
+          filter:{from:'',to:''},
+          class:'col_1'
+        };
+      }
       key='created_at';
       columns[key]={
         label: labels.get('label_'+key),

@@ -40,7 +40,15 @@
           </td>
           <template v-for="(column,key) in taskData.columns.all">
             <td :class="((['id','ordering'].indexOf(key) != -1)?'text-right':'')+(column.class?(' '+column.class):'col_9')" v-if="taskData.columns.hidden.indexOf(key)<0" :key="'td_'+key">
-              {{ item[key] }}
+              <template v-if="(['config_value'].indexOf(key) != -1)">
+                <div :style="'background-color: '+item[key]">
+                &nbsp;{{ item[key] }}
+                </div>
+              </template>
+              <template v-else>
+                {{ item[key] }}
+              </template>
+
             </td>
           </template>
 

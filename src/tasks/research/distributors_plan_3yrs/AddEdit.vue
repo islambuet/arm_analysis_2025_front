@@ -279,7 +279,9 @@ const save=async (save_and_new)=>{
         }
       }
       else{
-        router.push(taskData.api_url)
+        //router.push(taskData.api_url)
+        $('#type_id').val('');
+        item.exists=false;
       }
     }
     else{

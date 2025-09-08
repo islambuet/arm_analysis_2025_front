@@ -112,7 +112,7 @@ export default {
         bn:"Variety"
     },
     label_upazila_market_size:{
-        en:"Uazila Market Size",
+        en:"Upazila Market Size",
         bn:"Crop"
     },
     label_price_approximate:{

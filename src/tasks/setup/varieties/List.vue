@@ -101,6 +101,15 @@
         filter:{from:'',to:'',options:[{value:'ARM',label:'ARM'},{value:'Principal',label:'Principal'},{value:'Competitor',label:'Competitor'}]},
 
       };
+      key='competitor_name';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:false,
+        filterable:true,
+        sortable:true,
+        type:'text',
+        filter:{from:'',to:''}
+      };
       key='crop_name';
       columns[key]={
         label: labels.get('label_'+key),

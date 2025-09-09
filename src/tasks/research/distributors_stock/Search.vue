@@ -11,12 +11,11 @@
     <div class="card-body">
       <form id="formSaveItem">
         <InputTemplate :inputItems="item.inputFields" />
-        <div class="row mb-2" v-if="item.exists">
+        <div class="row mb-2" v-show="item.exists">
           <div class="col-4">
-
           </div>
           <div class="col-8">
-            <table class="table table-bordered">
+            <table id="table_varieties" class="table table-bordered">
               <thead>
               <tr>
                 <th>Crop</th>
@@ -28,35 +27,18 @@
               </thead>
               <tbody>
               <tr>
-                <td>
-                  <select id="crop_id" class="form-control">
-                    <option value="">{{labels.get('label_select')}}</option>
-                    <option v-for="row in taskData.crops" :value="row.id">
-                      {{row.name}}
-                    </option>
-                  </select>
-                </td>
-                <td>
-                  <select id="type_id" class="form-control">
-                    <option value="">{{labels.get('label_select')}}</option>
-                    <option v-for="row in item.inputFields2.crop_types" :value="row.id">
-                      {{row.name}}
-                    </option>
-                  </select>
-                </td>
-                <td>
+                <td colspan="3">
                   <select id="variety_id" class="form-control">
                     <option value="">{{labels.get('label_select')}}</option>
-                    <option v-for="row in item.inputFields2.varieties" :value="row.id">
+                    <option v-for="row in taskData.varieties" :value="row.id">
                       {{row.name}}
                     </option>
                   </select>
                 </td>
                 <td><input type="text" class="form-control float_positive" id="quantity" value=""></td>
-
                 <td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary btn_add_more_variety"><i class="bi bi-plus-circle"></i> {{labels.get('action_1')}}</button></td>
               </tr>
-              <tr v-for="(quantity,variety_id) in item.stock">
+              <tr v-for="(quantity,variety_id) in item.stock" v-if="item.exists">
                 <td>{{varieties_object[variety_id]?varieties_object[variety_id].crop_name:'NF'}}</td>
                 <td>{{varieties_object[variety_id]?varieties_object[variety_id].type_name:'NF'}}</td>
                 <td>{{varieties_object[variety_id]?varieties_object[variety_id].name:'NF'}}</td>
@@ -264,8 +246,9 @@
 
     }
     const getItem=async ()=>{
+      item.exists=false;
+      $('#table_varieties tbody tr:not(:first)').remove();
       if($('#distributor_id').val()>0){
-        item.exists=false;
         await systemFunctions.delay(1);
         let formData=new FormData(document.getElementById('formSaveItem'))
         await axios.post(taskData.api_url+'/get-item',formData).then((res)=>{
@@ -290,6 +273,7 @@
     setInputFields();
     $(document).ready(async function()
     {
+      $('#variety_id').select2();
       $(document).off("change", "#crop_id");
       $(document).on("change",'#crop_id',async function()
       {
@@ -386,6 +370,7 @@
             $(this).closest("tr").after(html);
         }
         $('#variety_id').val('');
+        $('#select2-variety_id-container').html(labels.get('label_select'));
         $('#quantity').val('')
       })
       $(document).off("click", ".btn_remove_variety");

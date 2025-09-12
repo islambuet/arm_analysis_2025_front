@@ -29,7 +29,7 @@
       <div class="card-header p-1">
         <a class="btn btn-sm" data-toggle="collapse" href="#label_action_8">{{labels.get('action_8')}} </a>
       </div>
-      <div id="label_action_8" class="collapse show" v-if="item.exists">
+      <div id="label_action_8" class="collapse" v-if="item.exists">
         <div class="row card-body">
           <template v-for="column in taskData.columns.selectable">
             <div class="col-sm-6 col-md-3">
@@ -61,10 +61,9 @@
         <template v-for="row in taskData.itemsFiltered">
           <tr v-for="index  in row['num_rows']" >
             <template v-for="(column,key) in taskData.columns.all">
-              <td :class="((['quantity','unit_price','achievement','amount'].indexOf(column.group) != -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
+              <td :class="((['target_quantity','sales_quantity','balance_quantity','stock_open_quantity','stock_purchase_quantity','stock_sales_quantity','stock_end_quantity'].indexOf(column.group) != -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
                 <template v-if="index==1">
-                  <template v-if="column.group=='amount' || column.group=='achievement'">{{ row[column.key]?row[column.key].toFixed(2):'' }}</template>
-                  <template v-else-if="column.group=='quantity'">{{ row[column.key]?row[column.key].toFixed(3):'' }}</template>
+                  <template v-if="(['target_quantity','sales_quantity','balance_quantity','stock_open_quantity','stock_purchase_quantity','stock_sales_quantity','stock_end_quantity'].indexOf(column.group) != -1)">{{ row[column.key]?(row[column.key]).toFixed(3):'' }}</template>
                   <template v-else>{{ row[column.key] }}</template>
                 </template>
                 <template v-else>&nbsp</template>
@@ -163,7 +162,6 @@
         mandatory:true,
         noselect:true,
       };
-      console.log(globalVariables.current_year,new Date().getMonth())
       item.inputFields1=inputFields;
       //inputFields2
       inputFields={}
@@ -293,7 +291,7 @@
         label: labels.get('label_'+key),
         type:'dropdown',
         options:[{label:"All",value:'All'},{label:"Active",value:'Active'},{label:"In-Active",value:'In-Active'}],
-        default:'all',
+        default:'Active',
         mandatory:true,
         noselect:true,
       };
@@ -319,24 +317,23 @@
         if (res.data.error == "") {
           taskData.itemsFiltered=[];
           let columns_all=[];
+          //taskData.columns.selectable=['target_quantity','sales_quantity','balance_quantity','stock_open_quantity','stock_purchase_quantity','stock_sales_quantity','stock_end_quantity'];
           let rows={};
           columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
           columns_all.push({'group':'type_name','key':'type_name','label':labels.get('label_type_name')})
           columns_all.push({'group':'variety_name','key':'variety_name','label':labels.get('label_variety_name')})
-          columns_all.push({'group':'quantity','key':'quantity_target','label':labels.get('label_quantity')+'</br>(target)'})
-          columns_all.push({'group':'amount','key':'amount_target','label':labels.get('label_amount')+'</br>(target)'})
-          columns_all.push({'group':'amount','key':'unit_price','label':labels.get('label_unit_price')})
-          columns_all.push({'group':'quantity','key':'quantity_sales','label':labels.get('label_quantity')+'</br>(sales)'})
-          columns_all.push({'group':'amount','key':'amount_sales','label':labels.get('label_amount')+'</br>(sales)'})
-          columns_all.push({'group':'quantity','key':'quantity_difference','label':labels.get('label_quantity')+'</br>(Difference)'})
-          columns_all.push({'group':'amount','key':'amount_difference','label':labels.get('label_amount')+'</br>(Difference)'})
-
-          columns_all.push({'group':'achievement','key':'achievement','label':labels.get('label_achievement')})
+          columns_all.push({'group':'target_quantity','key':'target_quantity','label':labels.get('label_target_quantity')})
+          columns_all.push({'group':'sales_quantity','key':'sales_quantity','label':labels.get('label_sales_quantity')})
+          columns_all.push({'group':'balance_quantity','key':'balance_quantity','label':labels.get('label_balance_quantity')})
+          columns_all.push({'group':'stock_open_quantity','key':'stock_open_quantity','label':labels.get('label_stock_open_quantity')})
+          columns_all.push({'group':'stock_purchase_quantity','key':'stock_purchase_quantity','label':labels.get('label_stock_purchase_quantity')})
+          columns_all.push({'group':'stock_sales_quantity','key':'stock_sales_quantity','label':labels.get('label_stock_sales_quantity')})
+          columns_all.push({'group':'stock_end_quantity','key':'stock_end_quantity','label':labels.get('label_stock_end_quantity')})
           for(let i in taskData.varieties){
             let variety=taskData.varieties[i];
-            if(variety['status']!='Active')
-              continue;
             if(variety['whose']!='ARM')
+              continue;
+            if(options['variety_status']!='All' && variety['status']!=options['variety_status'])
               continue;
             let crop_type_id=variety['crop_type_id'];
             let crop_id=crop_types_object[crop_type_id]['crop_id'];
@@ -361,48 +358,21 @@
             }
             if(row_available){
               rows[variety['id']]={}
+              rows[variety['id']]['id']=variety['id'];
               rows[variety['id']]['num_rows']=1;
-              rows[variety['id']]['crop_name']=(crops_object[crop_id]?crops_object[crop_id]['name']:crop_id);
-              rows[variety['id']]['type_name']=(crop_types_object[crop_type_id]?crop_types_object[crop_type_id]['name']:crop_type_id);
+              rows[variety['id']]['crop_name']=variety['crop_name'];
+              rows[variety['id']]['type_name']=variety['type_name'];
               rows[variety['id']]['variety_name']=variety['name'];
-
-              rows[variety['id']]['quantity_target']=0;
-              rows[variety['id']]['amount_target']=0;
-              rows[variety['id']]['unit_price']=0;
-              rows[variety['id']]['quantity_sales']=0;
-              rows[variety['id']]['amount_sales']=0;
-
-              rows[variety['id']]['quantity_difference']=0;
-              rows[variety['id']]['amount_difference']=0;
-              rows[variety['id']]['achievement']=0;
+              rows[variety['id']]['target_quantity']=0;
+              rows[variety['id']]['sales_quantity']=0;
+              rows[variety['id']]['balance_quantity']=0;
+              rows[variety['id']]['stock_open_quantity']=0;
+              rows[variety['id']]['stock_purchase_quantity']=0;
+              rows[variety['id']]['stock_sales_quantity']=0;
+              rows[variety['id']]['stock_end_quantity']=0;
             }
           }
-          for(let i in res.data.sales){
-            let datum=res.data.sales[i];
-            if(rows[datum['variety_id']]){
-              rows[datum['variety_id']]['quantity_sales']=datum['quantity']
-              rows[datum['variety_id']]['amount_sales']=datum['amount']
-              if(datum['quantity']>0){
-                rows[datum['variety_id']]['unit_price']=rows[datum['variety_id']]['amount_sales']/rows[datum['variety_id']]['quantity_sales'].toFixed(2);
-              }
-            }
-          }
-          for(let i in res.data.target){
-            let datum=res.data.target[i];
-            if(rows[datum['variety_id']]){
-              rows[datum['variety_id']]['quantity_target']=datum['quantity']
-              if(datum['quantity']>0){
-                rows[datum['variety_id']]['achievement']=((rows[datum['variety_id']]['quantity_sales']*100)/rows[datum['variety_id']]['quantity_target'])
-                rows[datum['variety_id']]['amount_target']=rows[datum['variety_id']]['quantity_target']*rows[datum['variety_id']]['unit_price'];
-                rows[datum['variety_id']]['quantity_difference']=rows[datum['variety_id']]['quantity_target']-rows[datum['variety_id']]['quantity_sales'];
-                rows[datum['variety_id']]['amount_difference']=rows[datum['variety_id']]['amount_target']-rows[datum['variety_id']]['amount_sales'];
-              }
-              else if(rows[datum['variety_id']]['quantity_sales']>0){
-                rows[datum['variety_id']]['achievement']=100;
-              }
 
-            }
-          }
 
           taskData.itemsFiltered=Object.values(rows);
           taskData.columns.all=columns_all;
@@ -415,7 +385,7 @@
       });
     }
     const exportCsv=async ()=>{
-      systemFunctions.exportCsvFromHtmlTable('#table_report','Sales Report '+$('#report_format').val())
+      systemFunctions.exportCsvFromHtmlTable('#table_report',labels.get('label_task'))
     }
     const toggleReportControlColumns=(event)=>{
       //show_report.value=false;
@@ -440,7 +410,7 @@
     setInputFields();
     $(document).ready(async function()
     {
-      taskData.columns.selectable=['target','sales','balance','stock_open','stock_purchase','stock_sales','stock_end'];
+      taskData.columns.selectable=['target_quantity','sales_quantity','balance_quantity','stock_open_quantity','stock_purchase_quantity','stock_sales_quantity','stock_end_quantity'];
       taskData.columns.hidden=[];
 
       $(document).off("change", "#crop_id");
@@ -460,7 +430,7 @@
       {
         let crop_type_id=$(this).val();
         let key='variety_id';
-        item.inputFields3[key].options=taskData.varieties.filter((temp)=>{ if((temp.crop_type_id==crop_type_id) && (temp.whose=='ARM') && (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
+        item.inputFields3[key].options=taskData.varieties.filter((temp)=>{ if((temp.crop_type_id==crop_type_id) && (temp.whose=='ARM')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
         await systemFunctions.delay(1);
         $('#'+key).val('');
       })

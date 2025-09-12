@@ -491,7 +491,7 @@
       });
     }
     const exportCsv=async ()=>{
-      systemFunctions.exportCsvFromHtmlTable('#table_report','Incentive Report')
+      systemFunctions.exportCsvFromHtmlTable('#table_report',labels.get('label_task'))
     }
     const toggleReportControlColumns=(event)=>{
       //show_report.value=false;

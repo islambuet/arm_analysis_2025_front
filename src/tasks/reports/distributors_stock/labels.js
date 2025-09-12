@@ -1,38 +1,38 @@
 export default {
     label_task:{
-        en:"distributors stock Report",
+        en:"Distributors Stock Report",
         bn:'Variety Report'
     },
     label_fiscal_year :{
         en:"Fiscal Year",
         bn:'ব্যবহারকারীরা'
     },
-    label_target :{
+    label_target_quantity :{
         en:"Target",
         bn:'ব্যবহারকারীরা'
     },
-    label_sales :{
+    label_sales_quantity :{
         en:"Sales",
         bn:'ব্যবহারকারীরা'
     },
-    label_balance:{
+    label_balance_quantity:{
         en:"Balance",
         bn:'ব্যবহারকারীরা'
     },
-    label_stock_open:{
+    label_stock_open_quantity:{
         en:"Opening Stock",
         bn:'ব্যবহারকারীরা'
     },
 
-    label_stock_purchase :{
+    label_stock_purchase_quantity :{
         en:"Purchase",
         bn:'ব্যবহারকারীরা'
     },
-    label_stock_sales:{
+    label_stock_sales_quantity:{
         en:"Sales",
         bn:"কর্মচারী আইডি"
     },
-    label_stock_end:{
+    label_stock_end_quantity:{
         en:"Balance",
         bn:"কর্মচারী আইডি"
     },

@@ -63,8 +63,8 @@
                   <template v-if="(['crop_name','type_name'].indexOf(column.group) != -1)">{{ row[column.key] }}</template>
 
                   <template v-else>
-                    <div :style="'background-color: '+row[column.key]">
-                      &nbsp;
+                    <div :style="'background-color: '+row[column.key]['color']">
+                      &nbsp;{{ row[column.key]['value']>0?row[column.key]['value']:' ' }}
                     </div>
                   </template>
                 </template>
@@ -295,13 +295,15 @@
               rows[crop_type['id']]['crop_name']=(crops_object[crop_type['crop_id']]?crops_object[crop_type['crop_id']]['name']:crop_type['crop_id']);
               rows[crop_type['id']]['type_name']=crop_type['name'];
               for(let i=1;i<13;i++){
-                rows[crop_type['id']]['month_short_'+i]='#FFFFFF';
+                rows[crop_type['id']]['month_short_'+i]={};
+                rows[crop_type['id']]['month_short_'+i]['color']='#FFFFFF';
+                rows[crop_type['id']]['month_short_'+i]['value']=0;
               }
 
               rows_array.push(rows[crop_type['id']])//for ordering
             }
           }
-          console.log(res.data.items)
+
           let month_status='';
           for(let i in res.data.items){
             let datum=res.data.items[i];
@@ -319,7 +321,8 @@
                   month_status='MONTH_BEFORE';
                 }
               }
-              rows[datum['type_id']]['month_short_'+j]=taskData.type_months_color[month_status]['config_value'];
+              rows[datum['type_id']]['month_short_'+j]['color']=taskData.type_months_color[month_status]['config_value'];
+              rows[datum['type_id']]['month_short_'+j]['value']=datum['month_'+j];
             }
           }
           //For ordering
@@ -338,7 +341,7 @@
       });
     }
     const exportCsv=async ()=>{
-      systemFunctions.exportCsvFromHtmlTable('#table_report','Incentive Report')
+      systemFunctions.exportCsvFromHtmlTable('#table_report',labels.get('label_task'))
     }
     const toggleReportControlColumns=(event)=>{
       //show_report.value=false;

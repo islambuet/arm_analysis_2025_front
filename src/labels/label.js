@@ -51,6 +51,10 @@ export default {
         en:"Status",
         bn:"স্ট্যাটাস"
     },
+    label_variety_status:{
+        en:"Variety Status",
+        bn:"স্ট্যাটাস"
+    },
     label_new:{
         en:"New",
         bn:'নতুন'
@@ -175,6 +179,22 @@ export default {
         en:"To",
         bn:"পর্যন্ত"
     },
+    label_report_format :{
+        en:"Report Format",
+        bn:'ব্যবহারকারীরা'
+    },
+    label_amount:{
+        en:"Amount",
+        bn:"Amount"
+    },
+    label_quantity:{
+        en:"Quantity",
+        bn:"Quantity"
+    },
+    label_unit_price:{
+        en:"Unit Price",
+        bn:"কর্মচারী আইডি"
+    },
     //ColumnFilter end
     //Pagination start
     label_per_page:{
@@ -210,6 +230,10 @@ export default {
         en:"Fiscal Year",
         bn:'ব্যবহারকারীরা'
     },
+    label_analysis_year_id :{
+        en:"Analysis Year",
+        bn:'ব্যবহারকারীরা'
+    },
     label_trial_station :{
         en:"Trial Station",
         bn:"কর্মচারী আইডি"
@@ -221,6 +245,10 @@ export default {
     label_rnd_code:{
         en:"RND Code",
         bn:"কর্মচারী আইডি"
+    },
+    label_month :{
+        en:"Month",
+        bn:'ব্যবহারকারীরা'
     },
     label_month_short_1:{
         en:"Jan",
@@ -268,6 +296,104 @@ export default {
     },
     label_month_short_12:{
         en:"Dec",
+        bn:"কর্মচারী আইডি"
+    },
+    //Crops
+    label_crop_id:{
+        en:"Crop",
+        bn:"Crop"
+    },
+    label_crop_name:{
+        en:"Crop",
+        bn:"Crop"
+    },
+    label_crop_type_id :{
+        en:"Type",
+        bn:"Type"
+    },
+    label_crop_type_name :{
+        en:"Type",
+        bn:"Type"
+    },
+    label_type_name :{
+        en:"Type",
+        bn:"Type"
+    },
+    label_variety_id:{
+        en:"Variety",
+        bn:"কর্মচারী আইডি"
+    },
+    label_variety_name:{
+        en:"Variety",
+        bn:"Variety"
+    },
+    label_pack_size_id:{
+        en:"Product",
+        bn:"Product"
+    },
+    label_pack_size_name:{
+        en:"Product",
+        bn:"Product"
+    },
+    //locations
+    label_division_id :{
+        en:"Division",
+        bn:"কর্মচারী আইডি"
+    },
+    label_division_name :{
+        en:"Division",
+        bn:"কর্মচারী আইডি"
+    },
+    label_district_id:{
+        en:"District",
+        bn:"কর্মচারী আইডি"
+    },
+    label_district_name:{
+        en:"District",
+        bn:"কর্মচারী আইডি"
+    },
+    label_upazila_id:{
+        en:"Upazila",
+        bn:"কর্মচারী আইডি"
+    },
+    label_upazila_name:{
+        en:"Upazila",
+        bn:"কর্মচারী আইডি"
+    },
+    label_unions_name:{
+        en:"Unions",
+        bn:"কর্মচারী আইডি"
+    },
+    label_part_id:{
+        en:"Part",
+        bn:"কর্মচারী আইডি"
+    },
+    label_part_name:{
+        en:"Part",
+        bn:"কর্মচারী আইডি"
+    },
+    label_area_id:{
+        en:"Area",
+        bn:"কর্মচারী আইডি"
+    },
+    label_area_name:{
+        en:"Area",
+        bn:"কর্মচারী আইডি"
+    },
+    label_territory_id:{
+        en:"Territory",
+        bn:"কর্মচারী আইডি"
+    },
+    label_territory_name:{
+        en:"Territory",
+        bn:"কর্মচারী আইডি"
+    },
+    label_distributor_id :{
+        en:"Distributor",
+        bn:"কর্মচারী আইডি"
+    },
+    label_distributor_name :{
+        en:"Distributor",
         bn:"কর্মচারী আইডি"
     },
 }

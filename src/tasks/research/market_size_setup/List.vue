@@ -3,7 +3,7 @@
     <div class="card-body">
       <div class="row mb-2">
         <div class="col-4">
-          <label class="font-weight-bold float-right">{{labels.get('label_analysis_year')}} <span class="text-danger">*</span></label>
+          <label class="font-weight-bold float-right">{{labels.get('label_analysis_year_id')}} <span class="text-danger">*</span></label>
         </div>
         <div class="col-lg-4 col-8">
           <div class="input-group" >

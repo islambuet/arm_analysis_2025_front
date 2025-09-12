@@ -1,13 +1,15 @@
 <template>
   <div class="card d-print-none mb-2">
     <div class="card-body">
-      <router-link :to="taskData.api_url" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" ><i class="feather icon-corner-up-left"></i> {{labels.get('label_back')}}</router-link>
       <template v-if="item.exists">
         <button  type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="save(false)"><i class="feather icon-save"></i> {{labels.get('label_save')}}</button>
       </template>
     </div>
   </div>
   <div class="card d-print-none mb-2" >
+    <div class="card-header d-print-none">
+      {{labels.get('label_task')}}
+    </div>
     <div class="card-body">
       <form id="formSaveItem">
         <InputTemplate :inputItems="item.inputFields" />

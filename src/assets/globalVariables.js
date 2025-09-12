@@ -32,7 +32,7 @@ export default reactive({
   loadListData:true,
   starting_year:2023,
   current_year:new Date().getFullYear(),
-  current_month:new Date().getMonth(),
+  current_month:new Date().getMonth()+1,
   current_fiscal_year:new Date().getFullYear(),
   sales_starting_year:2022,
   fiscal_year_starting_month:6

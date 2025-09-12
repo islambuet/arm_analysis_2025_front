@@ -15,52 +15,6 @@ export default {
         en:"Details of Market Requirement",
         bn:'ব্যবহারকারীর বিবরণ'
     },
-    label_analysis_year :{
-        en:"Analysis Year",
-        bn:'ব্যবহারকারীরা'
-    },
-    label_crop_id:{
-        en:"Crop",
-        bn:"কর্মচারী আইডি"
-    },
-    label_crop_name:{
-        en:"Crop",
-        bn:"কর্মচারী আইডি"
-    },
-
-    label_crop_type_id:{
-        en:"Type",
-        bn:"কর্মচারী আইডি"
-    },
-    label_crop_type_name:{
-        en:"Type",
-        bn:"কর্মচারী আইডি"
-    },
-    label_district_id:{
-        en:"District",
-        bn:"কর্মচারী আইডি"
-    },
-    label_districts:{
-        en:"District",
-        bn:"কর্মচারী আইডি"
-    },
-
-    label_area_id:{
-        en:"Area",
-        bn:"কর্মচারী আইডি"
-    },
-    label_area_name:{
-        en:"Area",
-        bn:"কর্মচারী আইডি"
-    },
-    label_territory_id:{
-        en:"Territory",
-        bn:"কর্মচারী আইডি"
-    },
-    label_territory_name:{
-        en:"Territory",
-        bn:"কর্মচারী আইডি"
-    },
     label_market_size:{
         en:"Market Size",
         bn:"কর্মচারী আইডি"

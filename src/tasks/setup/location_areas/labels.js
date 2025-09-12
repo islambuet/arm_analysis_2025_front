@@ -15,12 +15,4 @@ export default {
         en:"Details of Area",
         bn:'ব্যবহারকারীর বিবরণ'
     },
-    label_part_id:{
-        en:"Part",
-        bn:"কর্মচারী আইডি"
-    },
-    label_part_name:{
-        en:"part",
-        bn:"কর্মচারী আইডি"
-    }
 }

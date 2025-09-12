@@ -15,12 +15,4 @@ export default {
         en:"Details of District",
         bn:'ব্যবহারকারীর বিবরণ'
     },
-    label_division_id:{
-        en:"Division",
-        bn:"কর্মচারী আইডি"
-    },
-    label_division_name:{
-        en:"Division",
-        bn:"কর্মচারী আইডি"
-    }
 }

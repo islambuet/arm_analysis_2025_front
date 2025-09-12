@@ -15,14 +15,6 @@ export default {
         en:"Details of Variety",
         bn:'ব্যবহারকারীর বিবরণ'
     },
-    label_crop_id:{
-        en:"Crop",
-        bn:"কর্মচারী আইডি"
-    },
-    label_crop_name:{
-        en:"Crop",
-        bn:"কর্মচারী আইডি"
-    },
     label_whose :{
         en:"Whose Variety",
         bn:"কর্মচারী আইডি"
@@ -49,14 +41,6 @@ export default {
     },
     label_crop_feature_ids:{
         en:"Features",
-        bn:"কর্মচারী আইডি"
-    },
-    label_crop_type_id:{
-        en:"Type",
-        bn:"কর্মচারী আইডি"
-    },
-    label_crop_type_name:{
-        en:"Type",
         bn:"কর্মচারী আইডি"
     },
 

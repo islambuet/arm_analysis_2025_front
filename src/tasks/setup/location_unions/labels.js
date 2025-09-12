@@ -15,21 +15,5 @@ export default {
         en:"Details of Union",
         bn:'ব্যবহারকারীর বিবরণ'
     },
-    label_district_id:{
-        en:"District",
-        bn:"কর্মচারী আইডি"
-    },
-    label_district_name:{
-        en:"District",
-        bn:"কর্মচারী আইডি"
-    },
-    label_upazila_id:{
-        en:"Upazila",
-        bn:"কর্মচারী আইডি"
-    },
-    label_upazila_name:{
-        en:"Upazila",
-        bn:"কর্মচারী আইডি"
-    },
 
 }

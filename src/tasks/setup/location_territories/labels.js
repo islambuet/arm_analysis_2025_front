@@ -15,33 +15,5 @@ export default {
         en:"Details of Territory",
         bn:'ব্যবহারকারীর বিবরণ'
     },
-    label_part_id:{
-        en:"Part",
-        bn:"কর্মচারী আইডি"
-    },
-    label_part_name:{
-        en:"part",
-        bn:"কর্মচারী আইডি"
-    },
-    label_area_id:{
-        en:"Area",
-        bn:"কর্মচারী আইডি"
-    },
-    label_area_name:{
-        en:"Area",
-        bn:"কর্মচারী আইডি"
-    },
-    label_upazila_id:{
-        en:"Upazila",
-        bn:"কর্মচারী আইডি"
-    },
-    label_upazila_name:{
-        en:"Upazila",
-        bn:"কর্মচারী আইডি"
-    },
-    label_upazilas:{
-        en:"Upazilas",
-        bn:"কর্মচারী আইডি"
-    },
 
 }

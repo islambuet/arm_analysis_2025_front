@@ -315,7 +315,11 @@ export default {
         en:"Type",
         bn:"Type"
     },
-    label_type_name :{
+    label_type_id:{
+        en:"Type",
+        bn:"Type"
+    },
+    label_type_name:{
         en:"Type",
         bn:"Type"
     },

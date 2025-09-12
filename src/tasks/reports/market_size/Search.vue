@@ -62,7 +62,8 @@
           <tr v-for="index  in row['num_rows']" >
             <template v-for="(column,key) in taskData.columns.all">
               <td :class="((['market_size_location_total','market_size_total','market_size_arm','market_size_arm_percentage','market_size_competitor','market_size_competitor_percentage','competitor_variety_market_size','price_approximate','upazila_market_size'].indexOf(column.group) != -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
-                <template v-if="column.group=='competitor_variety' && row['competitor_info'].length>(index-1)">{{row['competitor_info'][index-1][column.key]}}</template>
+                <template v-if="(['crop_name','type_name'].indexOf(column.group) != -1)">{{ row[column.key] }}</template>
+                <template v-else-if="column.group=='competitor_variety' && row['competitor_info'].length>(index-1)">{{row['competitor_info'][index-1][column.key]}}</template>
                 <template v-else-if="column.group=='competitor_variety_market_size' && row['competitor_info'].length>(index-1)">{{row['competitor_info'][index-1][column.key]}}</template>
                 <template v-else-if="column.group=='competitor_variety_sales_reason' && row['competitor_info'].length>(index-1)">{{row['competitor_info'][index-1][column.key]}}</template>
 

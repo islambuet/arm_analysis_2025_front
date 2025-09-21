@@ -34,7 +34,7 @@
       </div>
       <form id="formSaveItems" v-if="item.show_report">
         <input type="hidden" name="save_token" id="save_token" :value="new Date().getTime()">
-        <input type="hidden" id="file_name" :value="item.file_name">
+        <input type="hidden" name="file_name" :value="item.file_name">
         <div class="row mb-2">
           <div class="col-4">
             <label class="font-weight-bold float-right">File Name</label>

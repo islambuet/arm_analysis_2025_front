@@ -6,6 +6,9 @@
     <div v-if="taskData.method=='add'">
       <AddEdit/>
     </div>
+    <div v-if="taskData.method=='upload'">
+      <Upload/>
+    </div>
     <div v-if="taskData.method=='edit'">
       <AddEdit/>
     </div>
@@ -26,6 +29,7 @@
   import List from './List.vue'
   import AddEdit from './AddEdit.vue'
   import Details from './Details.vue'
+  import Upload from './Upload.vue'
 
   globalVariables.loadListData=true;
   const route =useRoute()
@@ -67,6 +71,9 @@
     else if(route.path.indexOf(taskData.api_url+'/details/')!=-1)
     {
       taskData.method='details';
+    }
+    else if(route.path==taskData.api_url+'/upload'){
+      taskData.method='upload';
     }
   }
   watch(route, () => {

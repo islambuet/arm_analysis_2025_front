@@ -154,12 +154,24 @@ export default {
         en:'Save and New',
         bn:'সংরক্ষণ এবং নতুন'
     },
+    label_upload:{
+        en:'Upload',
+        bn:'ছবি নির্বাচন করুন'
+    },
+    label_upload_format_csv:{
+        en:'Download Format',
+        bn:'ছবি নির্বাচন করুন'
+    },
     label_upload_image:{
         en:'Select Image',
         bn:'ছবি নির্বাচন করুন'
     },
     label_upload_file:{
         en:'Select File',
+        bn:'ফাইল নির্বাচন করুন'
+    },
+    label_select_csv_data_file:{
+        en:'Select CSV Data File',
         bn:'ফাইল নির্বাচন করুন'
     },
     label_add_more:{

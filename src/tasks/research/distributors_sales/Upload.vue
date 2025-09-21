@@ -48,7 +48,7 @@
             <label class="font-weight-bold float-right">Total Records</label>
           </div>
           <div class="col-lg-4 col-8">
-            <label class="font-weight-bold">{{item.data.length}}</label> <small>(If more than 700 discuss with admin)</small>
+            <label class="font-weight-bold">{{item.data.length}}</label> <small>(If more than 4000 discuss with admin)</small>
           </div>
         </div>
         <table class="table table-bordered">
@@ -64,8 +64,8 @@
             <template v-for="(column,key) in item.columns.all">
               <td>
                 {{ datum[key] }}
-                <template v-if="!datum['status'] && item.columns.hidden.indexOf(key)<0">
-                  <input type="hidden" :name="'items['+index+']['+key+']'" :value="datum[key]">
+                <template v-if="datum['input'] && key=='sl_num'">
+                  <input type="hidden" :name="'items['+index+']'" :value="datum['input']">
                 </template>
               </td>
             </template>
@@ -170,16 +170,17 @@ $(document).ready(function()
           for(let i=1;i<rows.length;i++){
             let cols=rows[i].split(',')
             let datum={}
+            let inputDatum={}
             datum['sl_num']=i;
             if(cols.length==num_cols){
               datum['status']='';
-              datum['sales_at']=cols[0]
-              datum['invoice_no']=cols[1]
-              datum['distributor_id']=cols[2]
-              datum['pack_size_id']=cols[3]
-              datum['quantity']=cols[4]
-              datum['unit_price']=cols[5]
-              datum['amount']=cols[6]
+              datum['sales_at']=inputDatum['sales_at']=cols[0].trim()
+              datum['invoice_no']=inputDatum['invoice_no']=cols[1].trim()
+              datum['distributor_id']=inputDatum['distributor_id']=cols[2].trim()
+              datum['pack_size_id']=inputDatum['pack_size_id']=cols[3].trim()
+              datum['quantity']=inputDatum['quantity']=cols[4].trim()
+              datum['unit_price']=inputDatum['unit_price']=cols[5].trim()
+              datum['amount']=inputDatum['amount']=cols[6].trim()
               if(!datum['sales_at'])   {
                 datum['status']='Date';
               }
@@ -203,6 +204,7 @@ $(document).ready(function()
               }
 
               if(!datum['status']){
+                datum['input']=JSON.stringify(inputDatum)
                 data.push(datum);
               }
               else{
@@ -228,7 +230,7 @@ $(document).ready(function()
           item.data=data;
           item.file_name=file.name;
           item.show_report=true;
-          if(data.length>0 && success && data.length<700){
+          if(data.length>0 && success && data.length<4000){
             item.exists=true;
           }
         };

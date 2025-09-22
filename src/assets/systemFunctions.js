@@ -138,7 +138,7 @@ export default{
             csvStr+="\n";
         }
         let hiddenElement = document.createElement('a');
-        hiddenElement.href = 'data:text/csv;charset=utf-8,%EF%BB%BF' + encodeURI(csvStr);
+        hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvStr);
         hiddenElement.target = '_blank';
         hiddenElement.download = filename;
         hiddenElement.click();

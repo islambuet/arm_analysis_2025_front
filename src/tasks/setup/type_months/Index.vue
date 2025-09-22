@@ -9,6 +9,9 @@
     <div v-if="taskData.method=='edit'">
       <AddEdit/>
     </div>
+    <div v-if="taskData.method=='upload'">
+      <Upload/>
+    </div>
     <div v-if="taskData.method=='details'">
       <Details/>
     </div>
@@ -26,6 +29,7 @@
   import List from './List.vue'
   import AddEdit from './AddEdit.vue'
   import Details from './Details.vue'
+  import Upload from './Upload.vue'
 
   globalVariables.loadListData=true;
   const route =useRoute()
@@ -46,6 +50,7 @@
     location_territories:[],
     crops:[],
     crop_types:[],
+    type_months_color:[],
   })
   labels.add([{language:globalVariables.language,file:'tasks'+taskData.api_url+'/labels.js'}])
 
@@ -64,6 +69,9 @@
     else if(route.path.indexOf(taskData.api_url+'/details/')!=-1)
     {
       taskData.method='details';
+    }
+    else if(route.path==taskData.api_url+'/upload'){
+      taskData.method='upload';
     }
   }
   watch(route, () => {
@@ -103,6 +111,7 @@
         taskData.location_territories=res.data.location_territories;
         taskData.crops=res.data.crops;
         taskData.crop_types=res.data.crop_types;
+        taskData.type_months_color=res.data.type_months_color;
         if(res.data.hidden_columns){
           taskData.columns.hidden=res.data.hidden_columns;
         }

@@ -137,7 +137,7 @@ const setInputFields=async ()=>{
       name: 'item[' +key +']',
       label: labels.get('label_month_short_'+i),
       type:'dropdown',
-      options:[{label:"No",value:0},{label:"Yes",value:1}],
+      options:taskData.type_months_color.map((temp)=>{ return {value:temp.value,label:temp.name}}),
       default:item.data[key],
       mandatory:true,
       noselect:true,

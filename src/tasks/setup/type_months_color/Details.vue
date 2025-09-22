@@ -48,19 +48,19 @@
       type:'hidden',
       values:[item.data[key]],
     };
-    key='purpose';
+    key='name';
     detailFields[key] = {
       label: labels.get('label_'+key),
       type:'text',
       values:[item.data[key]],
     };
-    key='config_value';
+    key='value';
     detailFields[key] = {
       label: labels.get('label_'+key),
       type:'text',
       values:[item.data[key]],
     };
-    key='description';
+    key='color';
     detailFields[key] = {
       label: labels.get('label_'+key),
       type:'text',

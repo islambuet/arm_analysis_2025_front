@@ -1,30 +1,26 @@
 export default {
     label_task:{
-        en:"Configurations",
+        en:"Type Color",
         bn:'ব্যবহারকারীরা'
     },
     label_new_task:{
-        en:"New Configurations",
+        en:"New Type Color",
         bn:'নতুন ব্যবহারকারী'
     },
     label_edit_task:{
-        en:"Edit Configuration",
+        en:"Edit Type Color",
         bn:'সম্পাদনা ব্যবহারকারী'
     },
     label_details_task:{
-        en:"Details of Configurations",
+        en:"Details of Type Color",
         bn:'ব্যবহারকারীর বিবরণ'
     },
-    label_purpose:{
-        en:"Purpose",
-        bn:'ব্যবহারকারীর বিবরণ'
-    },
-    label_config_value:{
+    label_value:{
         en:"Value",
         bn:'ব্যবহারকারীর বিবরণ'
     },
-    label_description:{
-        en:"Description",
+    label_color:{
+        en:"Color",
         bn:'ব্যবহারকারীর বিবরণ'
-    }
+    },
 }

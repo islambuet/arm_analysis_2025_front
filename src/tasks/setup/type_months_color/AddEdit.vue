@@ -69,7 +69,7 @@ const setInputFields=async ()=>{
     default:item.data[key],
     mandatory:true
   };
-  key='purpose';
+  key='name';
   inputFields[key] = {
     name: 'item[' +key +']',
     label: labels.get('label_'+key),
@@ -77,21 +77,21 @@ const setInputFields=async ()=>{
     default:item.data[key],
     mandatory:true
   };
-  key='config_value';
+  key='value';
+  inputFields[key] = {
+    name: 'item[' +key +']',
+    label: labels.get('label_'+key),
+    type:'text',
+    default:item.data[key],
+    mandatory:false
+  };
+  key='color';
   inputFields[key] = {
     name: 'item[' +key +']',
     label: labels.get('label_'+key),
     type:'color',
     default:item.data[key],
     mandatory:true
-  };
-  key='description';
-  inputFields[key] = {
-    name: 'item[' +key +']',
-    label: labels.get('label_'+key),
-    type:'textarea',
-    default:item.data[key],
-    mandatory:false
   };
   key='status';
   inputFields[key] = {

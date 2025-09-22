@@ -40,7 +40,7 @@
           </td>
           <template v-for="(column,key) in taskData.columns.all">
             <td :class="((['id','ordering'].indexOf(key) != -1)?'text-right':'')+(column.class?(' '+column.class):'col_9')" v-if="taskData.columns.hidden.indexOf(key)<0" :key="'td_'+key">
-              <template v-if="(['config_value'].indexOf(key) != -1)">
+              <template v-if="(['color'].indexOf(key) != -1)">
                 <div :style="'background-color: '+item[key]">
                 &nbsp;{{ item[key] }}
                 </div>
@@ -90,7 +90,16 @@
         filter:{from:'',to:''},
         class:'col_1'
       };
-      key='purpose';
+      key='name';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:false,
+        filterable:true,
+        sortable:true,
+        type:'text',
+        filter:{from:'',to:''}
+      };
+      key='value';
       columns[key]={
         label: labels.get('label_'+key),
         hideable:true,
@@ -99,16 +108,7 @@
         type:'text',
         filter:{from:'',to:''}
       };
-      key='config_value';
-      columns[key]={
-        label: labels.get('label_'+key),
-        hideable:true,
-        filterable:true,
-        sortable:true,
-        type:'text',
-        filter:{from:'',to:''}
-      };
-      key='description';
+      key='color';
       columns[key]={
         label: labels.get('label_'+key),
         hideable:true,

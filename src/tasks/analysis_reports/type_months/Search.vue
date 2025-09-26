@@ -8,6 +8,9 @@
         <form id="formSearch">
           <div class="row mt-2">
             <div class="input_container col-lg-4">
+              <InputTemplate :inputItems="item.inputFields1" />
+            </div>
+            <div class="input_container col-lg-4">
               <InputTemplate :inputItems="item.inputFields2" />
             </div>
             <div class="input_container col-lg-4">
@@ -28,9 +31,12 @@
       </div>
       <div id="label_action_8" class="collapse show" v-if="item.exists">
         <div class="row card-body">
+          <div class="col-12 text-center">
+            <label><input type="checkbox" id="select_all"> {{labels.get('label_select_all')}}</label>
+          </div>
           <template v-for="column in taskData.columns.selectable">
-            <div class="col-sm-6 col-md-3">
-              <label><input type="checkbox" :value="column" :checked="taskData.columns.hidden.indexOf(column)<0" @change="toggleReportControlColumns($event)"> {{labels.get('label_'+column)}}</label>
+            <div class="col-sm-6 col-md-2">
+              <label><input class="select_month" type="checkbox" :value="column" :checked="taskData.columns.hidden.indexOf(column)<0" @change="toggleReportControlColumns($event)"> {{labels.get('label_'+column)}}</label>
             </div>
           </template>
         </div>
@@ -58,13 +64,13 @@
         <template v-for="row in taskData.itemsFiltered">
           <tr v-for="index  in row['num_rows']" >
             <template v-for="(column,key) in taskData.columns.all">
-              <td :class="((['quantity_sales'].indexOf(column.group) != -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
+              <td :class="((['crop_name','type_name','variety_name','territory_name'].indexOf(column.group) == -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
                 <template v-if="index==1">
-                  <template v-if="(['crop_name','type_name'].indexOf(column.group) != -1)">{{ row[column.key] }}</template>
+                  <template v-if="(['crop_name','type_name','variety_name','part_name','area_name','territory_name'].indexOf(column.group) != -1)">{{ row[column.key] }}</template>
 
                   <template v-else>
-                    <div :style="'background-color: '+row[column.key]['color']">
-                      &nbsp;{{ row[column.key]['value']>0?row[column.key]['value']:' ' }}
+                    <div :style="'background-color: '+(type_months_color_object[row[column.key]]?type_months_color_object[row[column.key]]['color']:'#000000')">
+                      &nbsp;{{ row[column.key] }}
                     </div>
                   </template>
                 </template>
@@ -113,6 +119,10 @@
     for(let i in taskData.crop_types){
       crop_types_object[taskData.crop_types[i]['id']]=taskData.crop_types[i];
     }
+    let varieties_object={};
+    for(let i in taskData.varieties){
+      varieties_object[taskData.varieties[i]['id']]=taskData.varieties[i];
+    }
 
     let location_parts_object={};
     for(let i in taskData.location_parts){
@@ -129,18 +139,55 @@
       let territory_id=taskData.location_territories[i]['id'];
       location_territories_object[territory_id]=taskData.location_territories[i];
     }
+    let type_months_color_object={};
+    for(let i in taskData.type_months_color){
+      type_months_color_object[taskData.type_months_color[i]['value']]=taskData.type_months_color[i];
+    }
 
     const setInputFields=async ()=>{
-
+      item.inputFields1= {};
       item.inputFields2= {};
       item.inputFields3= {};
       await systemFunctions.delay(1);
       let inputFields={}
+      let key='report_format';
+      inputFields[key] = {
+        name: 'options[' +key +']',
+        label: labels.get('label_'+key),
+        type:'dropdown',
+        options:[{value:'type',label:'Type Wise'},{value:'variety',label:'Variety Wise'},{value:'territory',label:'Territory wise'},
+        ],
+        default:'variety',
+        mandatory:true,
+        noselect:true,
+      };
+      key='month_status';
+      inputFields[key] = {
+        name: 'options[' +key +']',
+        label: labels.get('label_'+key),
+        type:'dropdown',
+        options:taskData.type_months_color.filter((temp)=>{ if(temp.status=='Active'){temp.value=temp.value.toString();temp.label=temp.name;return true}}),
+        default:item.data[key],
+        mandatory:false,
+        noselect:true,
+      };
+      inputFields[key]['options'].unshift({value:-1,label:labels.get('label_select')})//to change select value different
+      key='month';
+      inputFields[key] = {
+        name: 'options[' +key +']',
+        label: labels.get('label_'+key),
+        type:'dropdown',
+        options:new Array(12).fill().map((temp,index) => {return {value:index+1,label:labels.get('label_month_short_'+(index+1))}}),
+        default:globalVariables.current_month,
+        mandatory:false,
+        noselect:true
+      };
+      item.inputFields1=inputFields;
 
       //inputFields2
       inputFields={}
 
-      let key='part_id';
+      key='part_id';
       inputFields[key] = {
         name: 'options[' +key +']',
         label: labels.get('label_'+key),
@@ -241,6 +288,25 @@
         default:item.data[key],
         mandatory:false
       };
+      key='variety_id';
+      inputFields[key] = {
+        name: 'options[' +key +']',
+        label: labels.get('label_'+key),
+        type:'dropdown',
+        options:[],
+        default:item.data[key],
+        mandatory:true
+      };
+      key='status';
+      inputFields[key] = {
+        name: 'options[' +key +']',
+        label: labels.get('label_'+key),
+        type:'dropdown',
+        options:[{label:"All",value:'All'},{label:"Active",value:'Active'},{label:"In-Active",value:'In-Active'}],
+        default:'Active',
+        mandatory:true,
+        noselect:true,
+      };
 
       item.inputFields3=inputFields;
 
@@ -263,73 +329,109 @@
           let columns_all=[];
           let rows={};
           let rows_array=[];
-          columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
-          columns_all.push({'group':'type_name','key':'type_name','label':labels.get('label_type_name')})
 
-          for(let i=1;i<13;i++){
-            columns_all.push({'group':'month_short_'+i,'key':'month_short_'+i,'label':labels.get('label_month_short_'+i)})
+          let data_items={}
+          let data_items_key='type_id'
+          //options:[{value:'type',label:'Type Wise'},{value:'variety',label:'Variety Wise'},{value:'territory',label:'Territory wise'},
+          if((options['report_format']=='type')||(options['report_format']=='variety')){
+            columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
+            columns_all.push({'group':'type_name','key':'type_name','label':labels.get('label_type_name')})
+            if((options['report_format']=='variety')){
+              columns_all.push({'group':'variety_name','key':'variety_name','label':labels.get('label_variety_name')})
+            }
           }
-
-          for(let i in taskData.crop_types){
-            let crop_type=taskData.crop_types[i];
-            if(crop_type['status']!='Active')
-              continue;
-            let row_available=false;
-            if(options['crop_id']>0){
-              if(options['crop_type_id']>0){
-                if(options['crop_type_id']==crop_type['id']){
-                  row_available=true;
+          else if(options['report_format']=='territory'){
+            data_items_key='territory_id';
+            columns_all.push({'group':'part_name','key':'part_name','label':labels.get('label_part_name')})
+            columns_all.push({'group':'area_name','key':'area_name','label':labels.get('label_area_name')})
+            columns_all.push({'group':'territory_name','key':'territory_name','label':labels.get('label_territory_name')})
+          }
+          for(let i in res.data.items){
+            let datum=res.data.items[i];
+            if(data_items[datum[data_items_key]]){
+              for(let j=1;j<13;j++){
+                if(data_items[datum[data_items_key]]['month_'+j]<datum['month_'+j]){
+                  data_items[datum[data_items_key]]['month_'+j]=datum['month_'+j]
                 }
-              }
-              else if(options['crop_id']==crop_type['crop_id']){
-                row_available=true;
               }
             }
             else{
-              row_available=true;
+              data_items[datum[data_items_key]]=datum
             }
-            if(row_available){
-              rows[crop_type['id']]={}
-              rows[crop_type['id']]['id']=crop_type['id'];
-              rows[crop_type['id']]['num_rows']=1;
-              rows[crop_type['id']]['crop_name']=(crops_object[crop_type['crop_id']]?crops_object[crop_type['crop_id']]['name']:crop_type['crop_id']);
-              rows[crop_type['id']]['type_name']=crop_type['name'];
-              for(let i=1;i<13;i++){
-                rows[crop_type['id']]['month_short_'+i]={};
-                rows[crop_type['id']]['month_short_'+i]['color']='#FFFFFF';
-                rows[crop_type['id']]['month_short_'+i]['value']=0;
+          }
+          for(let i=1;i<13;i++){
+            columns_all.push({'group':'month_short_'+i,'key':'month_short_'+i,'label':labels.get('label_month_short_'+i)})
+          }
+          if(options['report_format']=='type') {
+            for (let i in taskData.crop_types) {
+              let crop_type = taskData.crop_types[i];
+              if(!data_items[crop_type['id']]){
+                continue;
               }
+              if(options['status']!='All' && crop_type['status']!=options['status'])
+                continue;
 
+              rows[crop_type['id']] = {}
+              rows[crop_type['id']]['id'] = crop_type['id'];
+              rows[crop_type['id']][data_items_key] = crop_type['id'];
+              rows[crop_type['id']]['num_rows'] = 1;
+              rows[crop_type['id']]['crop_name'] = crop_type['crop_name'];
+              rows[crop_type['id']]['type_name'] = crop_type['name'];
               rows_array.push(rows[crop_type['id']])//for ordering
             }
           }
-
-          let month_status='';
-          for(let i in res.data.items){
-            let datum=res.data.items[i];
-            for(let j=1;j<13;j++){
-              let next_month=(j+1>12?1:j+1);
-              if(datum['month_'+j]>0){
-                month_status='MONTH_IN';
-                if(datum['month_'+next_month]==0){
-                  month_status='MONTH_LAST';
+          else if(options['report_format']=='variety'){
+            for(let i in taskData.varieties){
+              let variety=taskData.varieties[i];
+              if(!data_items[variety['crop_type_id']]){
+                continue;
+              }
+              if(options['status']!='All' && variety['status']!=options['status'])
+                continue;
+              if(options['variety_id']>0){
+                if(options['variety_id']!=variety['id']){
+                  continue;
                 }
               }
-              else{
-                month_status='MONTH_OUT';
-                if(datum['month_'+next_month]>0){
-                  month_status='MONTH_BEFORE';
-                }
-              }
-              rows[datum['type_id']]['month_short_'+j]['color']=taskData.type_months_color[month_status]['config_value'];
-              rows[datum['type_id']]['month_short_'+j]['value']=datum['month_'+j];
+              rows[variety['id']]={}
+              rows[variety['id']]['id'] = variety['id'];
+              rows[variety['id']][data_items_key] = variety['crop_type_id'];
+              rows[variety['id']]['num_rows']=1;
+              rows[variety['id']]['crop_name']=variety['crop_name'];
+              rows[variety['id']]['type_name']=variety['crop_type_name'];
+              rows[variety['id']]['variety_name']=variety['name'];
+              rows_array.push(rows[variety['id']])//for ordering
             }
           }
+          else if(options['report_format']=='territory') {
+            for (let i in taskData.location_territories) {
+              let territory = taskData.location_territories[i];
+              if(!data_items[territory['id']]){
+                continue;
+              }
+              if(options['status']!='All' && territory['status']!=options['status'])
+                continue;
+
+              rows[territory['id']] = {}
+              rows[territory['id']]['id'] = territory['id'];
+              rows[territory['id']][data_items_key] = territory['id'];
+              rows[territory['id']]['num_rows'] = 1;
+              rows[territory['id']]['part_name'] = territory['part_name'];
+              rows[territory['id']]['area_name'] = territory['area_name'];
+              rows[territory['id']]['territory_name'] = territory['name'];
+              rows_array.push(rows[territory['id']])//for ordering
+            }
+          }
+          for(let i in rows){
+            for(let j=1;j<13;j++){
+              rows[i]['month_short_'+j]=data_items[rows[i][data_items_key]]['month_'+j]
+            }
+          }
+
           //For ordering
           for(let i in rows_array){
             rows_array[i]=rows[rows_array[i]['id']]
           }
-
           taskData.itemsFiltered=rows_array;
           taskData.columns.all=columns_all;
           calculateTableWidth();
@@ -382,11 +484,25 @@
       {
         let crop_id=$(this).val();
         let key='crop_type_id';
-        item.inputFields3[key].options=taskData.crop_types.filter((temp)=>{ if((temp.crop_id==crop_id) && (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
+        item.inputFields3[key].options=taskData.crop_types.filter((temp)=>{ if((temp.crop_id==crop_id)){temp.value=temp.id.toString();temp.label=temp.name;return true}})
+        await systemFunctions.delay(1);
+        $('#'+key).val('');
+        key='variety_id';
+        item.inputFields3[key].options=[];
+        $('#'+key).val('');
+      })
+      $(document).off("change", "#crop_type_id");
+      $(document).on("change",'#crop_type_id',async function()
+      {
+
+        let crop_type_id=$(this).val();
+        let key='variety_id';
+        console.log(crop_type_id)
+        item.inputFields3[key].options=taskData.varieties.filter((temp)=>{ if((temp.crop_type_id==crop_type_id) && (temp.whose=='ARM')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
         await systemFunctions.delay(1);
         $('#'+key).val('');
       })
-
+      $(document).off("change", "#variety_id");
 
       $(document).off("change", "#part_id");
       $(document).on("change",'#part_id',async function()
@@ -409,10 +525,26 @@
         item.inputFields2[key].options=taskData.location_territories.filter((temp)=>{ if((temp.area_id==area_id)&& (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
         await systemFunctions.delay(1);
         $('#'+key).val('');
-
       })
+      $(document).off("change", "#territory_id");
 
-
+      $(document).off("click", "#select_all");
+      $(document).on("click",'#select_all',function()
+      {
+        taskData.columns.hidden=[];
+        if($(this).is(':checked'))
+        {
+          $('.select_month').prop('checked', true);
+        }
+        else
+        {
+          $('.select_month').prop('checked', false);
+          for(let i=1;i<13;i++){
+            taskData.columns.hidden.push('month_short_'+i)
+          }
+        }
+        calculateTableWidth();
+      });
     });
 
 </script>

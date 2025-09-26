@@ -1,7 +1,13 @@
 <template>
   <div v-if="taskData.permissions.action_0==1">
-    <Search/>
+    <div v-if="taskData.method=='add'">
+      <AddEdit/>
+    </div>
+    <div v-if="taskData.method=='upload'">
+      <Upload/>
+    </div>
   </div>
+
 </template>
 <script setup>
 import globalVariables from "@/assets/globalVariables";
@@ -11,7 +17,8 @@ import labels from '@/labels'
 import {provide, reactive, watch} from 'vue'
 import {useRoute,useRouter} from 'vue-router';
 import axios from 'axios';
-import Search from './Search.vue'
+import AddEdit from './AddEdit.vue'
+import Upload from './Upload.vue'
 
 
 globalVariables.loadListData=true;
@@ -42,7 +49,12 @@ let taskData=reactive({
 labels.add([{language:globalVariables.language,file:'tasks'+taskData.api_url+'/labels.js'}])
 
 const routing=async ()=>{
-
+  if(route.path==taskData.api_url){
+    taskData.method='add';
+  }
+  else if(route.path==taskData.api_url+'/upload'){
+    taskData.method='upload';
+  }
 }
 watch(route, () => {
   routing();

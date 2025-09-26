@@ -42,7 +42,7 @@ let taskData=reactive({
   varieties:[],
   pack_sizes :[],
   user_locations:{},
-  type_months_color:{},
+  type_months_color:[],
 
 
 })
@@ -68,6 +68,7 @@ const init=async ()=>{
       taskData.user_locations=res.data.user_locations;
       taskData.crops=res.data.crops;
       taskData.crop_types=res.data.crop_types;
+      taskData.varieties=res.data.varieties;
       taskData.type_months_color=res.data.type_months_color;
 
 

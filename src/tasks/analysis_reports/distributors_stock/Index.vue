@@ -40,6 +40,7 @@ let taskData=reactive({
   crop_types:[],
   varieties:[],
   user_locations:{},
+  type_months_color:[],
 
 })
 labels.add([{language:globalVariables.language,file:'tasks'+taskData.api_url+'/labels.js'}])
@@ -64,6 +65,7 @@ const init=async ()=>{
       taskData.crops=res.data.crops;
       taskData.crop_types=res.data.crop_types;
       taskData.varieties=res.data.varieties;
+      taskData.type_months_color=res.data.type_months_color;
       if(res.data.hidden_columns){
         taskData.columns.hidden=res.data.hidden_columns;
       }

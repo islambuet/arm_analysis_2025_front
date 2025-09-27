@@ -36,4 +36,8 @@ export default {
         en:"Balance",
         bn:"কর্মচারী আইডি"
     },
+    label_month_status:{
+        en:"Month Status",
+        bn:'Variety Report'
+    },
 }

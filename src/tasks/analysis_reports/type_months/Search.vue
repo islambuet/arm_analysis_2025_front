@@ -468,6 +468,8 @@
     setInputFields();
     $(document).ready(async function()
     {
+      $(document).off("change", "#report_format");
+      $(document).off("change", "#month");
       taskData.columns.selectable=[];
       taskData.columns.hidden=[];
       for(let i=1;i<13;i++){

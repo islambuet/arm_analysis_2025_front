@@ -33,9 +33,12 @@
                 <td colspan="3">
                   <select id="variety_id" class="form-control">
                     <option value="">{{labels.get('label_select')}}</option>
-                    <option v-for="row in taskData.varieties" :value="row.id">
-                      {{row.name}}
-                    </option>
+                    <template v-for="row in taskData.varieties">
+                      <option  :value="row.id" v-if="row.status=='Active'">
+                        {{row.name}}
+                      </option>
+                    </template>
+
                   </select>
                 </td>
                 <td><input type="text" class="form-control float_positive" id="quantity" value=""></td>

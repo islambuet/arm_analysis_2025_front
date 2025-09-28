@@ -37,7 +37,7 @@ export default {
         bn:"কর্মচারী আইডি"
     },
     label_month_status:{
-        en:"Month Status",
+        en:"Season Status",
         bn:'Variety Report'
     },
 }

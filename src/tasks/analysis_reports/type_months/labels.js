@@ -4,7 +4,7 @@ export default {
         bn:'Variety Report'
     },
     label_month_status:{
-        en:"Month Status",
+        en:"Season Status",
         bn:'Variety Report'
     },
     label_select_all:{

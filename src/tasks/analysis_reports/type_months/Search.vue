@@ -54,7 +54,7 @@
         <thead class="table-active">
         <tr>
           <template v-for="(column,key) in taskData.columns.all">
-            <th style="width: 150px;" v-if="taskData.columns.hidden.indexOf(column.group)<0" :key="'th_'+key">
+            <th :style="'width: '+(column.width?column.width:150)+'px;'" v-if="taskData.columns.hidden.indexOf(column.group)<0" :key="'th_'+key">
               <div v-html="column.label"></div>
             </th>
           </template>
@@ -360,7 +360,7 @@
             }
           }
           for(let i=1;i<13;i++){
-            columns_all.push({'group':'month_short_'+i,'key':'month_short_'+i,'label':labels.get('label_month_short_'+i)})
+            columns_all.push({'group':'month_short_'+i,'key':'month_short_'+i,'label':labels.get('label_month_short_'+i),'width':60})
           }
           if(options['report_format']=='type') {
             for (let i in taskData.crop_types) {
@@ -457,13 +457,7 @@
       calculateTableWidth();
     }
     const calculateTableWidth=()=>{
-      let width=0;
-      for(let index in taskData.columns.all){
-        if(taskData.columns.hidden.indexOf(taskData.columns.all[index].group)<0){
-          width+=150;
-        }
-      }
-      table_width.value=width;
+      table_width.value=systemFunctions.calculateReportTableWidth(taskData.columns);
     }
     setInputFields();
     $(document).ready(async function()

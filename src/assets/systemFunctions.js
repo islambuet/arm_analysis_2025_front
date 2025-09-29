@@ -113,7 +113,7 @@ export default{
             csvStr+="\n";
         });
         let hiddenElement = document.createElement('a');
-        hiddenElement.href = 'data:text/csv;charset=utf-8,%EF%BB%BF' + encodeURI(csvStr);
+        hiddenElement.href = 'data:text/csv;charset=utf-8,%EF%BB%BF' + encodeURIComponent(csvStr);
         hiddenElement.target = '_blank';
         hiddenElement.download = outputFile+'.csv';
         hiddenElement.click();
@@ -280,5 +280,20 @@ export default{
     },
     delay: async function(ms){
         await new Promise(res => setTimeout(res, ms));
+    },
+    calculateReportTableWidth(columns){
+        let width=0;
+        for(let index in columns.all){
+            if(columns.hidden.indexOf(columns.all[index].group)<0){
+                if(columns.all[index]['width']){
+                    width+=columns.all[index]['width'];
+                }
+                else{
+                    width+=150;
+                }
+            }
+            console.log(index,width)
+        }
+        return width;
     }
 }

@@ -12,11 +12,11 @@ export default {
         bn:'ব্যবহারকারীরা'
     },
     label_sales_quantity :{
-        en:"Sales",
+        en:"Sales (cumulative)",
         bn:'ব্যবহারকারীরা'
     },
     label_balance_quantity:{
-        en:"Balance",
+        en:"Balance (cumulative)",
         bn:'ব্যবহারকারীরা'
     },
     label_stock_open_quantity:{

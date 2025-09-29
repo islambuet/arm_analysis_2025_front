@@ -51,7 +51,7 @@
         <thead class="table-active">
         <tr>
           <template v-for="(column,key) in taskData.columns.all">
-            <th style="width: 150px;" v-if="taskData.columns.hidden.indexOf(column.group)<0" :key="'th_'+key">
+            <th :style="'width: '+(column.width?column.width:150)+'px;'" v-if="taskData.columns.hidden.indexOf(column.group)<0" :key="'th_'+key">
               <div v-html="column.label"></div>
             </th>
           </template>
@@ -350,7 +350,7 @@
           columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
           columns_all.push({'group':'type_name','key':'type_name','label':labels.get('label_type_name')})
           columns_all.push({'group':'variety_name','key':'variety_name','label':labels.get('label_variety_name')})
-          columns_all.push({'group':'season','key':'season','label':labels.get('label_season')})
+          columns_all.push({'group':'season','key':'season','label':labels.get('label_season'),'width':70})
           columns_all.push({'group':'target_quantity','key':'target_quantity','label':labels.get('label_target_quantity')})
           columns_all.push({'group':'sales_quantity','key':'sales_quantity','label':labels.get('label_sales_quantity')})
           columns_all.push({'group':'balance_quantity','key':'balance_quantity','label':labels.get('label_balance_quantity')})
@@ -461,13 +461,7 @@
       calculateTableWidth();
     }
     const calculateTableWidth=()=>{
-      let width=0;
-      for(let index in taskData.columns.all){
-        if(taskData.columns.hidden.indexOf(taskData.columns.all[index].group)<0){
-          width+=150;
-        }
-      }
-      table_width.value=width;
+      table_width.value=systemFunctions.calculateReportTableWidth(taskData.columns);
     }
     setInputFields();
     $(document).ready(async function()

@@ -29,7 +29,7 @@
       <div class="card-header p-1">
         <a class="btn btn-sm" data-toggle="collapse" href="#label_action_8">{{labels.get('action_8')}} </a>
       </div>
-      <div id="label_action_8" class="collapse show" v-if="item.exists">
+      <div id="label_action_8" class="collapse" v-if="item.exists">
         <div class="row card-body">
           <div class="col-12 text-center">
             <label><input type="checkbox" id="select_all"> {{labels.get('label_select_all')}}</label>

@@ -29,7 +29,7 @@
       <div class="card-header p-1">
         <a class="btn btn-sm" data-toggle="collapse" href="#label_action_8">{{labels.get('action_8')}} </a>
       </div>
-      <div id="label_action_8" class="collapse show" v-if="item.exists">
+      <div id="label_action_8" class="collapse" v-if="item.exists">
         <div class="row card-body">
           <template v-for="column in taskData.columns.selectable">
             <div class="col-sm-6 col-md-3">
@@ -511,19 +511,22 @@
     setInputFields();
     $(document).ready(async function()
     {
+      taskData.columns.selectable=['quantity','amount'];
+      taskData.columns.hidden=[];
+
       $(document).off("change", "#report_format");
-      $(document).on("change",'#report_format',function()
-      {
-        show_report.value=false;
-        let report_format=$(this).val();
-        let columns_selectable=[];
-        let columns_hidden=[]
-        if((report_format=='crop_fiscal_year')||(report_format=='type_fiscal_year') || (report_format=='variety_fiscal_year' )){
-          columns_selectable=['quantity','amount'];
-        }
-        taskData.columns.selectable=columns_selectable;
-        taskData.columns.hidden=columns_hidden;
-      })
+      // $(document).on("change",'#report_format',function()
+      // {
+      //   show_report.value=false;
+      //   let report_format=$(this).val();
+      //   let columns_selectable=[];
+      //   let columns_hidden=[]
+      //   if((report_format=='crop_fiscal_year')||(report_format=='type_fiscal_year') || (report_format=='variety_fiscal_year' )){
+      //     columns_selectable=['quantity','amount'];
+      //   }
+      //   taskData.columns.selectable=columns_selectable;
+      //   taskData.columns.hidden=columns_hidden;
+      // })
       $(document).off("change", "#fiscal_year");
       $(document).on("change",'#fiscal_year',async function()
       {

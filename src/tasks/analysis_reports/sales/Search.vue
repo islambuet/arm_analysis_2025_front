@@ -51,7 +51,7 @@
         <thead class="table-active">
         <tr>
           <template v-for="(column,key) in taskData.columns.all">
-            <th style="width: 150px;" v-if="taskData.columns.hidden.indexOf(column.group)<0" :key="'th_'+key">
+            <th :style="'width: '+(column.width?column.width:150)+'px;'" v-if="taskData.columns.hidden.indexOf(column.group)<0" :key="'th_'+key">
               <div v-html="column.label"></div>
             </th>
           </template>
@@ -159,8 +159,9 @@
         label: labels.get('label_'+key),
         type:'dropdown',
         options:new Array(globalVariables.current_fiscal_year-globalVariables.sales_starting_year+1).fill().map((temp,index) => {return {value:globalVariables.current_fiscal_year-index,label:(globalVariables.current_fiscal_year-index)+' - '+(globalVariables.current_fiscal_year-index+1)}}),
-        default:'',
-        mandatory:false
+        default:globalVariables.current_fiscal_year,
+        mandatory:true,
+        noselect:true,
       };
       key='num_fiscal_years';
       inputFields[key] = {
@@ -331,6 +332,16 @@
         default:item.data[key],
         mandatory:true
       };
+      key='status';
+      inputFields[key] = {
+        name: 'options[' +key +']',
+        label: labels.get('label_'+key),
+        type:'dropdown',
+        options:[{label:"All",value:'All'},{label:"Active",value:'Active'},{label:"In-Active",value:'In-Active'}],
+        default:'Active',
+        mandatory:true,
+        noselect:true,
+      };
 
       item.inputFields3=inputFields;
 
@@ -354,6 +365,7 @@
           taskData.itemsFiltered=[];
           let columns_all=[];
           let rows={};
+          let rows_array=[];
           if((options['report_format']=='crop_fiscal_year')||(options['report_format']=='type_fiscal_year')||(options['report_format']=='variety_fiscal_year')){
             let sales_data_key='crop_id';
             columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
@@ -367,103 +379,88 @@
               sales_data_key='variety_id';
             }
             let fiscal_year=options['fiscal_year'];
-            if(!(fiscal_year>0)){
-              fiscal_year=globalVariables.current_fiscal_year;
-            }
+
             for(let i=0;i<options['num_fiscal_years'];i++){
-              columns_all.push({'group':'quantity','key':'quantity_'+(+fiscal_year+i),'label':((+fiscal_year+i)+' - '+(+fiscal_year+i+1))+'</br>('+labels.get('label_quantity')+')'})
-              columns_all.push({'group':'amount','key':'amount_'+(+fiscal_year+i),'label':((+fiscal_year+i)+' - '+(+fiscal_year+i+1))+'</br>('+labels.get('label_amount')+')'})
+              columns_all.push({'group':'quantity','key':'quantity_'+(+fiscal_year-i),'label':((+fiscal_year-i)+' - '+(+fiscal_year-i+1))+'</br>('+labels.get('label_quantity')+')'})
+              columns_all.push({'group':'amount','key':'amount_'+(+fiscal_year-i),'label':((+fiscal_year-i)+' - '+(+fiscal_year-i+1))+'</br>('+labels.get('label_amount')+')'})
             }
             if(options['report_format']=='crop_fiscal_year'){
               for(let i in taskData.crops){
                 let crop=taskData.crops[i];
-                if(crop['status']!='Active')
+                if(options['status']!='All' && crop['status']!=options['status'])
                   continue;
-                let row_available=false;
                 if(options['crop_id']>0){
-                  if(options['crop_id']==crop['id']){
-                    row_available=true;
+                  if(options['crop_id']!=crop['id']){
+                    continue;
                   }
                 }
-                else{
-                  row_available=true;
-                }
-                if(row_available){
-                  rows[crop['id']]={}
-                  rows[crop['id']]['num_rows']=1;
-                  rows[crop['id']]['crop_name']=(crops_object[crop['id']]?crops_object[crop['id']]['name']:crop['id']);
-                }
+                rows[crop['id']]={}
+                rows[crop['id']]['id']=crop['id'];
+                rows[crop['id']]['num_rows']=1;
+                rows[crop['id']]['crop_name']=crop['name'];
+                rows_array.push(rows[crop['id']])//for ordering
               }
             }
             else if(options['report_format']=='type_fiscal_year'){
               for(let i in taskData.crop_types){
                 let crop_type=taskData.crop_types[i];
-                if(crop_type['status']!='Active')
+                if(options['status']!='All' && crop_type['status']!=options['status'])
                   continue;
-                let row_available=false;
                 if(options['crop_id']>0){
                   if(options['crop_type_id']>0){
-                    if(options['crop_type_id']==crop_type['id']){
-                      row_available=true;
+                    if(options['crop_type_id']!=crop_type['crop_type_id']){
+                      continue;
                     }
                   }
-                  else if(options['crop_id']==crop_type['crop_id']){
-                    row_available=true;
+                  else if(options['crop_id']!=crop_type['crop_id']){
+                    continue;
                   }
                 }
-                else{
-                  row_available=true;
-                }
-                if(row_available){
-                  rows[crop_type['id']]={}
-                  rows[crop_type['id']]['num_rows']=1;
-                  rows[crop_type['id']]['crop_name']=(crops_object[crop_type['crop_id']]?crops_object[crop_type['crop_id']]['name']:crop_type['crop_id']);
-                  rows[crop_type['id']]['type_name']=crop_type['name'];
-                }
+                rows[crop_type['id']]={}
+                rows[crop_type['id']]['id']=crop_type['id'];
+                rows[crop_type['id']]['num_rows']=1;
+                rows[crop_type['id']]['crop_name']=crop_type['crop_name'];
+                rows[crop_type['id']]['type_name']=crop_type['name'];
+                rows_array.push(rows[crop_type['id']])//for ordering
+
               }
             }
             else if(options['report_format']=='variety_fiscal_year'){
               for(let i in taskData.varieties){
                 let variety=taskData.varieties[i];
-                if(variety['status']!='Active')
+                if(options['status']!='All' && variety['status']!=options['status'])
                   continue;
                 if(variety['whose']!='ARM')
                   continue;
-                let crop_type_id=variety['crop_type_id'];
-                let crop_id=crop_types_object[crop_type_id]['crop_id'];
-                let row_available=false;
                 if(options['crop_id']>0){
                   if(options['crop_type_id']>0){
                     if(options['variety_id']>0){
-                      if(options['variety_id']==variety['id']){
-                        row_available=true;
+                      if(options['variety_id']!=variety['id']){
+                        continue;
                       }
                     }
-                    else if(options['crop_type_id']==crop_type_id){
-                      row_available=true;
+                    else if(options['crop_type_id']!=variety['crop_type_id']){
+                      continue;
                     }
                   }
-                  else if(options['crop_id']==crop_id){
-                    row_available=true;
+                  else if(options['crop_id']!=variety['crop_id']){
+                    continue;
                   }
                 }
-                else{
-                  row_available=true;
-                }
+                rows[variety['id']]={}
+                rows[variety['id']]['id']=variety['id'];
+                rows[variety['id']]['num_rows']=1;
+                rows[variety['id']]['crop_name']=variety['crop_name'];
+                rows[variety['id']]['type_name']=variety['crop_type_name'];
+                rows[variety['id']]['variety_name']=variety['name'];
+                rows_array.push(rows[variety['id']])//for ordering
 
-                if(row_available){
-                  rows[variety['id']]={}
-                  rows[variety['id']]['num_rows']=1;
-                  rows[variety['id']]['crop_name']=(crops_object[crop_id]?crops_object[crop_id]['name']:crop_id);
-                  rows[variety['id']]['type_name']=(crop_types_object[crop_type_id]?crop_types_object[crop_type_id]['name']:crop_type_id);
-                  rows[variety['id']]['variety_name']=variety['name'];
-                }
               }
             }
             for(let id in rows){
               for(let i=0;i<options['num_fiscal_years'];i++){
-                rows[id]['quantity_'+(+fiscal_year+i)]=0;
-                rows[id]['amount_'+(+fiscal_year+i)]=0;
+                rows[id]['quantity_'+(+fiscal_year-i)]=0;
+                rows[id]['amount_'+(+fiscal_year-i)]=0;
               }
             }
             for(let i in res.data.items){
@@ -479,9 +476,12 @@
                 rows[sales_data[sales_data_key]]['amount_'+year]+=(+sales_data['amount']);
               }
             }
-
           }
-          taskData.itemsFiltered=Object.values(rows);
+          //For ordering
+          for(let i in rows_array){
+            rows_array[i]=rows[rows_array[i]['id']]
+          }
+          taskData.itemsFiltered=rows_array;
           taskData.columns.all=columns_all;
           calculateTableWidth();
           show_report.value=true;
@@ -506,13 +506,7 @@
       calculateTableWidth();
     }
     const calculateTableWidth=()=>{
-      let width=0;
-      for(let index in taskData.columns.all){
-        if(taskData.columns.hidden.indexOf(taskData.columns.all[index].group)<0){
-          width+=150;
-        }
-      }
-      table_width.value=width;
+      table_width.value=systemFunctions.calculateReportTableWidth(taskData.columns);
     }
     setInputFields();
     $(document).ready(async function()
@@ -535,8 +529,13 @@
       {
         let fiscal_year=$(this).val();
         if(fiscal_year>0){
-          let start_date=moment(fiscal_year+'-'+globalVariables.fiscal_year_starting_month+'-01','YYYY-MM-DD');
-          let end_date=start_date.clone().add($("#num_fiscal_years").val(),'year').add(-1,'day')
+          let start_date_temp=moment(fiscal_year+'-'+globalVariables.fiscal_year_starting_month+'-01','YYYY-MM-DD');
+          let end_date=start_date_temp.clone().add(1,'year').add(-1,'day')
+          let start_date=start_date_temp.clone()
+          if($("#num_fiscal_years").val()>1){
+            start_date=start_date_temp.clone().add(($("#num_fiscal_years").val()*-1+1),'year')
+          }
+
           $("#sales_from").val(start_date.format('YYYY-MM-DD'))
           $("#sales_to").val(end_date.format('YYYY-MM-DD'))
         }

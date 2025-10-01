@@ -51,7 +51,7 @@
         <thead class="table-active">
         <tr>
           <template v-for="(column,key) in taskData.columns.all">
-            <th style="width: 150px;" v-if="taskData.columns.hidden.indexOf(column.group)<0" :key="'th_'+key">
+            <th :style="'width: '+(column.width?column.width:150)+'px;'" v-if="taskData.columns.hidden.indexOf(column.group)<0" :key="'th_'+key">
               <div v-html="column.label"></div>
             </th>
           </template>
@@ -61,10 +61,9 @@
         <template v-for="row in taskData.itemsFiltered">
           <tr v-for="index  in row['num_rows']" >
             <template v-for="(column,key) in taskData.columns.all">
-              <td :class="((['quantity_sales','amount_sales','unit_price','unit_price_net','quantity_target','quantity_achievable','amount_achievable','quantity_difference','achievement','quantity_incentive','amount_incentive'].indexOf(column.group) != -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
+              <td :class="((['amount_incentive'].indexOf(column.group) != -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
                 <template v-if="index==1">
-                  <template v-if="(['amount_sales','unit_price','unit_price_net','amount_achievable','achievement','amount_incentive'].indexOf(column.group) != -1)">{{ row[column.key]?row[column.key].toFixed(2):'' }}</template>
-                  <template v-else-if="(['quantity_sales','quantity_target','quantity_achievable','quantity_difference','quantity_incentive'].indexOf(column.group) != -1)">{{ row[column.key]?row[column.key].toFixed(3):'' }}</template>
+                  <template v-if="(['amount_incentive'].indexOf(column.group) != -1)">{{ row[column.key]?row[column.key].toFixed(2):'' }}</template>
                   <template v-else>{{ row[column.key] }}</template>
                 </template>
                 <template v-else>&nbsp</template>
@@ -103,47 +102,24 @@
       data:{
       }
     })
-
-    let crops_object={};
-    for(let i in taskData.crops){
-      crops_object[taskData.crops[i]['id']]=taskData.crops[i];
-    }
-    let crop_types_object={};
-    for(let i in taskData.crop_types){
-      crop_types_object[taskData.crop_types[i]['id']]=taskData.crop_types[i];
-    }
-    let varieties_object={};
-    for(let i in taskData.varieties){
-      varieties_object[taskData.varieties[i]['id']]=taskData.varieties[i];
-    }
-    let location_parts_object={};
-    for(let i in taskData.location_parts){
-      let part_id=taskData.location_parts[i]['id'];
-      location_parts_object[part_id]=taskData.location_parts[i];
-    }
-    let location_areas_object={};
-    for(let i in taskData.location_areas){
-      let area_id=taskData.location_areas[i]['id'];
-      location_areas_object[area_id]=taskData.location_areas[i];
-    }
-    let location_territories_object={};
-    for(let i in taskData.location_territories){
-      let territory_id=taskData.location_territories[i]['id'];
-      location_territories_object[territory_id]=taskData.location_territories[i];
-    }
-    let distributors_object={};
-    for(let i in taskData.distributors){
-      let distributor_id=taskData.distributors[i]['id'];
-      distributors_object[distributor_id]=taskData.distributors[i];
-    }
-
     const setInputFields=async ()=>{
       item.inputFields1= {};
       item.inputFields2= {};
       item.inputFields3= {};
       await systemFunctions.delay(1);
       let inputFields={}
-      let key='fiscal_year';
+      let key='report_format';
+      inputFields[key] = {
+        name: 'options[' +key +']',
+        label: labels.get('label_'+key),
+        type:'dropdown',
+        options:[{value:'part',label:'Part Wise'},{value:'area',label:'Area Wise'},{value:'territory',label:'Territory wise'},
+        ],
+        default:'territory',
+        mandatory:true,
+        noselect:true,
+      };
+      key='fiscal_year';
       inputFields[key] = {
         name: 'options[' +key +']',
         label: labels.get('label_'+key),
@@ -270,8 +246,6 @@
 
       item.inputFields3=inputFields;
 
-
-
       await systemFunctions.delay(1);
       item.exists=true;
       await systemFunctions.delay(1);
@@ -287,198 +261,97 @@
       let formData=new FormData(document.getElementById('formSearch'))
       await axios.post(taskData.api_url+'/get-items',formData).then((res)=>{
         if (res.data.error == "") {
-          let net_sale_adjustment=0;
-          if(res.data['incentive_configurations']['NET_SALE_ADJUSTMENT']){
-            net_sale_adjustment=res.data['incentive_configurations']['NET_SALE_ADJUSTMENT'];
-          }
-          let manager_incentive=0;
-          if(options['territory_id']>0){
-            if(res.data['incentive_configurations']['INCENTIVE_TERRITORY']){
-              manager_incentive=res.data['incentive_configurations']['INCENTIVE_TERRITORY'];
-            }
-          }
-          else if(options['area_id']>0){
-            if(res.data['incentive_configurations']['INCENTIVE_AREA']){
-              manager_incentive=res.data['incentive_configurations']['INCENTIVE_AREA'];
-            }
-          }
-          else if(options['part_id']>0){
-            if(res.data['incentive_configurations']['INCENTIVE_PART']){
-              manager_incentive=res.data['incentive_configurations']['INCENTIVE_PART'];
-            }
-          }
-          else
-          {
-            if(res.data['incentive_configurations']['INCENTIVE_HOM']){
-              manager_incentive=res.data['incentive_configurations']['INCENTIVE_HOM'];
-            }
-          }
-          let incentive_slabs=res.data.incentive_slabs;
-          let incentive_varieties=res.data.incentive_varieties;
           taskData.itemsFiltered=[];
           let columns_all=[];
           let rows={};
           let rows_array=[];
-          columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
-          columns_all.push({'group':'type_name','key':'type_name','label':labels.get('label_type_name')})
-          columns_all.push({'group':'variety_name','key':'variety_name','label':labels.get('label_variety_name')})
-          columns_all.push({'group':'quantity_sales','key':'quantity_sales','label':labels.get('label_quantity_sales')})
-          columns_all.push({'group':'amount_sales','key':'amount_sales','label':labels.get('label_amount_sales')})
-          columns_all.push({'group':'unit_price','key':'unit_price','label':labels.get('label_unit_price')})
-          columns_all.push({'group':'unit_price_net','key':'unit_price_net','label':labels.get('label_unit_price_net')+'</br>(-'+net_sale_adjustment+'%)'})
-          columns_all.push({'group':'quantity_target','key':'quantity_target','label':labels.get('label_quantity')+'</br>(target)'})
-          for(let i in incentive_slabs){
-            columns_all.push({'group':'quantity_achievable','key':'quantity_achievable_'+incentive_slabs[i].id,'label':'Quantity Achievable</br>('+incentive_slabs[i].name+'%)'})
-            columns_all.push({'group':'amount_achievable','key':'amount_achievable_'+incentive_slabs[i].id,'label':'Amount Achievable</br>('+incentive_slabs[i].name+'% * v% * '+manager_incentive+'%)'})
+          columns_all.push({'group':'part_name','key':'part_name','label':labels.get('label_part_name')})
+          if((options['report_format']=='area')||(options['report_format']=='territory')){
+            columns_all.push({'group':'area_name','key':'area_name','label':labels.get('label_area_name')})
+            if((options['report_format']=='territory')){
+              columns_all.push({'group':'territory_name','key':'territory_name','label':labels.get('label_territory_name')})
+            }
           }
+          columns_all.push({'group':'amount_incentive','key':'amount_incentive','label':labels.get('label_amount')+' incentive'})
 
-
-          columns_all.push({'group':'quantity_difference','key':'quantity_difference','label':labels.get('label_quantity')+'</br>(Difference)'})
-          columns_all.push({'group':'achievement','key':'achievement','label':labels.get('label_achievement')})
-          columns_all.push({'group':'quantity_incentive','key':'quantity_incentive','label':labels.get('label_quantity_incentive')})
-          columns_all.push({'group':'amount_incentive','key':'amount_incentive','label':labels.get('label_amount')+' incentive</br>('+manager_incentive+'%)'})
-
-          for(let i in taskData.varieties){
-            let variety=taskData.varieties[i];
-            if(variety['status']!='Active')
-              continue;
-            if(variety['whose']!='ARM')
-              continue;
-            let crop_type_id=variety['crop_type_id'];
-            let crop_id=crop_types_object[crop_type_id]['crop_id'];
-            let row_available=false;
-            if(options['crop_id']>0){
-              if(options['crop_type_id']>0){
-                if(options['variety_id']>0){
-                  if(options['variety_id']==variety['id']){
-                    row_available=true;
+          if(options['report_format']=='part'){
+            for(let i in taskData.location_parts){
+              let part=taskData.location_parts[i];
+              if(options['part_id']>0){
+                if(options['part_id']!=part['id']){
+                  continue;
+                }
+              }
+              rows[part['id']]={}
+              rows[part['id']]['id']=part['id'];
+              rows[part['id']]['num_rows']=1;
+              rows[part['id']]['part_name']=part['name'];
+              rows[part['id']]['amount_incentive']=0;
+              rows_array.push(rows[part['id']])//for ordering
+            }
+          }
+          else if(options['report_format']=='area'){
+            for(let i in taskData.location_areas){
+              let area=taskData.location_areas[i];
+              if(options['part_id']>0){
+                if(options['area_id']>0){
+                  if(options['area_id']!=area['id']){
+                    continue;
                   }
                 }
-                else if(options['crop_type_id']==crop_type_id){
-                  row_available=true;
+                else if(options['part_id']!=area['part_id']){
+                  continue;
                 }
               }
-              else if(options['crop_id']==crop_id){
-                row_available=true;
-              }
-            }
-            else{
-              row_available=true;
-            }
-            if(!incentive_varieties[variety['id']]){
-              row_available=false;
-            }
-            if(row_available){
-              rows[variety['id']]={}
-              rows[variety['id']]['id']=variety['id'];
-              rows[variety['id']]['num_rows']=1;
-              rows[variety['id']]['crop_name']=(crops_object[crop_id]?crops_object[crop_id]['name']:crop_id);
-              rows[variety['id']]['type_name']=(crop_types_object[crop_type_id]?crop_types_object[crop_type_id]['name']:crop_type_id);
-              rows[variety['id']]['variety_name']=variety['name'];
-              rows[variety['id']]['quantity_sales']=0;
-              rows[variety['id']]['amount_sales']=0;
-              rows[variety['id']]['unit_price']=0;
-              rows[variety['id']]['unit_price_net']=0;
+              rows[area['id']]={}
+              rows[area['id']]['id']=area['id'];
+              rows[area['id']]['num_rows']=1;
+              rows[area['id']]['part_name']=area['part_name'];
+              rows[area['id']]['area_name']=area['name'];
+              rows[area['id']]['amount_incentive']=0;
+              rows_array.push(rows[area['id']])//for ordering
 
-              rows[variety['id']]['quantity_target']=0;
-
-              for(let i in incentive_slabs){
-                rows[variety['id']]['quantity_achievable_'+incentive_slabs[i].id]=0;
-                rows[variety['id']]['amount_achievable_'+incentive_slabs[i].id]=0;
-              }
-
-              rows[variety['id']]['quantity_difference']=0;
-              rows[variety['id']]['achievement']=0;
-              rows[variety['id']]['quantity_incentive']=0;
-              rows[variety['id']]['amount_incentive']=0;
-
-              rows_array.push(rows[variety['id']])
             }
           }
-          for(let i in res.data.sales){
-            let datum=res.data.sales[i];
-            if(rows[datum['variety_id']]){
-              rows[datum['variety_id']]['quantity_sales']=datum['quantity']
-              rows[datum['variety_id']]['amount_sales']=datum['amount']
-              if(datum['quantity']>0){
-                rows[datum['variety_id']]['unit_price']=rows[datum['variety_id']]['amount_sales']/rows[datum['variety_id']]['quantity_sales'];
-                rows[datum['variety_id']]['unit_price_net']=(rows[datum['variety_id']]['unit_price']-(rows[datum['variety_id']]['unit_price']*net_sale_adjustment/100))
-              }
-            }
-          }
-          for(let i in res.data.target){
-            let datum=res.data.target[i];
-            if(rows[datum['variety_id']]){
-              rows[datum['variety_id']]['quantity_target']=datum['quantity']
-              if(datum['quantity']>0){
-                rows[datum['variety_id']]['achievement']=((rows[datum['variety_id']]['quantity_sales']*100)/rows[datum['variety_id']]['quantity_target'])
-                rows[datum['variety_id']]['quantity_difference']=rows[datum['variety_id']]['quantity_target']-rows[datum['variety_id']]['quantity_sales'];
-                for(let j in incentive_slabs){
-                  let slab=incentive_slabs[j];
-                  rows[datum['variety_id']]['quantity_achievable_'+slab.id]=rows[datum['variety_id']]['quantity_target']*(+slab.name)/100
-                  if(incentive_varieties[datum['variety_id']]['incentive'][slab.id]){
-                    rows[datum['variety_id']]['amount_achievable_'+slab.id]=rows[datum['variety_id']]['quantity_achievable_'+slab.id]*rows[datum['variety_id']]['unit_price_net']*(+incentive_varieties[datum['variety_id']]['incentive'][slab.id])*manager_incentive/10000;
-                  }
-                }
-              }
-              else if(rows[datum['variety_id']]['quantity_sales']>0){
-                rows[datum['variety_id']]['achievement']=100;
-                rows[datum['variety_id']]['quantity_difference']=rows[datum['variety_id']]['quantity_target']-rows[datum['variety_id']]['quantity_sales'];
-              }
-              if(rows[datum['variety_id']]['achievement']>0){
-                for(let j in incentive_slabs){
-                  let slab=incentive_slabs[j];
-                  if(rows[datum['variety_id']]['achievement']>=(+slab.name)){
-                    rows[datum['variety_id']]['quantity_incentive']=rows[datum['variety_id']]['quantity_sales']
-                    if(incentive_varieties[datum['variety_id']]['incentive'][slab.id]){
-                      rows[datum['variety_id']]['amount_incentive']=rows[datum['variety_id']]['quantity_incentive']*rows[datum['variety_id']]['unit_price_net']*(+incentive_varieties[datum['variety_id']]['incentive'][slab.id])*manager_incentive/10000;
+          else if(options['report_format']=='territory'){
+            for(let i in taskData.location_territories){
+              let territory=taskData.location_territories[i];
+              if(options['part_id']>0){
+                if(options['area_id']>0){
+                  if(options['territory_id']>0){
+                    if(options['territory_id']!=territory['id']){
+                      continue;
                     }
-                    break;
                   }
-
-
+                  else if(options['area_id']!=territory['area_id']){
+                    continue;
+                  }
+                }
+                else if(options['part_id']!=territory['part_id']){
+                  continue;
                 }
               }
+              rows[territory['id']]={}
+              rows[territory['id']]['id']=territory['id'];
+              rows[territory['id']]['num_rows']=1;
+              rows[territory['id']]['part_name']=territory['part_name'];
+              rows[territory['id']]['area_name']=territory['area_name'];
+              rows[territory['id']]['territory_name']=territory['name'];
+              rows[territory['id']]['amount_incentive']=0;
+              rows_array.push(rows[territory['id']])//for ordering
 
             }
           }
-
-          let row_total={}
-          row_total['id']=0;
-          row_total['num_rows']=1;
-          row_total['crop_name']='Total';
-          row_total['type_name']='';
-          row_total['variety_name']='';
-          row_total['quantity_sales']=0;
-          row_total['amount_sales']=0;
-          row_total['unit_price']=0;
-          row_total['unit_price_net']=0;
-
-          row_total['quantity_target']=0;
-
-          for(let i in incentive_slabs){
-            row_total['quantity_achievable_'+incentive_slabs[i].id]=0;
-            row_total['amount_achievable_'+incentive_slabs[i].id]=0;
+          for(let location_id in res.data.items){
+            let datum=res.data.items[location_id];
+            if(rows[location_id]){
+              rows[location_id]['amount_incentive']=datum['amount_incentive'];
+            }
+            console.log(location_id,datum)
           }
-
-          row_total['quantity_difference']=0;
-          row_total['achievement']=0;
-          row_total['quantity_incentive']=0;
-          row_total['amount_incentive']=0;
-
-
-
           for(let i in rows_array){
             rows_array[i]=rows[rows_array[i]['id']]
-            for(let j in incentive_slabs){
-              row_total['amount_achievable_'+incentive_slabs[j].id]+=rows_array[i]['amount_achievable_'+incentive_slabs[j].id];
-              if(isNaN(row_total['amount_achievable_'+incentive_slabs[j].id])){
-                console.log(rows_array[i],j)
-              }
-            }
-            row_total['amount_incentive']+=rows_array[i]['amount_incentive'];
           }
-          rows_array.unshift(row_total)
           taskData.itemsFiltered=rows_array;
           taskData.columns.all=columns_all;
           calculateTableWidth();
@@ -504,20 +377,15 @@
       calculateTableWidth();
     }
     const calculateTableWidth=()=>{
-      let width=0;
-      for(let index in taskData.columns.all){
-        if(taskData.columns.hidden.indexOf(taskData.columns.all[index].group)<0){
-          width+=150;
-        }
-      }
-      table_width.value=width;
+      table_width.value=systemFunctions.calculateReportTableWidth(taskData.columns);
     }
     setInputFields();
     $(document).ready(async function()
     {
-      taskData.columns.selectable=['quantity_sales','amount_sales','unit_price','unit_price_net','quantity_target','quantity_achievable','amount_achievable','quantity_difference','achievement','quantity_incentive','amount_incentive'];
-      taskData.columns.hidden=['amount_sales','unit_price','unit_price_net','quantity_achievable','amount_achievable','quantity_incentive'];
+      taskData.columns.selectable=['amount_incentive'];
+      taskData.columns.hidden=[];
 
+      $(document).off("change", "#report_format");
       $(document).off("change", "#crop_id");
       $(document).on("change",'#crop_id',async function()
       {
@@ -539,6 +407,7 @@
         await systemFunctions.delay(1);
         $('#'+key).val('');
       })
+      $(document).off("change", "#variety_id");
 
 
 

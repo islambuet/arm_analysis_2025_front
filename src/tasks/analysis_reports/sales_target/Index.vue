@@ -57,7 +57,7 @@ const init=async ()=>{
   await axios.get(taskData.api_url+'/initialize').then((res)=>{
     if (res.data.error == "") {
       taskData.permissions=res.data.permissions;
-      taskData.analysis_years=res.data.analysis_years;
+
       taskData.location_parts=res.data.location_parts;
       taskData.location_areas=res.data.location_areas;
       taskData.location_territories=res.data.location_territories;
@@ -67,7 +67,7 @@ const init=async ()=>{
       taskData.crops=res.data.crops;
       taskData.crop_types=res.data.crop_types;
       taskData.varieties=res.data.varieties;
-      taskData.pack_sizes=res.data.pack_sizes;
+
       if(res.data.hidden_columns){
         taskData.columns.hidden=res.data.hidden_columns;
       }

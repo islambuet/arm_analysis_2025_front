@@ -29,7 +29,7 @@
       <div class="card-header p-1">
         <a class="btn btn-sm" data-toggle="collapse" href="#label_action_8">{{labels.get('action_8')}} </a>
       </div>
-      <div id="label_action_8" class="collapse show" v-if="item.exists">
+      <div id="label_action_8" class="collapse" v-if="item.exists">
         <div class="row card-body">
           <template v-for="column in taskData.columns.selectable">
             <div class="col-sm-6 col-md-3">
@@ -299,6 +299,7 @@
           taskData.itemsFiltered=[];
           let columns_all=[];
           let rows={};
+          let rows_array=[];
           columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
           columns_all.push({'group':'type_name','key':'type_name','label':labels.get('label_type_name')})
           columns_all.push({'group':'variety_name','key':'variety_name','label':labels.get('label_variety_name')})
@@ -317,45 +318,39 @@
               continue;
             if(variety['whose']!='ARM')
               continue;
-            let crop_type_id=variety['crop_type_id'];
-            let crop_id=crop_types_object[crop_type_id]['crop_id'];
-            let row_available=false;
             if(options['crop_id']>0){
               if(options['crop_type_id']>0){
                 if(options['variety_id']>0){
-                  if(options['variety_id']==variety['id']){
-                    row_available=true;
+                  if(options['variety_id']!=variety['id']){
+                    continue;
                   }
                 }
-                else if(options['crop_type_id']==crop_type_id){
-                  row_available=true;
+                else if(options['crop_type_id']!=variety['crop_type_id']){
+                  continue;
                 }
               }
-              else if(options['crop_id']==crop_id){
-                row_available=true;
+              else if(options['crop_id']!=variety['crop_id']){
+                continue;
               }
             }
-            else{
-              row_available=true;
-            }
-            if(row_available){
-              rows[variety['id']]={}
-              rows[variety['id']]['num_rows']=1;
-              rows[variety['id']]['crop_name']=(crops_object[crop_id]?crops_object[crop_id]['name']:crop_id);
-              rows[variety['id']]['type_name']=(crop_types_object[crop_type_id]?crop_types_object[crop_type_id]['name']:crop_type_id);
-              rows[variety['id']]['variety_name']=variety['name'];
+            rows[variety['id']]={}
+            rows[variety['id']]['id']=variety['id'];
+            rows[variety['id']]['num_rows']=1;
+            rows[variety['id']]['crop_name']=variety['crop_name'];
+            rows[variety['id']]['type_name']=variety['crop_type_name'];
+            rows[variety['id']]['variety_name']=variety['name'];
+            rows[variety['id']]['quantity_target']=0;
+            rows[variety['id']]['amount_target']=0;
+            rows[variety['id']]['unit_price']=0;
+            rows[variety['id']]['quantity_sales']=0;
+            rows[variety['id']]['amount_sales']=0;
 
-              rows[variety['id']]['quantity_target']=0;
-              rows[variety['id']]['amount_target']=0;
-              rows[variety['id']]['unit_price']=0;
-              rows[variety['id']]['quantity_sales']=0;
-              rows[variety['id']]['amount_sales']=0;
-
-              rows[variety['id']]['quantity_difference']=0;
-              rows[variety['id']]['amount_difference']=0;
-              rows[variety['id']]['achievement']=0;
-            }
+            rows[variety['id']]['quantity_difference']=0;
+            rows[variety['id']]['amount_difference']=0;
+            rows[variety['id']]['achievement']=0;
+            rows_array.push(rows[variety['id']])//for ordering
           }
+
           for(let i in res.data.sales){
             let datum=res.data.sales[i];
             if(rows[datum['variety_id']]){
@@ -370,20 +365,35 @@
             let datum=res.data.target[i];
             if(rows[datum['variety_id']]){
               rows[datum['variety_id']]['quantity_target']=datum['quantity']
-              if(datum['quantity']>0){
-                rows[datum['variety_id']]['achievement']=((rows[datum['variety_id']]['quantity_sales']*100)/rows[datum['variety_id']]['quantity_target'])
-                rows[datum['variety_id']]['amount_target']=rows[datum['variety_id']]['quantity_target']*rows[datum['variety_id']]['unit_price'];
-                rows[datum['variety_id']]['quantity_difference']=rows[datum['variety_id']]['quantity_target']-rows[datum['variety_id']]['quantity_sales'];
-                rows[datum['variety_id']]['amount_difference']=rows[datum['variety_id']]['amount_target']-rows[datum['variety_id']]['amount_sales'];
-              }
-              else if(rows[datum['variety_id']]['quantity_sales']>0){
-                rows[datum['variety_id']]['achievement']=100;
-              }
-
             }
           }
+          let row_total={}
+          row_total['id']=0;
+          row_total['num_rows']=1;
+          for(let key in columns_all)
+          {
+            row_total[columns_all[key]['key']]=((['quantity','amount'].indexOf(columns_all[key]['group']) != -1)?0:'')
+          }
+          row_total['crop_name']='Grand Total';
+          for(let i in rows_array){
+            let row=rows[rows_array[i]['id']];
+            if(row['quantity_target']>0){
+              row['achievement']=((row['quantity_sales']*100)/row['quantity_target'])
+              row['amount_target']=row['quantity_target']*row['unit_price'];
+              row['quantity_difference']=row['quantity_target']-row['quantity_sales'];
+              row['amount_difference']=row['amount_target']-row['amount_sales'];
+            }
+            else if(row['quantity_sales']>0){
+              row['achievement']=100;
+            }
+            row_total['amount_sales']+=row['amount_sales'];
+            row_total['amount_target']+=row['amount_target'];
+            row_total['amount_difference']+=row['amount_difference'];
+            rows_array[i]=row;
+          }
 
-          taskData.itemsFiltered=Object.values(rows);
+          rows_array.unshift(row_total)
+          taskData.itemsFiltered=rows_array;
           taskData.columns.all=columns_all;
           calculateTableWidth();
           show_report.value=true;

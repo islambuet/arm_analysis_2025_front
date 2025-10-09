@@ -366,6 +366,7 @@
           let columns_all=[];
           let rows={};
           let rows_array=[];
+          let fiscal_year=options['fiscal_year'];
           if((options['report_format']=='crop_fiscal_year')||(options['report_format']=='type_fiscal_year')||(options['report_format']=='variety_fiscal_year')){
             let sales_data_key='crop_id';
             columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
@@ -378,7 +379,6 @@
               columns_all.push({'group':'variety_name','key':'variety_name','label':labels.get('label_variety_name')})
               sales_data_key='variety_id';
             }
-            let fiscal_year=options['fiscal_year'];
 
             for(let i=0;i<options['num_fiscal_years'];i++){
               columns_all.push({'group':'quantity','key':'quantity_'+(+fiscal_year-i),'label':((+fiscal_year-i)+' - '+(+fiscal_year-i+1))+'</br>('+labels.get('label_quantity')+')'})
@@ -477,10 +477,24 @@
               }
             }
           }
+
+          let row_total={}
+          row_total['id']=0;
+          row_total['num_rows']=1;
+          for(let key in columns_all)
+          {
+            row_total[columns_all[key]['key']]=((['quantity','amount'].indexOf(columns_all[key]['group']) != -1)?0:'')
+          }
+          row_total['crop_name']='Grand Total';
           //For ordering
           for(let i in rows_array){
-            rows_array[i]=rows[rows_array[i]['id']]
+            let row=rows[rows_array[i]['id']];
+            for(let i=0;i<options['num_fiscal_years'];i++){
+              row_total['amount_'+(+fiscal_year-i)]+=row['amount_'+(+fiscal_year-i)];
+            }
+            rows_array[i]=row;
           }
+          rows_array.unshift(row_total)
           taskData.itemsFiltered=rows_array;
           taskData.columns.all=columns_all;
           calculateTableWidth();

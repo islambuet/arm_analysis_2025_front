@@ -40,4 +40,8 @@ export default {
         en:"Season Status",
         bn:'Variety Report'
     },
+    label_stock_status:{
+        en:"Stock Status",
+        bn:'Variety Report'
+    },
 }

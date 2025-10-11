@@ -292,7 +292,6 @@ export default{
                     width+=150;
                 }
             }
-            console.log(index,width)
         }
         return width;
     }

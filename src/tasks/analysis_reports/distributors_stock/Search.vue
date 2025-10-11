@@ -182,6 +182,17 @@
         noselect:true,
       };
       inputFields[key]['options'].unshift({value:-1,label:labels.get('label_select')})//to change select value different
+
+      key='stock_status';
+      inputFields[key] = {
+        name: 'options[' +key +']',
+        label: labels.get('label_'+key),
+        type:'dropdown',
+        options:[{label:"All Variety",value:'All'},{label:"Opening Stock",value:'open'},{label:"End Stock",value:'end'},{label:"Open or End Stock",value:'open_end'}],
+        default:'end',
+        mandatory:true,
+        noselect:true,
+      };
       item.inputFields1=inputFields;
       //inputFields2
       inputFields={}
@@ -316,6 +327,7 @@
         noselect:true,
       };
 
+
       item.inputFields3=inputFields;
 
 
@@ -340,24 +352,19 @@
           let rows={};
           let rows_array=[];
 
-          let type_months={}
-
-          for(let i in res.data.type_months){
-            let datum=res.data.type_months[i];
-            type_months[datum['type_id']]=datum
-          }
+          let type_months=res.data.type_months;
 
           columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
           columns_all.push({'group':'type_name','key':'type_name','label':labels.get('label_type_name')})
           columns_all.push({'group':'variety_name','key':'variety_name','label':labels.get('label_variety_name')})
           columns_all.push({'group':'season','key':'season','label':labels.get('label_season'),'width':70})
-          columns_all.push({'group':'target_quantity','key':'target_quantity','label':labels.get('label_target_quantity')})
-          columns_all.push({'group':'sales_quantity','key':'sales_quantity','label':labels.get('label_sales_quantity')})
+          columns_all.push({'group':'target_quantity','key':'target_quantity','label':labels.get('label_target_quantity'),'width':120})
+          columns_all.push({'group':'sales_quantity','key':'sales_quantity','label':labels.get('label_sales_quantity'),'width':120})
           columns_all.push({'group':'balance_quantity','key':'balance_quantity','label':labels.get('label_balance_quantity')})
-          columns_all.push({'group':'stock_open_quantity','key':'stock_open_quantity','label':labels.get('label_stock_open_quantity')})
-          columns_all.push({'group':'stock_purchase_quantity','key':'stock_purchase_quantity','label':labels.get('label_stock_purchase_quantity')})
-          columns_all.push({'group':'stock_sales_quantity','key':'stock_sales_quantity','label':labels.get('label_stock_sales_quantity')})
-          columns_all.push({'group':'stock_end_quantity','key':'stock_end_quantity','label':labels.get('label_stock_end_quantity')})
+          columns_all.push({'group':'stock_open_quantity','key':'stock_open_quantity','label':labels.get('label_stock_open_quantity'),'width':120})
+          columns_all.push({'group':'stock_purchase_quantity','key':'stock_purchase_quantity','label':labels.get('label_stock_purchase_quantity'),'width':120})
+          columns_all.push({'group':'stock_sales_quantity','key':'stock_sales_quantity','label':labels.get('label_stock_sales_quantity'),'width':120})
+          columns_all.push({'group':'stock_end_quantity','key':'stock_end_quantity','label':labels.get('label_stock_end_quantity'),'width':120})
           for(let i in taskData.varieties){
             let variety=taskData.varieties[i];
             if(variety['whose']!='ARM')
@@ -365,6 +372,12 @@
             if(options['status']!='All' && variety['status']!=options['status'])
               continue;
             if(options['month_status']>-1 && !type_months[variety['crop_type_id']])
+              continue;
+            if(options['stock_status']=='open' && !(res.data.stock_open_quantity[variety['id']]))
+              continue;
+            else if(options['stock_status']=='end' && !(res.data.stock_end_quantity[variety['id']]))
+              continue;
+            else if(options['stock_status']=='open_end' && !(res.data.stock_end_quantity[variety['id']] || res.data.stock_open_quantity[variety['id']]))
               continue;
 
             if(options['crop_id']>0){

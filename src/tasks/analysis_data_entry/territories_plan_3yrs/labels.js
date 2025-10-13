@@ -3,6 +3,22 @@ export default {
         en:"Territories Business plan 3years",
         bn:'Variety Report'
     },
+    label_pocket_market :{
+        en:"Pocket Market",
+        bn:'ব্যবহারকারীরা'
+    },
+    label_territory_recommendation :{
+        en:"Territory Recommendation",
+        bn:'ব্যবহারকারীরা'
+    },
+    label_manager_recommendation :{
+        en:"Managers Recommendation",
+        bn:'ব্যবহারকারীরা'
+    },
+    label_manager_suggestion :{
+        en:"Managers Suggestion",
+        bn:'ব্যবহারকারীরা'
+    },
     label_forecast :{
         en:"Forecast",
         bn:'ব্যবহারকারীরা'

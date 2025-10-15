@@ -412,4 +412,20 @@ export default {
         en:"Distributor",
         bn:"কর্মচারী আইডি"
     },
+    label_dealer_type_id :{
+        en:"Dealer Type",
+        bn:"কর্মচারী আইডি"
+    },
+    label_dealer_type_name :{
+        en:"Dealer Type",
+        bn:"কর্মচারী আইডি"
+    },
+    label_dealer_id :{
+        en:"Dealer",
+        bn:"কর্মচারী আইডি"
+    },
+    label_dealer_name :{
+        en:"Dealer",
+        bn:"কর্মচারী আইডি"
+    },
 }

@@ -102,6 +102,26 @@
       data:{
       }
     })
+    let location_parts_object={};
+    for(let i in taskData.location_parts){
+      let part_id=taskData.location_parts[i]['id'];
+      location_parts_object[part_id]=taskData.location_parts[i];
+    }
+    let location_areas_object={};
+    for(let i in taskData.location_areas){
+      let area_id=taskData.location_areas[i]['id'];
+      location_areas_object[area_id]=taskData.location_areas[i];
+    }
+    let location_territories_object={};
+    for(let i in taskData.location_territories){
+      let territory_id=taskData.location_territories[i]['id'];
+      location_territories_object[territory_id]=taskData.location_territories[i];
+    }
+    let distributors_object={};
+    for(let i in taskData.distributors){
+      let distributor_id=taskData.distributors[i]['id'];
+      distributors_object[distributor_id]=taskData.distributors[i];
+    }
     const setInputFields=async ()=>{
       item.inputFields1= {};
       item.inputFields2= {};

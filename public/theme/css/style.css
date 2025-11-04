@@ -17,7 +17,7 @@ a:focus {
     left: 0;
     right: 0;
     height: 70px;
-    z-index: 1000;
+    z-index: 2000;
 }
 #system_top_bar ul >li {
     float: left;

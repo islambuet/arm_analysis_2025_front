@@ -72,4 +72,8 @@ export default {
         en:'CC',
         bn:'কলাম নিয়ন্ত্রণ'
     },
+    action_show_in_new_window:{
+        en:'Show In new Window',
+        bn:'কলাম নিয়ন্ত্রণ'
+    },
 }

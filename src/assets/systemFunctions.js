@@ -143,10 +143,40 @@ export default{
         hiddenElement.download = filename;
         hiddenElement.click();
     },
+    showHtmlContentInNewWindow(htmlContent,winTitle = 'newWindow'){
+        const  newWindow  = window.open();
+        const myHtmlContent = `
+              <!DOCTYPE html>
+              <html>
+              <head>
+                <title>`+winTitle+`</title>
+                <style>
+                  body { font-family: sans-serif; padding: 20px; }                  
+                  table, th, td {
+                      border: 1px solid black;
+                      border-collapse: collapse;
+                    }
+                </style>
+              </head>
+              <body>`+htmlContent+`</body>
+              </html>
+            `;
+
+        if (newWindow) {
+            // Write the HTML content to the new window's document
+            newWindow.document.write(myHtmlContent);
+
+            // Close the document to ensure the content is rendered
+            newWindow.document.close();
+        } else {
+            alert("Pop-up blocked! Please allow pop-ups for this site to open the content in a new window.");
+        }
+    },
     //handle by browser
     downloadUrl(url){
         window.open(url)
     },
+
     displayDate(timestamp){
         let date = new Date(timestamp);
         if(date.getDate() && timestamp){

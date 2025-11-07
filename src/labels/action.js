@@ -29,7 +29,7 @@ export default {
         bn:'অনুসন্ধান'
     },
     action_7:{
-        en:'Forward',
+        en:'Upload',
         bn:'অগ্রবর্তী'
     },
     action_8:{
@@ -65,7 +65,7 @@ export default {
         bn:'অনুসন্ধান'
     },
     action_short_7:{
-        en:'Frd',
+        en:'Up',
         bn:'অগ্রবর্তী'
     },
     action_short_8:{

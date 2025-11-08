@@ -225,9 +225,9 @@ $(document).ready(function()
               }
               if(!datum['status']){
                 if(!inputItems[datum['dealer_id']]){
-                  inputItems[datum['dealer_id']]={'dealer_id':datum['dealer_id'],'stock':{}}
+                  inputItems[datum['dealer_id']]={'dealer_id':datum['dealer_id'],'varieties':{}}
                 }
-                inputItems[datum['dealer_id']]['stock'][datum['variety_id']]=datum['quantity']
+                inputItems[datum['dealer_id']]['varieties'][datum['variety_id']]=datum['quantity']
                 data.push(datum);
               }
               else{

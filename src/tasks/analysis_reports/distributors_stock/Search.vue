@@ -412,10 +412,10 @@
             rows[variety['id']]['stock_end_quantity']=0;
             rows_array.push(rows[variety['id']])//for ordering
           }
-          for(let i in res.data.target){
-            let datum=res.data.target[i];
-            if(rows[datum['variety_id']]){
-              rows[datum['variety_id']]['target_quantity']=datum['quantity']
+
+          for(let variety_id in res.data.target){
+            if(rows[variety_id]){
+              rows[variety_id]['target_quantity']=(+res.data.target[variety_id])
             }
           }
           for(let i in res.data.sales){

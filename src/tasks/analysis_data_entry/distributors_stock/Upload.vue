@@ -204,7 +204,6 @@ $(document).ready(function()
           for(let i=1;i<rows.length;i++){
             let cols=rows[i].split(',')
             let datum={}
-            let inputDatum={}
             datum['sl_num']=i;
             if(cols.length==num_cols){
               datum['status']='';

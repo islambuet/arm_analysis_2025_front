@@ -23,7 +23,7 @@
               </tr>
               </thead>
               <tbody>
-              <tr v-for="(quantity,variety_id) in item.data.stock">
+              <tr v-for="(quantity,variety_id) in item.data.varieties">
                 <td>{{varieties_object[variety_id]?varieties_object[variety_id].crop_name:'NF'}}</td>
                 <td>{{varieties_object[variety_id]?varieties_object[variety_id].type_name:'NF'}}</td>
                 <td>{{varieties_object[variety_id]?varieties_object[variety_id].name:'NF'}}</td>
@@ -58,7 +58,7 @@
     exists:false,
     detailFields:{},
     data:{
-      stock:{}
+      varieties:{}
     },
   })
   let crops_object={};

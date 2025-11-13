@@ -10,6 +10,29 @@
     </div>
     <div class="card-body">
         <DetailTemplate :detailFields="item.detailFields" />
+        <div class="row mb-2">
+          <div class="col-4"><label class="font-weight-bold float-right">Varieties</label></div>
+          <div class="col-8">
+            <table id="table_varieties" class="table table-bordered">
+              <thead>
+              <tr>
+                <th>Crop</th>
+                <th>Type</th>
+                <th>Variety</th>
+                <th>Quantity</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr v-for="(quantity,variety_id) in item.data.varieties">
+                <td>{{varieties_object[variety_id]?varieties_object[variety_id].crop_name:'NF'}}</td>
+                <td>{{varieties_object[variety_id]?varieties_object[variety_id].type_name:'NF'}}</td>
+                <td>{{varieties_object[variety_id]?varieties_object[variety_id].name:'NF'}}</td>
+                <td>{{quantity}}</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
     </div>
   </div>
 </template>
@@ -35,8 +58,21 @@
     exists:false,
     detailFields:{},
     data:{
-    }
+      varieties:{}
+    },
   })
+  let crops_object={};
+  for(let i in taskData.crops){
+    crops_object[taskData.crops[i]['id']]=taskData.crops[i];
+  }
+  let crop_types_object={};
+  for(let i in taskData.crop_types){
+    crop_types_object[taskData.crop_types[i]['id']]=taskData.crop_types[i];
+  }
+  let varieties_object={};
+  for(let i in taskData.varieties){
+    varieties_object[taskData.varieties[i]['id']]=taskData.varieties[i];
+  }
   const setDetailFields=async ()=>{
     item.detailFields= {};
     await systemFunctions.delay(1);
@@ -47,13 +83,14 @@
       type:'hidden',
       values:[item.data[key]],
     };
-    key='part_name';
+    key='fiscal_year';
     detailFields[key] = {
       label: labels.get('label_'+key),
       type:'text',
-      values:[item.data[key]],
+      values:[item.data[key]+'-'+(+item.data[key]+1)],
     };
-    key='fiscal_year';
+
+    key='part_name';
     detailFields[key] = {
       label: labels.get('label_'+key),
       type:'text',
@@ -72,37 +109,6 @@
       values:[item.data[key]],
     };
     key='distributor_name';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'text',
-      values:[item.data[key]],
-    };
-    key='crop_name';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'text',
-      values:[item.data[key]],
-    };
-    key='crop_type_name';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'text',
-      values:[item.data[key]],
-    };
-    key='variety_name';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'text',
-      values:[item.data[key]],
-    };
-
-    key='quantity';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'number',
-      values:[item.data[key]],
-    };
-    key='status';
     detailFields[key] = {
       label: labels.get('label_'+key),
       type:'text',

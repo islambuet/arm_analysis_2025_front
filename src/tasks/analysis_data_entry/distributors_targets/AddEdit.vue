@@ -4,18 +4,57 @@
       <router-link :to="taskData.api_url" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" ><i class="feather icon-corner-up-left"></i> {{labels.get('label_back')}}</router-link>
       <template v-if="item.exists">
         <button  type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="save(false)"><i class="feather icon-save"></i> {{labels.get('label_save')}}</button>
-        <button  type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="save(true)"><i class="feather icon-plus-square"></i> {{labels.get('label_save_new')}}</button>
       </template>
     </div>
   </div>
-  <div class="card d-print-none mb-2" v-if="item.exists">
-    <div class="card-header">
-      <div v-if="item.id>0">{{labels.get('label_edit_task')}}({{item.id}})</div>
-      <div v-else>{{labels.get('label_new_task')}}</div>
+  <div class="card d-print-none mb-2" >
+    <div class="card-header d-print-none">
+      {{labels.get('label_task')}}
     </div>
     <div class="card-body">
       <form id="formSaveItem">
         <InputTemplate :inputItems="item.inputFields" />
+        <div class="row mb-2" v-show="item.exists">
+          <div class="col-4">
+          </div>
+          <div class="col-8">
+            <table id="table_varieties" class="table table-bordered">
+              <thead>
+              <tr>
+                <th>Crop</th>
+                <th>Type</th>
+                <th>Variety</th>
+                <th>Quantity</th>
+                <th></th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td colspan="3">
+                  <select id="variety_id" class="form-control">
+                    <option value="">{{labels.get('label_select')}}</option>
+                    <template v-for="row in taskData.varieties">
+                      <option  :value="row.id" v-if="row.status=='Active'">
+                        {{row.name}}
+                      </option>
+                    </template>
+
+                  </select>
+                </td>
+                <td><input type="text" class="form-control float_positive" id="quantity" value=""></td>
+                <td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary btn_add_more_variety"><i class="bi bi-plus-circle"></i> {{labels.get('action_1')}}</button></td>
+              </tr>
+              <tr v-for="(quantity,variety_id) in item.data.varieties" v-if="item.exists">
+                <td>{{varieties_object[variety_id]?varieties_object[variety_id].crop_name:'NF'}}</td>
+                <td>{{varieties_object[variety_id]?varieties_object[variety_id].type_name:'NF'}}</td>
+                <td>{{varieties_object[variety_id]?varieties_object[variety_id].name:'NF'}}</td>
+                <td><input type="text" class="form-control float_positive" :name="'item[varieties]['+variety_id+']'" :value="quantity"></td>
+                <td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_variety"><i class="bi bi-dash-circle"></i> Remove </button></td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </form>
     </div>
   </div>
@@ -37,26 +76,47 @@ import {useRoute} from "vue-router/dist/vue-router";
 const route =useRoute()
 const router =useRouter()
 let taskData = inject('taskData')
-
 let item=reactive({
   id:0,
   exists:false,
   inputFields:{},
+  inputFields2:{crop_types:[],varieties:[]},
   data:{
-    id:0,
-    name:'',
-    part_id:'',
-    area_id:'',
-    territory_id:'',
-    distributor_id:'',
-    crop_id:'',
-    crop_type_id:'',
-    variety_id:'',
-    fiscal_year:globalVariables.current_fiscal_year,
-    quantity:'',
-    status:'Active',
+    varieties:{},
   }
 })
+let crops_object={};
+for(let i in taskData.crops){
+  crops_object[taskData.crops[i]['id']]=taskData.crops[i];
+}
+let crop_types_object={};
+for(let i in taskData.crop_types){
+  crop_types_object[taskData.crop_types[i]['id']]=taskData.crop_types[i];
+}
+let varieties_object={};
+for(let i in taskData.varieties){
+  varieties_object[taskData.varieties[i]['id']]=taskData.varieties[i];
+}
+let location_parts_object={};
+for(let i in taskData.location_parts){
+  let part_id=taskData.location_parts[i]['id'];
+  location_parts_object[part_id]=taskData.location_parts[i];
+}
+let location_areas_object={};
+for(let i in taskData.location_areas){
+  let area_id=taskData.location_areas[i]['id'];
+  location_areas_object[area_id]=taskData.location_areas[i];
+}
+let location_territories_object={};
+for(let i in taskData.location_territories){
+  let territory_id=taskData.location_territories[i]['id'];
+  location_territories_object[territory_id]=taskData.location_territories[i];
+}
+let distributors_object={};
+for(let i in taskData.distributors){
+  let distributor_id=taskData.distributors[i]['id'];
+  distributors_object[distributor_id]=taskData.distributors[i];
+}
 const setInputFields=async ()=>{
   item.inputFields= {};
   await systemFunctions.delay(1);
@@ -69,103 +129,102 @@ const setInputFields=async ()=>{
     default:new Date().getTime(),
     mandatory:true
   };
-  key='id';
-  inputFields[key] = {
-    name: key,
-    label: labels.get('label_'+key),
-    type:'hidden',
-    default:item.data[key],
-    mandatory:true
-  };
   key='fiscal_year';
   inputFields[key] = {
     name: 'item[' +key +']',
     label: labels.get('label_'+key),
     type:'dropdown',
-    options:new Array(globalVariables.current_fiscal_year-globalVariables.sales_starting_year+1).fill().map((temp,index) => {return {value:globalVariables.current_fiscal_year-index,label:(globalVariables.current_fiscal_year-index)+' - '+(globalVariables.current_fiscal_year-index+1)}}),
-    default:item.data[key],
+    options:new Array(globalVariables.current_fiscal_year-globalVariables.starting_year+1).fill().map((temp,index) => {return {value:globalVariables.current_fiscal_year-index,label:(globalVariables.current_fiscal_year-index)+' - '+(globalVariables.current_fiscal_year-index+1)}}),
+    default:globalVariables.current_fiscal_year,
     mandatory:true,
     noselect:true,
   };
   key='part_id';
   inputFields[key] = {
-    name: 'part_id',
+    name: key,
     label: labels.get('label_'+key),
     type:'dropdown',
-    options:taskData.location_parts.map((temp)=>{ return {value:temp.id,label:temp.name}}),
-    default:item.data[key],
-    mandatory:true
+    options:taskData.location_parts.filter((temp)=>{ if(temp.status=='Active'){temp.value=temp.id.toString();temp.label=temp.name;return true}}),
+    default:'',
+    mandatory:false
   };
+  if(taskData.user_locations.part_id>0){
+    inputFields[key] = {
+      name: key,
+      label: labels.get('label_'+key),
+      type:'hidden',
+      default:taskData.user_locations.part_id,
+      mandatory:true
+    };
+    key='part_name';
+    inputFields[key] = {
+      name: key,
+      label: labels.get('label_'+key),
+      type:'textonly',
+      default: location_parts_object[taskData.user_locations.part_id]['name'],
+      mandatory:false
+    };
+  }
   key='area_id';
   inputFields[key] = {
-    name: 'area_id',
+    name: key,
     label: labels.get('label_'+key),
     type:'dropdown',
-    options:item.data['part_id']>0?taskData.location_areas.filter((temp)=>{ if(temp.part_id==item.data['part_id']){temp.value=temp.id.toString();temp.label=temp.name;return true}}):[],
-    default:item.data[key],
-    mandatory:true
+    options:(taskData.user_locations.part_id>0)?taskData.location_areas.filter((temp)=>{ if((temp.part_id==taskData.user_locations.part_id)&&(temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}}):[],
+    default:'',
+    mandatory:false
   };
+  if(taskData.user_locations.area_id>0){
+    inputFields[key] = {
+      name: key,
+      label: labels.get('label_'+key),
+      type:'hidden',
+      default:taskData.user_locations.area_id,
+      mandatory:true
+    };
+    key='area_name';
+    inputFields[key] = {
+      name: key,
+      label: labels.get('label_'+key),
+      type:'textonly',
+      default: location_areas_object[taskData.user_locations.area_id]['name'],
+      mandatory:false
+    };
+  }
   key='territory_id';
   inputFields[key] = {
-    name: 'territory_id',
+    name: key,
     label: labels.get('label_'+key),
     type:'dropdown',
-    options:item.data['area_id']>0?taskData.location_territories.filter((temp)=>{ if(temp.area_id==item.data['area_id']){temp.value=temp.id.toString();temp.label=temp.name;return true}}):[],
-    default:item.data[key],
-    mandatory:true
+    options:(taskData.user_locations.area_id>0)?taskData.location_territories.filter((temp)=>{ if((temp.area_id==taskData.user_locations.area_id) && (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}}):[],
+    default:'',
+    mandatory:false
   };
+  if(taskData.user_locations.territory_id>0){
+    inputFields[key] = {
+      name: key,
+      label: labels.get('label_'+key),
+      type:'hidden',
+      default:taskData.user_locations.territory_id,
+      mandatory:true
+    };
+    key='territory_name';
+    inputFields[key] = {
+      name: key,
+      label: labels.get('label_'+key),
+      type:'textonly',
+      default: location_territories_object[taskData.user_locations.territory_id]['name'],
+      mandatory:false
+    };
+  }
   key='distributor_id';
   inputFields[key] = {
     name: 'item[' +key +']',
     label: labels.get('label_'+key),
     type:'dropdown',
-    options:item.data['territory_id']>0?taskData.distributors.filter((temp)=>{ if(temp.territory_id==item.data['territory_id']){temp.value=temp.id.toString();temp.label=temp.name;return true}}):[],
-    default:item.data[key],
-    mandatory:true
-  };
-  key='crop_id';
-  inputFields[key] = {
-    name: 'crop_id',
-    label: labels.get('label_'+key),
-    type:'dropdown',
-    options:taskData.crops.map((temp)=>{ return {value:temp.id,label:temp.name}}),
-    default:item.data[key],
-    mandatory:true
-  };
-  key='crop_type_id';
-  inputFields[key] = {
-    name: 'crop_type_id',
-    label: labels.get('label_'+key),
-    type:'dropdown',
-    options:item.data['crop_id']>0?taskData.crop_types.filter((temp)=>{ if(temp.crop_id==item.data['crop_id']){temp.value=temp.id.toString();temp.label=temp.name;return true}}):[],
-    default:item.data[key],
-    mandatory:true
-  };
-  key='variety_id';
-  inputFields[key] = {
-    name: 'item[' +key +']',
-    label: labels.get('label_'+key),
-    type:'dropdown',
-    options:item.data['crop_type_id']>0?taskData.varieties.filter((temp)=>{ if(temp.crop_type_id==item.data['crop_type_id']){temp.value=temp.id.toString();temp.label=temp.name;return true}}):[],
-    default:item.data[key],
-    mandatory:true
-  };
-  key='quantity';
-  inputFields[key] = {
-    name: 'item[' +key +']',
-    label: labels.get('label_'+key),
-    type:'number',
-    default:item.data[key],
+    options:(taskData.user_locations.territory_id>0)?taskData.distributors.filter((temp)=>{ if((temp.territory_id==taskData.user_locations.territory_id) && (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}}):[],
+    default:'',
     mandatory:false
-  };
-  key='status';
-  inputFields[key] = {
-    name: 'item[' +key +']',
-    label: labels.get('label_'+key),
-    type:'dropdown',
-    options:[{label:"Active",value:'Active'},{label:"In-Active",value:'In-Active'}],
-    default:item.data[key],
-    mandatory:true
   };
   item.inputFields=inputFields;
 
@@ -176,17 +235,10 @@ const save=async (save_and_new)=>{
     if (res.data.error == "") {
       globalVariables.loadListData=true;
       toastFunctions.showSuccessfullySavedMessage();
-      if(save_and_new){
-        if(item.id>0){
-          router.push(taskData.api_url+"/add")
-        }
-        else{
-          setInputFields();
-        }
-      }
-      else{
-        router.push(taskData.api_url)
-      }
+      item.exists=false;
+      $('#distributor_id').val('');
+      $('#save_token').val(new Date().getTime());
+
     }
     else{
       toastFunctions.showResponseError(res.data)
@@ -195,27 +247,60 @@ const save=async (save_and_new)=>{
 
 }
 const getItem=async ()=>{
-  await axios.get(taskData.api_url+'/get-item/'+ item.id).then((res)=>{
-    if (res.data.error == "") {
-      item.data=res.data.item;
-      setInputFields();
-      item.exists=true;
-    }
-    else{
-      toastFunctions.showResponseError(res.data)
-    }
-  });
-}
-  item.id=route.params['item_id']?route.params['item_id']:0;
+  item.exists=false;
+  $('#table_varieties tbody tr:not(:first)').remove();
+  if($('#distributor_id').val()>0){
+    await systemFunctions.delay(1);
+    let formData=new FormData(document.getElementById('formSaveItem'))
+    await axios.post(taskData.api_url+'/get-item/0',formData).then((res)=>{
+      if (res.data.error == "") {
+        if(res.data.item.varieties){
+          item.data.varieties=res.data.item.varieties;
+        }
+        else{
+          item.data.varieties={}
+        }
 
-$(document).ready(function()
+        item.exists=true;
+      }
+      else{
+        toastFunctions.showResponseError(res.data)
+      }
+    });
+
+  }
+
+}
+setInputFields();
+
+$(document).ready(async function()
 {
+  $('#variety_id').select2();
+  $(document).off("change", "#crop_id");
+  $(document).on("change",'#crop_id',async function()
+  {
+    let crop_id=$(this).val();
+    item.inputFields2['crop_types']=taskData.crop_types.filter((temp)=>{ if((temp.crop_id==crop_id) && (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
+    await systemFunctions.delay(1);
+    $('#type_id').val('');
+    item.inputFields2['varieties']=[]
+    $('#variety_id').val('');
+  })
+  $(document).off("change", "#type_id");
+  $(document).on("change",'#type_id',async function()
+  {
+    let type_id=$(this).val();
+    item.inputFields2['varieties']=taskData.varieties.filter((temp)=>{ if((temp.crop_type_id==type_id) && (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
+    await systemFunctions.delay(1);
+    $('#variety_id').val('');
+  })
+
   $(document).off("change", "#part_id");
   $(document).on("change",'#part_id',async function()
   {
     let part_id=$(this).val();
     let key='area_id';
-    item.inputFields[key].options=taskData.location_areas.filter((temp)=>{ if(temp.part_id==part_id){temp.value=temp.id.toString();temp.label=temp.name;return true}})
+    item.inputFields[key].options=taskData.location_areas.filter((temp)=>{ if((temp.part_id==part_id) && (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
     await systemFunctions.delay(1);
     $('#'+key).val('');
     key='territory_id';
@@ -224,65 +309,71 @@ $(document).ready(function()
     key='distributor_id';
     item.inputFields[key].options=[];
     $('#'+key).val('');
+    item.exists=false;
   })
   $(document).off("change", "#area_id");
   $(document).on("change",'#area_id',async function()
   {
     let area_id=$(this).val();
     let key='territory_id';
-    item.inputFields[key].options=taskData.location_territories.filter((temp)=>{ if(temp.area_id==area_id){temp.value=temp.id.toString();temp.label=temp.name;return true}})
+    item.inputFields[key].options=taskData.location_territories.filter((temp)=>{ if((temp.area_id==area_id)&& (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
     await systemFunctions.delay(1);
     $('#'+key).val('');
     key='distributor_id';
     item.inputFields[key].options=[];
     $('#'+key).val('');
+    item.exists=false;
   })
   $(document).off("change", "#territory_id");
   $(document).on("change",'#territory_id',async function()
   {
     let territory_id=$(this).val();
     let key='distributor_id';
-    item.inputFields[key].options=taskData.distributors.filter((temp)=>{ if(temp.territory_id==territory_id){temp.value=temp.id.toString();temp.label=temp.name;return true}})
+    item.inputFields[key].options=taskData.distributors.filter((temp)=>{ if((temp.territory_id==territory_id)&& (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
     await systemFunctions.delay(1);
     $('#'+key).val('');
+    item.exists=false;
   })
-  $(document).off("change", "#crop_id");
-  $(document).on("change",'#crop_id',async function()
+  $(document).off("change", "#fiscal_year");
+  $(document).on("change",'#fiscal_year',async function()
   {
-    let crop_id=$(this).val();
-    let key='crop_type_id';
-    item.inputFields[key].options=taskData.crop_types.filter((temp)=>{ if(temp.crop_id==crop_id){temp.value=temp.id.toString();temp.label=temp.name;return true}})
-    await systemFunctions.delay(1);
-    $('#'+key).val('');
-    key='variety_id';
-    item.inputFields[key].options=[];
-    $('#'+key).val('');
+    getItem()
   })
-  $(document).off("change", "#crop_type_id");
-  $(document).on("change",'#crop_type_id',async function()
+  $(document).off("change", "#distributor_id");
+  $(document).on("change",'#distributor_id',async function()
   {
-    let crop_type_id=$(this).val();
-    let key='variety_id';
-    item.inputFields[key].options=taskData.varieties.filter((temp)=>{ if(temp.crop_type_id==crop_type_id){temp.value=temp.id.toString();temp.label=temp.name;return true}})
-    await systemFunctions.delay(1);
-    $('#'+key).val('');
+    getItem()
   })
+  $(document).off("click", ".btn_add_more_variety");
+  $(document).on("click",'.btn_add_more_variety',function()
+  {
+    let variety_id=$('#variety_id').val();
+    if(variety_id>0){
+      let crop_name='NF';
+      let type_name='NF';
+      let variety_name='NF';
+      if(varieties_object[variety_id]){
+        variety_name=varieties_object[variety_id].name;
+        crop_name=varieties_object[variety_id].crop_name;
+        type_name=varieties_object[variety_id].type_name;
+      }
+
+      let html=('<tr><td>'+crop_name+'</td>');
+      html+=('<td>'+type_name+'</td>');
+      html+=('<td>'+variety_name+'</td>');
+      html+=('<td><input type="text" class="form-control float_positive" name="item[varieties]['+variety_id+']" value="'+$('#quantity').val()+'"></td>');
+      html+='<td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_variety"><i class="bi bi-dash-circle"></i> Remove </button>';
+      html+='</tr>';
+      $(this).closest("tr").after(html);
+    }
+    $('#variety_id').val('');
+    $('#select2-variety_id-container').html(labels.get('label_select'));
+    $('#quantity').val('')
+  })
+  $(document).off("click", ".btn_remove_variety");
+  $(document).on("click",'.btn_remove_variety',function(){
+    $(this).closest('tr').remove();
+  });
+
 });
-  if(item.id>0){
-    if(!(taskData.permissions.action_2)){
-      toastFunctions.showAccessDenyMessage();
-    }
-    else{
-      getItem();
-    }
-  }
-  else{
-    if(!(taskData.permissions.action_1)){
-      toastFunctions.showAccessDenyMessage();
-    }
-    else{
-      setInputFields();
-      item.exists=true;
-    }
-  }
 </script>

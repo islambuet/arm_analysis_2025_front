@@ -247,8 +247,8 @@ $(document).ready(function()
           item.inputItems=inputItems;
           item.file_name=file.name;
           item.show_report=true;
-          console.log(item.inputItems)
-          if(data.length>0 && success && data.length<8000){
+          let itemsCount=Object.keys(inputItems).length
+          if(itemsCount>0 && success && itemsCount<8000){
             item.exists=true;
           }
         };

@@ -44,11 +44,11 @@
                 <td><input type="text" class="form-control float_positive" id="quantity" value=""></td>
                 <td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary btn_add_more_variety"><i class="bi bi-plus-circle"></i> {{labels.get('action_1')}}</button></td>
               </tr>
-              <tr v-for="(quantity,variety_id) in item.data.stock" v-if="item.exists">
+              <tr v-for="(quantity,variety_id) in item.data.varieties" v-if="item.exists">
                 <td>{{varieties_object[variety_id]?varieties_object[variety_id].crop_name:'NF'}}</td>
                 <td>{{varieties_object[variety_id]?varieties_object[variety_id].type_name:'NF'}}</td>
                 <td>{{varieties_object[variety_id]?varieties_object[variety_id].name:'NF'}}</td>
-                <td><input type="text" class="form-control float_positive" :name="'item[stock]['+variety_id+']'" :value="quantity"></td>
+                <td><input type="text" class="form-control float_positive" :name="'item[varieties]['+variety_id+']'" :value="quantity"></td>
                 <td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_variety"><i class="bi bi-dash-circle"></i> Remove </button></td>
               </tr>
               </tbody>
@@ -82,7 +82,7 @@ let item=reactive({
   inputFields:{},
   inputFields2:{crop_types:[],varieties:[]},
   data:{
-    stock:{},
+    varieties:{},
   }
 })
 let crops_object={};
@@ -264,11 +264,11 @@ const getItem=async ()=>{
     let formData=new FormData(document.getElementById('formSaveItem'))
     await axios.post(taskData.api_url+'/get-item/0',formData).then((res)=>{
       if (res.data.error == "") {
-        if(res.data.item.stock){
-          item.data.stock=res.data.item.stock;
+        if(res.data.item.varieties){
+          item.data.varieties=res.data.item.varieties;
         }
         else{
-          item.data.stock={}
+          item.data.varieties={}
         }
 
         item.exists=true;
@@ -376,7 +376,7 @@ $(document).ready(async function()
       let html=('<tr><td>'+crop_name+'</td>');
       html+=('<td>'+type_name+'</td>');
       html+=('<td>'+variety_name+'</td>');
-      html+=('<td><input type="text" class="form-control float_positive" name="item[stock]['+variety_id+']" value="'+$('#quantity').val()+'"></td>');
+      html+=('<td><input type="text" class="form-control float_positive" name="item[varieties]['+variety_id+']" value="'+$('#quantity').val()+'"></td>');
       html+='<td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_variety"><i class="bi bi-dash-circle"></i> Remove </button>';
       html+='</tr>';
       $(this).closest("tr").after(html);

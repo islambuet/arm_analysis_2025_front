@@ -51,7 +51,7 @@
             <label class="font-weight-bold float-right">Total Records</label>
           </div>
           <div class="col-lg-4 col-8">
-            <label class="font-weight-bold">{{item.data.length}}</label> <small>(If more than 4000 discuss with admin)</small>
+            <label class="font-weight-bold">{{item.data.length}}</label> <small>(If more than 4000 distributors discuss with admin)</small>
           </div>
         </div>
         <table class="table table-bordered">
@@ -98,14 +98,14 @@ let item=reactive({
   exists:false,
   show_report:false,
   file_name:'',
-  columns:{all:{},hidden:['sl_num','status','dealer_name','variety_name']},
+  columns:{all:{},hidden:['sl_num','status','distributor_name','variety_name']},
   data:[],
   inputItems:{},
   inputFields:{},
 })
-let dealers_object={};
-for(let i in taskData.dealers){
-  dealers_object[taskData.dealers[i]['id']]=taskData.dealers[i];
+let distributors_object={};
+for(let i in taskData.distributors){
+  distributors_object[taskData.distributors[i]['id']]=taskData.distributors[i];
 }
 let varieties_object={};
 for(let i in taskData.varieties){
@@ -142,9 +142,9 @@ const setColumns=()=>{
   columns[key]={label: 'Serial'}
   key='status';
   columns[key]={label: labels.get('label_'+key)}
-  key='dealer_id';
+  key='distributor_id';
   columns[key]={label: labels.get('label_'+key)+' ID'}
-  key='dealer_name';
+  key='distributor_name';
   columns[key]={label: labels.get('label_'+key)}
   key='variety_id';
   columns[key]={label: labels.get('label_'+key)+' ID'}
@@ -198,14 +198,14 @@ $(document).ready(function()
             datum['sl_num']=i;
             if(cols.length==num_cols){
               datum['status']='';
-              datum['dealer_id']=cols[0].trim()
-              datum['dealer_name']='NF';
+              datum['distributor_id']=cols[0].trim()
+              datum['distributor_name']='NF';
               datum['variety_id']=cols[1].trim()
               datum['variety_name']='NF';
-              datum['quantity']=cols[2].trim()
+              datum['quantity']=cols[2].trim().replaceAll(',','')
 
-              if(dealers_object[datum['dealer_id']] ){
-                datum['dealer_name']=dealers_object[datum['dealer_id']]['name'];
+              if(distributors_object[datum['distributor_id']] ){
+                datum['distributor_name']=distributors_object[datum['distributor_id']]['name'];
               }
               else {
                 datum['status']=labels.get('label_distributor_id');
@@ -214,10 +214,10 @@ $(document).ready(function()
                 datum['variety_name']=varieties_object[datum['variety_id']]['name'];
               }
               if(!datum['status']){
-                if(!inputItems[datum['dealer_id']]){
-                  inputItems[datum['dealer_id']]={'dealer_id':datum['dealer_id'],'varieties':{}}
+                if(!inputItems[datum['distributor_id']]){
+                  inputItems[datum['distributor_id']]={'distributor_id':datum['distributor_id'],'varieties':{}}
                 }
-                inputItems[datum['dealer_id']]['varieties'][datum['variety_id']]=datum['quantity']
+                inputItems[datum['distributor_id']]['varieties'][datum['variety_id']]=datum['quantity']
                 data.push(datum);
               }
               else{

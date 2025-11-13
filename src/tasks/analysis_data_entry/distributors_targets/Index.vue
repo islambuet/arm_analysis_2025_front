@@ -6,6 +6,9 @@
     <div v-if="taskData.method=='add'">
       <AddEdit/>
     </div>
+    <div v-if="taskData.method=='upload'">
+      <Upload/>
+    </div>
     <div v-if="taskData.method=='edit'">
       <AddEdit/>
     </div>
@@ -26,6 +29,7 @@
   import List from './List.vue'
   import AddEdit from './AddEdit.vue'
   import Details from './Details.vue'
+  import Upload from './Upload.vue'
 
   globalVariables.loadListData=true;
   const route =useRoute()
@@ -40,15 +44,19 @@
     items: {data:[]},   //from Laravel server with pagination and info
     itemsFiltered: [],    //for display
     columns:{all:{},hidden:[],sort:{key:'',dir:''}},
-    pagination: {current_page: 1,per_page_options: [10,20,50,100,500,1000],per_page:20,show_all_items:true},
+    pagination: {current_page: 1,per_page_options: [10,20,50,100,200,500,1000],per_page:200,show_all_items:false},
+
+    analysis_years:[],
     location_parts:[],
     location_areas:[],
     location_territories:[],
     distributors:[],
+
     crops:[],
     crop_types:[],
-    varieties :[],
-    pack_sizes :[]
+    varieties:[],
+    pack_sizes :[],
+    user_locations:{},
   })
   labels.add([{language:globalVariables.language,file:'tasks'+taskData.api_url+'/labels.js'}])
 
@@ -67,6 +75,9 @@
     else if(route.path.indexOf(taskData.api_url+'/details/')!=-1)
     {
       taskData.method='details';
+    }
+    else if(route.path==taskData.api_url+'/upload'){
+      taskData.method='upload';
     }
   }
   watch(route, () => {
@@ -108,7 +119,8 @@
         taskData.crops=res.data.crops;
         taskData.crop_types=res.data.crop_types;
         taskData.varieties=res.data.varieties;
-        taskData.pack_sizes=res.data.pack_sizes;
+
+        taskData.user_locations=res.data.user_locations;
         if(res.data.hidden_columns){
           taskData.columns.hidden=res.data.hidden_columns;
         }

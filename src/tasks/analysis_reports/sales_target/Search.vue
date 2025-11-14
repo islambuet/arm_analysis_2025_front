@@ -45,6 +45,7 @@
     <div class="card-body pb-0 d-print-none">
       <button type="button" v-if="taskData.permissions.action_4" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" onclick="window.print();"><i class="feather icon-printer"></i> {{labels.get('action_4')}}</button>
       <button type="button" v-if="taskData.permissions.action_5" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="exportCsv"><i class="feather icon-download"></i> {{labels.get('action_5')}}</button>
+      <button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="showHtmlContentInNewWindow"><i class="feather icon-maximize-2"></i> {{labels.get('action_show_in_new_window')}}</button>
     </div>
     <div class="card-body" style='overflow-x:auto;height:600px;padding: 0'>
       <table id="table_report" :style="'width: '+table_width+'px'" class="table table-bordered sticky">
@@ -361,12 +362,13 @@
               }
             }
           }
-          for(let i in res.data.target){
-            let datum=res.data.target[i];
-            if(rows[datum['variety_id']]){
-              rows[datum['variety_id']]['quantity_target']=datum['quantity']
+          for(let variety_id in res.data.target){
+            if(rows[variety_id]){
+              rows[variety_id]['quantity_target']=(+res.data.target[variety_id])
             }
           }
+
+
           let row_total={}
           row_total['id']=0;
           row_total['num_rows']=1;
@@ -405,6 +407,10 @@
     }
     const exportCsv=async ()=>{
       systemFunctions.exportCsvFromHtmlTable('#table_report',labels.get('label_task'))
+    }
+    const showHtmlContentInNewWindow=async ()=>{
+      systemFunctions.showHtmlContentInNewWindow('<table>'+$('#table_report').html()+'</table>',labels.get('label_task'))
+
     }
     const toggleReportControlColumns=(event)=>{
       //show_report.value=false;

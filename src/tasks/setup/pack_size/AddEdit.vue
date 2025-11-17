@@ -87,6 +87,14 @@ const setInputFields=async ()=>{
     default:item.data[key],
     mandatory:false
   };
+  key='unit_price_per_kg';
+  inputFields[key] = {
+    name: 'item[' +key +']',
+    label: labels.get('label_'+key),
+    type:'number',
+    default:item.data[key],
+    mandatory:false
+  };
   key='crop_id';
   inputFields[key] = {
     name: 'crop_id',

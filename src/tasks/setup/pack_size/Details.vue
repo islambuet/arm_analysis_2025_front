@@ -79,6 +79,12 @@
       type:'number',
       values:[item.data[key]],
     };
+    key='unit_price_per_kg';
+    detailFields[key] = {
+      label: labels.get('label_'+key),
+      type:'number',
+      values:[item.data[key]],
+    };
     key='ordering';
     detailFields[key] = {
       label: labels.get('label_'+key),

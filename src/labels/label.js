@@ -207,6 +207,10 @@ export default {
         en:"Unit Price",
         bn:"কর্মচারী আইডি"
     },
+    label_unit_price_per_kg:{
+        en:"Unit Price (per kg)",
+        bn:"কর্মচারী আইডি"
+    },
     //ColumnFilter end
     //Pagination start
     label_per_page:{

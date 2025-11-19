@@ -52,7 +52,7 @@
         <thead class="table-active">
         <tr>
           <template v-for="(column,key) in taskData.columns.all">
-            <th style="width: 150px;" v-if="taskData.columns.hidden.indexOf(column.group)<0" :key="'th_'+key">
+            <th :style="'width: '+(column.width?column.width:150)+'px;'" v-if="taskData.columns.hidden.indexOf(column.group)<0" :key="'th_'+key">
               <div v-html="column.label"></div>
             </th>
           </template>
@@ -64,7 +64,7 @@
             <template v-for="(column,key) in taskData.columns.all">
               <td :class="((['quantity','unit_price','achievement','amount'].indexOf(column.group) != -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
                 <template v-if="index==1">
-                  <template v-if="column.group=='amount' || column.group=='achievement'">{{ row[column.key]?row[column.key].toFixed(2):'' }}</template>
+                  <template v-if="column.group=='amount'">{{ row[column.key]?row[column.key].toFixed(2):'' }}</template>
                   <template v-else-if="column.group=='quantity'">{{ row[column.key]?row[column.key].toFixed(3):'' }}</template>
                   <template v-else>{{ row[column.key] }}</template>
                 </template>
@@ -144,7 +144,20 @@
       item.inputFields3= {};
       await systemFunctions.delay(1);
       let inputFields={}
-      let key='fiscal_year';
+      let key='report_format';
+      inputFields[key] = {
+        name: 'options[' +key +']',
+        label: labels.get('label_'+key),
+        type:'dropdown',
+        options:[
+            {value:'crop',label:'Crop Wise'},{value:'type',label:'Type Wise'},{value:'variety',label:'Variety Wise'},
+          {value:'crop_arm_location',label:'Malik Zoning (Crop)'},{value:'type_arm_location',label:'Malik Zoning (Type)'},{value:'variety_arm_location',label:'Malik Zoning (Variety)'},
+        ],
+        default:'variety',
+        mandatory:true,
+        noselect:true,
+      };
+      key='fiscal_year';
       inputFields[key] = {
         name: 'options[' +key +']',
         label: labels.get('label_'+key),
@@ -277,7 +290,16 @@
         default:item.data[key],
         mandatory:true
       };
-
+      key='status';
+      inputFields[key] = {
+        name: 'options[' +key +']',
+        label: labels.get('label_'+key),
+        type:'dropdown',
+        options:[{label:"All",value:'All'},{label:"Active",value:'Active'},{label:"In-Active",value:'In-Active'}],
+        default:'Active',
+        mandatory:true,
+        noselect:true,
+      };
       item.inputFields3=inputFields;
 
 
@@ -301,74 +323,258 @@
           let columns_all=[];
           let rows={};
           let rows_array=[];
-          columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
-          columns_all.push({'group':'type_name','key':'type_name','label':labels.get('label_type_name')})
-          columns_all.push({'group':'variety_name','key':'variety_name','label':labels.get('label_variety_name')})
-          columns_all.push({'group':'quantity','key':'quantity_target','label':labels.get('label_quantity')+'</br>(target)'})
-          columns_all.push({'group':'amount','key':'amount_target','label':labels.get('label_amount')+'</br>(target)'})
-          columns_all.push({'group':'amount','key':'unit_price','label':labels.get('label_unit_price')})
-          columns_all.push({'group':'quantity','key':'quantity_sales','label':labels.get('label_quantity')+'</br>(sales)'})
-          columns_all.push({'group':'amount','key':'amount_sales','label':labels.get('label_amount')+'</br>(sales)'})
-          columns_all.push({'group':'quantity','key':'quantity_difference','label':labels.get('label_quantity')+'</br>(Difference)'})
-          columns_all.push({'group':'amount','key':'amount_difference','label':labels.get('label_amount')+'</br>(Difference)'})
+          // {value:'crop',label:'Crop Wise'},{value:'type',label:'Type Wise'},{value:'variety',label:'Variety Wise'},
+          // {value:'crop_arm_location',label:'Malik Zoning (Crop)'},{value:'type_arm_location',label:'Malik Zoning (Type)'},{value:'variety_arm_location',label:'Malik Zoning (Variety)'},
 
-          columns_all.push({'group':'achievement','key':'achievement','label':labels.get('label_achievement')})
-          for(let i in taskData.varieties){
-            let variety=taskData.varieties[i];
-            if(variety['status']!='Active')
-              continue;
-            if(variety['whose']!='ARM')
-              continue;
-            if(options['crop_id']>0){
-              if(options['crop_type_id']>0){
-                if(options['variety_id']>0){
-                  if(options['variety_id']!=variety['id']){
-                    continue;
-                  }
-                }
-                else if(options['crop_type_id']!=variety['crop_type_id']){
+          let location_type='';
+          let location_id=0;
+          let locations=[];
+
+          columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
+          if((options['report_format']=='type')||(options['report_format']=='variety')||(options['report_format']=='type_arm_location')||(options['report_format']=='variety_arm_location')){
+            columns_all.push({'group':'type_name','key':'type_name','label':labels.get('label_type_name')})
+            if((options['report_format']=='variety')||(options['report_format']=='variety_arm_location')){
+              columns_all.push({'group':'variety_name','key':'variety_name','label':labels.get('label_variety_name')})
+            }
+          }
+          if((options['report_format']=='type')||(options['report_format']=='variety')||(options['report_format']=='crop')){
+            if((options['report_format']=='variety')) {
+              columns_all.push({'group': 'amount', 'key': 'unit_price', 'label': labels.get('label_unit_price')})
+            }
+            columns_all.push({'group':'quantity','key':'quantity_target','label':labels.get('label_quantity')+'</br>(target)'})
+            columns_all.push({'group':'amount','key':'amount_target','label':labels.get('label_amount')+'</br>(target)'})
+            columns_all.push({'group':'quantity','key':'quantity_sales','label':labels.get('label_quantity')+'</br>(sales)'})
+            columns_all.push({'group':'amount','key':'amount_sales','label':labels.get('label_amount')+'</br>(sales)'})
+            columns_all.push({'group':'quantity','key':'quantity_difference','label':labels.get('label_quantity')+'</br>(Difference)'})
+            columns_all.push({'group':'amount','key':'amount_difference','label':labels.get('label_amount')+'</br>(Difference)'})
+            columns_all.push({'group':'achievement','key':'achievement','label':labels.get('label_achievement')})
+          }
+          //((options['report_format']=='crop_arm_location')||(options['report_format']=='type_arm_location')||(options['report_format']=='variety_arm_location'))
+          else {
+            if(options['distributor_id']>0){
+              location_type='Distributor';
+              location_id=options['distributor_id'];
+              locations.push(distributors_object[location_id]);
+            }
+            else if(options['territory_id']>0){
+              location_type='Territory';
+              location_id=options['territory_id'];
+              locations=taskData.distributors.filter((temp)=>{ if(temp.territory_id==location_id){return true}})
+            }
+            else if(options['area_id']>0){
+              location_type='Area';
+              location_id=options['area_id'];
+              locations=taskData.location_territories.filter((temp)=>{ if(temp.area_id==location_id){return true}})
+            }
+            else if(options['part_id']>0){
+              location_type='Part';
+              location_id=options['part_id'];
+              locations=taskData.location_areas.filter((temp)=>{ if(temp.part_id==location_id){return true}})
+            }
+            else{
+              location_type='National';
+              locations=taskData.location_parts;
+            }
+            if((options['report_format']=='variety_arm_location')) {
+              columns_all.push({'group': 'amount', 'key': 'unit_price', 'label': labels.get('label_unit_price')})
+            }
+            for(let index in locations){
+              columns_all.push({'group':'quantity','key':'quantity_target_'+locations[index].id,'label':labels.get('label_quantity')+'</br>(target)'+'</br>('+locations[index].name+')'})
+              columns_all.push({'group':'amount','key':'amount_target_'+locations[index].id,'label':labels.get('label_amount')+'</br>(target)'+'</br>('+locations[index].name+')'})
+              columns_all.push({'group':'quantity','key':'quantity_sales_'+locations[index].id,'label':labels.get('label_quantity')+'</br>(sales)'+'</br>('+locations[index].name+')'})
+              columns_all.push({'group':'amount','key':'amount_sales_'+locations[index].id,'label':labels.get('label_amount')+'</br>(sales)'+'</br>('+locations[index].name+')'})
+              columns_all.push({'group':'quantity','key':'quantity_difference_'+locations[index].id,'label':labels.get('label_quantity')+'</br>(Difference)'+'</br>('+locations[index].name+')'})
+              columns_all.push({'group':'amount','key':'amount_difference_'+locations[index].id,'label':labels.get('label_amount')+'</br>(Difference)'+'</br>('+locations[index].name+')'})
+              columns_all.push({'group':'achievement','key':'achievement_'+locations[index].id,'label':labels.get('label_achievement')+'</br>('+locations[index].name+')'})
+            }
+          }
+          if((options['report_format']=='crop')||(options['report_format']=='crop_arm_location')){
+            for(let i in taskData.crops){
+              let crop=taskData.crops[i];
+              if(options['status']!='All' && crop['status']!=options['status'])
+                continue;
+              if(options['crop_id']>0){
+                if(options['crop_id']!=crop['id']){
                   continue;
                 }
               }
-              else if(options['crop_id']!=variety['crop_id']){
+              rows[crop['id']]={}
+              rows[crop['id']]['id']=crop['id'];
+              rows[crop['id']]['num_rows']=1;
+              rows[crop['id']]['crop_name']=crop['name'];
+              rows_array.push(rows[crop['id']])//for ordering
+            }
+          }
+          else if((options['report_format']=='type')||(options['report_format']=='type_arm_location')){
+            for(let i in taskData.crop_types){
+              let crop_type=taskData.crop_types[i];
+              if(options['status']!='All' && crop_type['status']!=options['status'])
                 continue;
+              if(options['crop_id']>0){
+                if(options['crop_type_id']>0){
+                  if(options['crop_type_id']!=crop_type['crop_type_id']){
+                    continue;
+                  }
+                }
+                else if(options['crop_id']!=crop_type['crop_id']){
+                  continue;
+                }
+              }
+              rows[crop_type['id']]={}
+              rows[crop_type['id']]['id']=crop_type['id'];
+              rows[crop_type['id']]['num_rows']=1;
+              rows[crop_type['id']]['crop_name']=crop_type['crop_name'];
+              rows[crop_type['id']]['type_name']=crop_type['name'];
+              rows_array.push(rows[crop_type['id']])//for ordering
+            }
+          }
+          else if((options['report_format']=='variety')||(options['report_format']=='variety_arm_location')){
+            for(let i in taskData.varieties){
+              let variety=taskData.varieties[i];
+              if(options['status']!='All' && variety['status']!=options['status'])
+                continue;
+              if(variety['whose']!='ARM')
+                continue;
+              if(options['crop_id']>0){
+                if(options['crop_type_id']>0){
+                  if(options['variety_id']>0){
+                    if(options['variety_id']!=variety['id']){
+                      continue;
+                    }
+                  }
+                  else if(options['crop_type_id']!=variety['crop_type_id']){
+                    continue;
+                  }
+                }
+                else if(options['crop_id']!=variety['crop_id']){
+                  continue;
+                }
+              }
+              rows[variety['id']]={}
+              rows[variety['id']]['id']=variety['id'];
+              rows[variety['id']]['num_rows']=1;
+              rows[variety['id']]['crop_name']=variety['crop_name'];
+              rows[variety['id']]['type_name']=variety['crop_type_name'];
+              rows[variety['id']]['variety_name']=variety['name'];
+              rows_array.push(rows[variety['id']])//for ordering
+            }
+          }
+          for(let id in rows){
+            if((options['report_format']=='type')||(options['report_format']=='variety')||(options['report_format']=='crop')){
+              if((options['report_format']=='variety')) {
+                rows[id]['unit_price']=0;
+              }
+              rows[id]['quantity_target']=0;
+              rows[id]['amount_target']=0;
+              rows[id]['quantity_sales']=0;
+              rows[id]['amount_sales']=0;
+              rows[id]['quantity_difference']=0;
+              rows[id]['amount_difference']=0;
+              rows[id]['achievement']='';
+            }
+            else{
+              if((options['report_format']=='variety_arm_location')) {
+                rows[id]['unit_price']=0;
+              }
+              for(let index in locations){
+                rows[id]['quantity_target_'+locations[index].id]=0;
+                rows[id]['amount_target_'+locations[index].id]=0;
+                rows[id]['quantity_sales_'+locations[index].id]=0;
+                rows[id]['amount_sales_'+locations[index].id]=0;
+                rows[id]['quantity_difference_'+locations[index].id]=0;
+                rows[id]['amount_difference_'+locations[index].id]=0;
+                rows[id]['achievement_'+locations[index].id]='';
               }
             }
-            rows[variety['id']]={}
-            rows[variety['id']]['id']=variety['id'];
-            rows[variety['id']]['num_rows']=1;
-            rows[variety['id']]['crop_name']=variety['crop_name'];
-            rows[variety['id']]['type_name']=variety['crop_type_name'];
-            rows[variety['id']]['variety_name']=variety['name'];
-            rows[variety['id']]['quantity_target']=0;
-            rows[variety['id']]['amount_target']=0;
-            rows[variety['id']]['unit_price']=0;
-            rows[variety['id']]['quantity_sales']=0;
-            rows[variety['id']]['amount_sales']=0;
-
-            rows[variety['id']]['quantity_difference']=0;
-            rows[variety['id']]['amount_difference']=0;
-            rows[variety['id']]['achievement']=0;
-            rows_array.push(rows[variety['id']])//for ordering
           }
-
-          for(let i in res.data.sales){
-            let datum=res.data.sales[i];
-            if(rows[datum['variety_id']]){
-              rows[datum['variety_id']]['quantity_sales']=datum['quantity']
-              rows[datum['variety_id']]['amount_sales']=datum['amount']
-              if(datum['quantity']>0){
-                rows[datum['variety_id']]['unit_price']=rows[datum['variety_id']]['amount_sales']/rows[datum['variety_id']]['quantity_sales'].toFixed(2);
+          //res.data.varieties_sales_target
+          //console.log(res.data.sales_targets)
+          if((options['report_format']=='type')||(options['report_format']=='variety')||(options['report_format']=='crop')){
+            for(let variety_id in res.data.sales_targets){
+              let row_key=0;
+              if((options['report_format']=='variety')){
+                row_key=variety_id;
+              }
+              else if((options['report_format']=='type')){
+                row_key=varieties_object[variety_id]?varieties_object[variety_id]['crop_type_id']:0;
+              }
+              else if((options['report_format']=='crop')){
+                row_key=varieties_object[variety_id]?(crop_types_object[varieties_object[variety_id]['crop_type_id']]?crop_types_object[varieties_object[variety_id]['crop_type_id']]['crop_id']:0):0;
+              }
+              let variety_data=res.data.sales_targets[variety_id];
+              if(rows[row_key]) {
+                if((options['report_format']=='variety')){
+                  rows[row_key]['unit_price'] = variety_data['unit_price']
+                }
+                for(let distributor_id in variety_data['distributors']){
+                  let distributor_data=variety_data['distributors'][distributor_id];
+                  rows[row_key]['quantity_target']+=(+distributor_data['quantity_target']);
+                  rows[row_key]['amount_target']+=(+distributor_data['amount_target']);
+                  rows[row_key]['quantity_sales']+=(+distributor_data['quantity_sales']);
+                  rows[row_key]['amount_sales']+=(+distributor_data['amount_sales']);
+                  rows[row_key]['quantity_difference']=rows[row_key]['quantity_target']-rows[row_key]['quantity_sales'];
+                  rows[row_key]['amount_difference']=rows[row_key]['amount_target']-rows[row_key]['amount_sales'];
+                  if(rows[row_key]['quantity_target']>0){
+                    rows[row_key]['achievement']=(rows[row_key]['quantity_sales']*100/rows[row_key]['quantity_target']).toFixed(2)+'%';
+                  }
+                }
+              }
+            }
+          }//else location wise
+          else{
+            for(let variety_id in res.data.sales_targets){
+              let row_key=0;
+              if((options['report_format']=='variety_arm_location')){
+                row_key=variety_id;
+              }
+              else if((options['report_format']=='type_arm_location')){
+                row_key=varieties_object[variety_id]?varieties_object[variety_id]['crop_type_id']:0;
+              }
+              else if((options['report_format']=='crop_arm_location')){
+                row_key=varieties_object[variety_id]?(crop_types_object[varieties_object[variety_id]['crop_type_id']]?crop_types_object[varieties_object[variety_id]['crop_type_id']]['crop_id']:0):0;
+              }
+              let variety_data=res.data.sales_targets[variety_id];
+              if(rows[row_key]) {
+                if((options['report_format']=='variety_arm_location')){
+                  rows[row_key]['unit_price'] = variety_data['unit_price']
+                }
+                for(let distributor_id in variety_data['distributors']){
+                  let distributor_data=variety_data['distributors'][distributor_id];
+                  let column_key=0;
+                  if(location_type=='Distributor'){
+                    column_key=distributor_id;
+                  }
+                  else if(location_type=='Territory'){
+                    column_key=distributor_id;
+                  }
+                  else if(location_type=='Area'){
+                    column_key=distributors_object[distributor_id]?distributors_object[distributor_id]['territory_id']:0;
+                  }
+                  else if(location_type=='Part'){
+                    column_key=distributors_object[distributor_id]?(location_territories_object[distributors_object[distributor_id]['territory_id']]?location_territories_object[distributors_object[distributor_id]['territory_id']]['area_id']:0):0;
+                  }
+                  else if(location_type=='National'){
+                    column_key=distributors_object[distributor_id]?
+                        (location_territories_object[distributors_object[distributor_id]['territory_id']]?
+                            (location_areas_object[location_territories_object[distributors_object[distributor_id]['territory_id']]['area_id']]?
+                                location_areas_object[location_territories_object[distributors_object[distributor_id]['territory_id']]['area_id']]['part_id']:0):0)
+                        :0;
+                  }
+                  if(column_key>0){
+                    rows[row_key]['quantity_target_'+column_key]+=(+distributor_data['quantity_target']);
+                    rows[row_key]['amount_target_'+column_key]+=(+distributor_data['amount_target']);
+                    rows[row_key]['quantity_sales_'+column_key]+=(+distributor_data['quantity_sales']);
+                    rows[row_key]['amount_sales_'+column_key]+=(+distributor_data['amount_sales']);
+                    rows[row_key]['quantity_difference_'+column_key]=rows[row_key]['quantity_target_'+column_key]-rows[row_key]['quantity_sales_'+column_key];
+                    rows[row_key]['amount_difference_'+column_key]=rows[row_key]['amount_target_'+column_key]-rows[row_key]['amount_sales_'+column_key];
+                    if(rows[row_key]['quantity_target_'+column_key]>0){
+                      rows[row_key]['achievement_'+column_key]=(rows[row_key]['quantity_sales_'+column_key]*100/rows[row_key]['quantity_target_'+column_key]).toFixed(2)+'%';
+                    }
+                  }
+                }
               }
             }
           }
-          for(let variety_id in res.data.target){
-            if(rows[variety_id]){
-              rows[variety_id]['quantity_target']=(+res.data.target[variety_id])
-            }
-          }
-
-
           let row_total={}
           row_total['id']=0;
           row_total['num_rows']=1;
@@ -377,23 +583,31 @@
             row_total[columns_all[key]['key']]=((['quantity','amount'].indexOf(columns_all[key]['group']) != -1)?0:'')
           }
           row_total['crop_name']='Grand Total';
+
+          //For ordering
           for(let i in rows_array){
             let row=rows[rows_array[i]['id']];
-            if(row['quantity_target']>0){
-              row['achievement']=((row['quantity_sales']*100)/row['quantity_target'])
-              row['amount_target']=row['quantity_target']*row['unit_price'];
-              row['quantity_difference']=row['quantity_target']-row['quantity_sales'];
-              row['amount_difference']=row['amount_target']-row['amount_sales'];
+            if((options['report_format']=='type')||(options['report_format']=='variety')||(options['report_format']=='crop')){
+              row_total['amount_target']+=row['amount_target'];
+              row_total['amount_sales']+=row['amount_sales'];
+              row_total['amount_difference']=row_total['amount_target']-row_total['amount_sales'];
+              if(row_total['amount_target']>0){
+                row_total['achievement']=(row_total['amount_sales']*100/row_total['amount_target']).toFixed(2)+'%';
+              }
             }
-            else if(row['quantity_sales']>0){
-              row['achievement']=100;
+            else{
+              for(let index in locations){
+                row_total['amount_target_'+locations[index].id]+=row['amount_target_'+locations[index].id]
+                row_total['amount_sales_'+locations[index].id]+=row['amount_sales_'+locations[index].id]
+                row_total['amount_difference_'+locations[index].id]=row_total['amount_target_'+locations[index].id]-row_total['amount_sales_'+locations[index].id];
+                if(row_total['amount_target_'+locations[index].id]>0){
+                  row_total['achievement_'+locations[index].id]=(row_total['amount_sales_'+locations[index].id]*100/row_total['amount_target_'+locations[index].id]).toFixed(2)+'%';
+                }
+              }
             }
-            row_total['amount_sales']+=row['amount_sales'];
-            row_total['amount_target']+=row['amount_target'];
-            row_total['amount_difference']+=row['amount_difference'];
+
             rows_array[i]=row;
           }
-
           rows_array.unshift(row_total)
           taskData.itemsFiltered=rows_array;
           taskData.columns.all=columns_all;
@@ -424,19 +638,14 @@
       calculateTableWidth();
     }
     const calculateTableWidth=()=>{
-      let width=0;
-      for(let index in taskData.columns.all){
-        if(taskData.columns.hidden.indexOf(taskData.columns.all[index].group)<0){
-          width+=150;
-        }
-      }
-      table_width.value=width;
+      table_width.value=systemFunctions.calculateReportTableWidth(taskData.columns);
     }
     setInputFields();
     $(document).ready(async function()
     {
       taskData.columns.selectable=['quantity','amount','achievement'];
       taskData.columns.hidden=[];
+      $(document).off("change", "#report_format");
 
       $(document).off("change", "#crop_id");
       $(document).on("change",'#crop_id',async function()

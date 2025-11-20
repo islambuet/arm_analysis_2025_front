@@ -33,6 +33,10 @@ export default {
         en:"Quantity (target)",
         bn:"Quantity"
     },
+    label_amount_target:{
+        en:"Amount (target)",
+        bn:"Quantity"
+    },
     label_quantity_achievable:{
         en:"Quantity (achievable)",
         bn:"Quantity"
@@ -43,6 +47,10 @@ export default {
     },
     label_quantity_difference:{
         en:"Quantity (difference)",
+        bn:"Quantity"
+    },
+    label_amount_difference:{
+        en:"Amount (difference)",
         bn:"Quantity"
     },
     label_quantity_incentive:{

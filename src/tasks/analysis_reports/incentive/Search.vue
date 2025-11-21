@@ -443,8 +443,8 @@
     $(document).ready(async function()
     {
       taskData.columns.selectable=['unit_price','unit_price_net','quantity_target','amount_target','quantity_sales','amount_sales','quantity_difference','amount_difference','achievement','quantity_incentive','amount_incentive','quantity_achievable','amount_achievable'];
-      //taskData.columns.hidden=['unit_price','unit_price_net','amount_target','amount_sales','amount_difference','quantity_incentive','quantity_achievable','amount_achievable'];
-      taskData.columns.hidden=['unit_price','unit_price_net','quantity_target','amount_target','quantity_sales','amount_sales','quantity_difference','amount_difference','achievement','quantity_incentive','amount_incentive',];
+      taskData.columns.hidden=['unit_price','unit_price_net','amount_difference','quantity_incentive','quantity_achievable','amount_achievable'];
+      //taskData.columns.hidden=['unit_price','unit_price_net','quantity_target','amount_target','quantity_sales','amount_sales','quantity_difference','amount_difference','achievement','quantity_incentive','amount_incentive',];
 
       $(document).off("change", "#crop_id");
       $(document).on("change",'#crop_id',async function()

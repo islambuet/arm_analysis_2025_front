@@ -363,16 +363,28 @@
 
             }
           }
+
+          let row_total={}
+          row_total['id']=0;
+          row_total['num_rows']=1;
+          row_total['part_name']='Grand Total';
+          row_total['area_name']='';
+          row_total['territory_name']='';
+          row_total['amount_incentive']=0;
+
           for(let location_id in res.data.items){
             let datum=res.data.items[location_id];
             if(rows[location_id]){
               rows[location_id]['amount_incentive']=datum['amount_incentive'];
+              row_total['amount_incentive']+=datum['amount_incentive'];
+
             }
-            console.log(location_id,datum)
           }
           for(let i in rows_array){
             rows_array[i]=rows[rows_array[i]['id']]
           }
+
+          rows_array.unshift(row_total)
           taskData.itemsFiltered=rows_array;
           taskData.columns.all=columns_all;
           calculateTableWidth();

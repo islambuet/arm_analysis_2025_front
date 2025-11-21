@@ -421,7 +421,7 @@
           for(let i in res.data.sales){
             let datum=res.data.sales[i];
             if(rows[datum['variety_id']]){
-              rows[datum['variety_id']]['sales_quantity']=datum['quantity']
+              rows[datum['variety_id']]['sales_quantity']=(+datum['quantity'])
             }
           }
           for(let variety_id in res.data.stock_open_quantity){
@@ -437,7 +437,7 @@
           for(let i in res.data.purchase_month){
             let datum=res.data.purchase_month[i];
             if(rows[datum['variety_id']]){
-              rows[datum['variety_id']]['stock_purchase_quantity']=datum['quantity']
+              rows[datum['variety_id']]['stock_purchase_quantity']=(+datum['quantity'])
             }
           }
 

@@ -2,7 +2,7 @@
   <div class="card d-print-none mb-2">
     <div class="card-body">
       <router-link :to="taskData.api_url" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" ><i class="feather icon-corner-up-left"></i> {{labels.get('label_back')}}</router-link>
-      <button type="button" v-if="taskData.permissions.action_4" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="systemFunctions.exportCsv(item.columns,[],'Upload Format(Distributors Sales).csv')"><i class="feather icon-download"></i> {{labels.get('label_upload_format_csv')}}</button>
+      <button type="button" v-if="taskData.permissions.action_4" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="systemFunctions.exportCsv(item.columns,[],'Upload Format('+labels.get('label_task')+').csv')"><i class="feather icon-download"></i> {{labels.get('label_upload_format_csv')}}</button>
       <template v-if="item.exists">
         <button  type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="saveItems(false)"><i class="feather icon-save"></i> {{labels.get('label_save')}}</button>
       </template>
@@ -33,8 +33,11 @@
         </div>
       </div>
       <form id="formSaveItems" v-if="item.show_report">
-        <input type="hidden" name="save_token" id="save_token" :value="new Date().getTime()">
+        <InputTemplate :inputItems="item.inputFields" />
         <input type="hidden" name="file_name" :value="item.file_name">
+        <template v-for="(row,key) in item.inputItems">
+          <input type="hidden" :name="'items[]'" :value="JSON.stringify(row)">
+        </template>
         <div class="row mb-2">
           <div class="col-4">
             <label class="font-weight-bold float-right">File Name</label>
@@ -48,7 +51,7 @@
             <label class="font-weight-bold float-right">Total Records</label>
           </div>
           <div class="col-lg-4 col-8">
-            <label class="font-weight-bold">{{item.data.length}}</label> <small>(If more than 4000 discuss with admin)</small>
+            <label class="font-weight-bold">{{item.data.length}}</label> <small>(If more than 50000 discuss with admin)</small>
           </div>
         </div>
         <table class="table table-bordered">
@@ -64,9 +67,6 @@
             <template v-for="(column,key) in item.columns.all">
               <td>
                 {{ datum[key] }}
-                <template v-if="datum['input'] && key=='sl_num'">
-                  <input type="hidden" :name="'items['+index+']'" :value="datum['input']">
-                </template>
               </td>
             </template>
           </tr>
@@ -98,8 +98,10 @@ let item=reactive({
   exists:false,
   show_report:false,
   file_name:'',
-  columns:{all:{},hidden:['sl_num','status']},
-  data:[]
+  columns:{all:{},hidden:['sl_num','status','distributor_name','pack_size_name']},
+  data:[],
+  inputItems:[],
+  inputFields:{},
 })
 let distributors_object={};
 for(let i in taskData.distributors){
@@ -109,6 +111,21 @@ let pack_sizes_object={};
 for(let i in taskData.pack_sizes){
   pack_sizes_object[taskData.pack_sizes[i]['id']]=taskData.pack_sizes[i];
 }
+const setInputFields=async ()=>{
+  item.inputFields= {};
+  await systemFunctions.delay(1);
+  let inputFields={}
+  let key='save_token';
+  inputFields[key] = {
+    name: key,
+    label: labels.get('label_'+key),
+    type:'hidden',
+    default:new Date().getTime(),
+    mandatory:true
+  };
+  item.inputFields=inputFields;
+}
+setInputFields();
 const setColumns=()=>{
   let columns={}
   let key='sl_num';
@@ -121,8 +138,12 @@ const setColumns=()=>{
   columns[key]={label: labels.get('label_'+key)}
   key='distributor_id';
   columns[key]={label: labels.get('label_'+key)+' ID'}
+  key='distributor_name';
+  columns[key]={label: labels.get('label_'+key)}
   key='pack_size_id';
   columns[key]={label: labels.get('label_'+key)+' ID'}
+  key='pack_size_name';
+  columns[key]={label: labels.get('label_'+key)}
   key='quantity';
   columns[key]={label: labels.get('label_'+key)}
   key='unit_price';
@@ -165,6 +186,7 @@ $(document).ready(function()
         reader.onload = function(e) {
           let success=true;
           let data=[]
+          let inputItems=[]
           let rows=e.target.result.split('\n');
           let num_cols=Object.keys(item.columns.all).length-item.columns.hidden.length;
           for(let i=1;i<rows.length;i++){
@@ -177,35 +199,43 @@ $(document).ready(function()
               datum['sales_at']=inputDatum['sales_at']=cols[0].trim()
               datum['invoice_no']=inputDatum['invoice_no']=cols[1].trim()
               datum['distributor_id']=inputDatum['distributor_id']=cols[2].trim()
+              datum['distributor_name']='NF';
               datum['pack_size_id']=inputDatum['pack_size_id']=cols[3].trim()
+              datum['pack_size_name']='NF';
               datum['quantity']=inputDatum['quantity']=cols[4].trim()
               datum['unit_price']=inputDatum['unit_price']=cols[5].trim()
               datum['amount']=inputDatum['amount']=cols[6].trim()
+
               if(!datum['sales_at'])   {
                 datum['status']='Date';
               }
-              else if(!datum['invoice_no'])   {
+              if(!datum['invoice_no'])   {
                 datum['status']=labels.get('label_invoice_no');
               }
-              else if(!distributors_object[datum['distributor_id']])   {
+              if(distributors_object[datum['distributor_id']] ){
+                datum['distributor_name']=distributors_object[datum['distributor_id']]['name'];
+              }
+              else {
                 datum['status']=labels.get('label_distributor_id');
               }
-              else if(!pack_sizes_object[datum['pack_size_id']])   {
+              if(pack_sizes_object[datum['pack_size_id']])   {
+                datum['pack_size_name']=pack_sizes_object[datum['pack_size_id']]['name'];
+              }
+              else {
                 datum['status']=labels.get('label_pack_size_id');
               }
-              else if(!datum['quantity'])   {
+              if(!datum['quantity'])   {
                 datum['status']=labels.get('label_quantity');
               }
-              else if(!datum['unit_price'])   {
+              if(!datum['unit_price'])   {
                 datum['status']=labels.get('label_unit_price');
               }
-              else if(!datum['amount'])   {
+              if(!datum['amount'])   {
                 datum['status']=labels.get('label_amount');
               }
-
               if(!datum['status']){
-                datum['input']=JSON.stringify(inputDatum)
                 data.push(datum);
+                inputItems.push(inputDatum);
               }
               else{
                 success=false;
@@ -215,22 +245,17 @@ $(document).ready(function()
             else{
               if(i!=rows.length-1){
                 datum['status']='Column mismatch';
-                datum['sales_at']='';
-                datum['invoice_no']='';
-                datum['distributor_id']='';
-                datum['pack_size_id']='';
-                datum['quantity']='';
-                datum['unit_price']='';
-                datum['amount']='';
                 success=false;
                 data.unshift(datum)
               }
             }
           }
           item.data=data;
+          item.inputItems=inputItems;
           item.file_name=file.name;
           item.show_report=true;
-          if(data.length>0 && success && data.length<4000){
+          let itemsCount=inputItems.length
+          if(itemsCount>0 && success && itemsCount<100000){
             item.exists=true;
           }
         };

@@ -246,6 +246,14 @@ export default {
         en:"Fiscal Year",
         bn:'ব্যবহারকারীরা'
     },
+    label_season_id :{
+        en:"Season",
+        bn:'ব্যবহারকারীরা'
+    },
+    label_season_name :{
+        en:"Season",
+        bn:'ব্যবহারকারীরা'
+    },
     label_analysis_year_id :{
         en:"Analysis Year",
         bn:'ব্যবহারকারীরা'

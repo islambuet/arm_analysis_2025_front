@@ -1,9 +1,9 @@
 <template>    
     <div class="card d-print-none mb-2">
         <div class="card-body">
-            <router-link v-if="taskData.permissions.action_1"  :to="taskData.api_url+'/add'" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" ><i class="feather icon-plus-circle"></i> {{labels.get('action_1')}}</router-link>
+            <router-link v-if="taskData.permissions.action_1 || taskData.permissions.action_2"  :to="taskData.api_url+'/add'" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" ><i class="feather icon-plus-circle"></i> {{labels.get('action_1')}}/{{labels.get('label_edit')}}</router-link>
             <button type="button" v-if="taskData.permissions.action_4" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" onclick="window.print();"><i class="feather icon-printer"></i> {{labels.get('action_4')}}</button>
-            <button type="button" v-if="taskData.permissions.action_5" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="systemFunctions.exportCsv(taskData.columns,taskData.itemsFiltered,taskData.api_url.substring(1)+'.csv')"><i class="feather icon-download"></i> {{labels.get('action_5')}}</button>
+            <button type="button" v-if="taskData.permissions.action_5" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="systemFunctions.exportCsv(taskData.columns,taskData.itemsFiltered,'Distributors Sales.csv')"><i class="feather icon-download"></i> {{labels.get('action_5')}}</button>
             <button type="button" v-if="taskData.permissions.action_8" class="mr-2 mb-2 btn btn-sm" :class="[show_column_controls?'bg-gradient-success':'bg-gradient-primary']" @click="show_column_controls = !show_column_controls"><i class="feather icon-command"></i> {{labels.get('action_8')}}</button>
             <button type="button" v-if="taskData.permissions.action_0" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="taskData.reloadItems(taskData.pagination)"><i class="feather icon-rotate-cw"></i> {{labels.get('label_refresh')}}</button>
         </div>            
@@ -35,12 +35,15 @@
             <button class="btn btn-sm bg-gradient-primary dropdown-toggle waves-effect waves-light" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{labels.get('label_action')}}</button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0; left: 0; transform: translate3d(0px, 38px, 0px);">
               <router-link v-if="taskData.permissions.action_0"  :to="taskData.api_url+'/details/'+item.id" class="dropdown-item text-info btn-sm" ><i class="feather icon-camera"></i> {{labels.get('label_details')}}</router-link>
-              <router-link v-if="taskData.permissions.action_2"  :to="taskData.api_url+'/edit/'+item.id" class="dropdown-item text-info btn-sm" ><i class="feather icon-edit"></i> {{labels.get('label_edit')}}</router-link>
             </div>
           </td>
           <template v-for="(column,key) in taskData.columns.all">
             <td :class="((['id','quantity','unit_price','amount'].indexOf(key) != -1)?'text-right':'')+(column.class?(' '+column.class):'col_9')" v-if="taskData.columns.hidden.indexOf(key)<0" :key="'td_'+key">
-              {{ item[key] }}
+              <template v-if="(['month'].indexOf(key) != -1)">
+                {{labels.get('label_month_short_'+item[key])}}
+              </template>
+              <template  v-else>{{ item[key] }}</template>
+
             </td>
           </template>
 
@@ -63,6 +66,7 @@
     import ColumnSort from '@/components/ColumnSort.vue';
     import ColumnFilter from '@/components/ColumnFilter.vue';
     import Pagination from '@/components/Pagination.vue';
+    import globalVariables from "@/assets/globalVariables";
 
 
     const router =useRouter()
@@ -80,8 +84,53 @@
         filter:{from:'',to:''},
         class:'col_1'
       };
+      key='fiscal_year';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:true,
+        sortable:true,
+        type:'dropdown',
+        filter:{from:'',to:'',options:new Array(globalVariables.current_fiscal_year-globalVariables.sales_starting_year+1).fill().map((temp,index) => {return {value:globalVariables.current_fiscal_year-index,label:(globalVariables.current_fiscal_year-index)+' - '+(globalVariables.current_fiscal_year-index+1)}})}
 
-      key='name';
+      };
+      key='season_name';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:true,
+        sortable:true,
+        type:'dropdown',
+        filter:{from:'',to:'',options:taskData.seasons.map((item)=>{ return {value:item.name,label:item.name}}),}
+      };
+      key='part_name';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:true,
+        sortable:true,
+        type:'dropdown',
+        filter:{from:'',to:'',options:taskData.location_parts.map((item)=>{ return {value:item.name,label:item.name}}),}
+      };
+      key='area_name';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:true,
+        sortable:true,
+        type:'text',
+        filter:{from:'',to:''}
+      };
+      key='territory_name';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:true,
+        sortable:true,
+        type:'text',
+        filter:{from:'',to:''}
+      };
+      key='type_name';
       columns[key]={
         label: labels.get('label_'+key),
         hideable:false,
@@ -90,37 +139,14 @@
         type:'text',
         filter:{from:'',to:''}
       };
-      key='ordering';
+      key='created_at';
       columns[key]={
         label: labels.get('label_'+key),
         hideable:true,
-        filterable:false,
-        sortable:true,
-        type:'number',
-        filter:{from:'',to:''},
-        class:'col_1'
-      };
-      for(let i=1;i<13;i++){
-        key='month_'+i;
-        columns[key]={
-          label: labels.get('label_month_short_'+i),
-          hideable:true,
-          filterable:false,
-          sortable:false,
-          type:'number',
-          filter:{from:'',to:''},
-          class:'col_1'
-        };
-      }
-      key='status';
-      columns[key]={
-        label: labels.get('label_'+key),
-        hideable:true,
-        sortable:true,
         filterable:true,
-        type:'dropdown',
-        filter:{from:'',to:'',options:[{value:'Active',label:'Active'},{value:'In-Active',label:'In-Active'}]},
-        class:'col_1'
+        sortable:true,
+        type:'date',
+        filter:{from:'',to:''}
       };
       taskData.columns.all=columns
     }

@@ -47,5 +47,9 @@ export default {
         en:"# of Field Day",
         bn:'ব্যবহারকারীরা'
     },
+    label_total_type_entered:{
+        en:"# of types data",
+        bn:"কর্মচারী আইডি"
+    },
 
 }

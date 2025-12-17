@@ -5,33 +5,66 @@
     </div>
   </div>
   <div class="card d-print-none mb-2" v-if="item.exists">
-    <div class="card-header">
-      <div>{{labels.get('label_details_task')}} ({{item.id}})</div>
+    <div class="card-header d-print-none">
+      {{labels.get('label_task')}}( {{item.name}} )
     </div>
-    <div class="card-body">
-        <DetailTemplate :detailFields="item.detailFields" />
-        <div class="row mb-2">
-          <div class="col-4"><label class="font-weight-bold float-right">Varieties</label></div>
-          <div class="col-8">
-            <template v-for="(compare_data,comp_variety_id) in item.data.compare_variety">
-              <div class="row mb-2">
-                <div class="col-3">Why Recommended {{varieties_object[comp_variety_id]?varieties_object[comp_variety_id].name:'NF'}}</div>
-                <div class="col-9">{{compare_data['reason_competitor_variety']}}</div>
-              </div>
-              <template v-for="(arm_variety_data,arm_variety_id) in compare_data['arm_varieties']">
-                <div class="row mb-2">
-                  <div class="col-3">Approx Quantity {{varieties_object[arm_variety_id]?varieties_object[arm_variety_id].name:'NF'}}</div>
-                  <div class="col-9">{{arm_variety_data['quantity_arm_variety']}}</div>
-                </div>
-                <div class="row mb-2">
-                  <div class="col-3">Why Suggested {{varieties_object[arm_variety_id]?varieties_object[arm_variety_id].name:'NF'}}</div>
-                  <div class="col-9">{{arm_variety_data['reason_arm_variety']}}</div>
-                </div>
-              </template>
-            </template>
-
-          </div>
-        </div>
+    <div class="card-body" style='overflow-x:auto;height:600px;padding: 0'>
+      <form id="formSaveItem">
+        <input type="hidden" name="save_token" id="save_token" :value="new Date().getTime()">
+        <input type="hidden" name="id" :value="item.id">
+        <table style="width: 1500px;" class="table table-bordered sticky">
+          <thead class="table-active">
+          <tr>
+            <th style="width: 150px;">{{labels.get('label_crop_name')}}</th>
+            <th style="width: 200px;">{{labels.get('label_crop_type_name')}}</th>
+            <th style="width: 100px;">Total Market Size</th>
+            <th style="width: 200px;">Pocket Market</th>
+            <th style="">Competitors Variety</th>
+          </tr>
+          </thead>
+          <tbody class="table-striped table-hover">
+          <tr class="row_type" v-for="row in item.rows" :key="'row_'+row.id" :id="'type_'+row.id">
+            <td class="col_crop_name">{{row.crop_name}}</td>
+            <td class="col_crop_type_name">{{row.crop_type_name}}</td>
+            <td class="col_market_size_total"><input type="text" :name="'items['+row.id+'][market_size_total]'" class="form-control float_positive" :value="item.data[row.id]?item.data[row.id]['market_size_total']:''"></td>
+            <td class="col_pocket_market"><input type="text" :name="'items['+row.id+'][pocket_market]'" class="form-control" :value="item.data[row.id]?item.data[row.id]['pocket_market']:''"></td>
+            <td class="col_competitors_info">
+              <table class="table table-bordered">
+                <thead>
+                <tr>
+                  <th style="width: 150px">Company</th>
+                  <th style="width: 150px">Variety</th>
+                  <th>Why Recommended</th>
+                  <th style="width: 110px"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-if="item.data[row.id]" v-for="(competitor_varieties_info,variety_id) in item.data[row.id]['competitor_varieties']">
+                  <td>{{ (taskData.varieties_competitor_typewise[row.id] && taskData.varieties_competitor_typewise[row.id][variety_id])?taskData.varieties_competitor_typewise[row.id][variety_id]['competitor_name']:"Other" }}</td>
+                  <td>{{ (taskData.varieties_competitor_typewise[row.id] && taskData.varieties_competitor_typewise[row.id][variety_id])?taskData.varieties_competitor_typewise[row.id][variety_id]['name']:"Other" }}</td>
+                  <td><input type="text" :name="'items['+row.id+'][competitor_varieties]['+variety_id+'][recommended_reason]'" class="form-control input_competitor_recommended_reason" :value="item.data[row.id]['competitor_varieties'][variety_id]?item.data[row.id]['competitor_varieties'][variety_id]['recommended_reason']:''" /></td>
+                  <td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_competitor"><i class="bi bi-dash-circle"></i> Remove </button></td>
+                </tr>
+                <tr>
+                  <td colspan="3">
+                    <div class="input-group" >
+                      <select class="form-control sel_competitor_variety">
+                        <option v-if="taskData.varieties_competitor_typewise_ordered[row.id]" v-for="variety in taskData.varieties_competitor_typewise_ordered[row.id]" :value="variety.id">
+                          {{variety.competitor_name+'-'+ variety.name}}
+                        </option>
+                        <option value="0">Other</option>
+                      </select>
+                    </div>
+                  </td>
+                  <td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary btn_add_more_competitor_size"><i class="bi bi-plus-circle"></i> {{labels.get('action_1')}}</button></td>
+                </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </form>
     </div>
   </div>
 </template>
@@ -60,114 +93,20 @@
       varieties:{}
     },
   })
-  let crops_object={};
-  for(let i in taskData.crops){
-    crops_object[taskData.crops[i]['id']]=taskData.crops[i];
-  }
-  let crop_types_object={};
-  for(let i in taskData.crop_types){
-    crop_types_object[taskData.crop_types[i]['id']]=taskData.crop_types[i];
-  }
-  let varieties_object={};
-  for(let i in taskData.varieties){
-    varieties_object[taskData.varieties[i]['id']]=taskData.varieties[i];
-  }
-  const setDetailFields=async ()=>{
-    item.detailFields= {};
-    await systemFunctions.delay(1);
-    let detailFields={}
-    let key='id';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'hidden',
-      values:[item.data[key]],
-    };
-    key='fiscal_year';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'text',
-      values:[item.data[key]+'-'+(+item.data[key]+1)],
-    };
-    key='season_name';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'text',
-      values:[item.data[key]],
-    };
-    key='part_name';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'text',
-      values:[item.data[key]],
-    };
-    key='area_name';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'text',
-      values:[item.data[key]],
-    };
-    key='territory_name';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'text',
-      values:[item.data[key]],
-    };
-    key='crop_name';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'text',
-      values:[item.data[key]],
-    };
-    key='type_name';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'text',
-      values:[item.data[key]],
-    };
-    key='market_size_total';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'number',
-      values:[item.data[key]],
-    };
-    key='pocket_market';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'text',
-      values:[item.data[key]],
-    };
-    key='dealer_meeting';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'number',
-      values:[item.data[key]],
-    };
-    key='farmer_meeting';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'number',
-      values:[item.data[key]],
-    };
-    key='num_demo';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'number',
-      values:[item.data[key]],
-    };
-    key='created_at';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'date-time',
-      values:[item.data[key]],
-    };
-
-    item.detailFields=detailFields;
-  }
   const getItem=async ()=>{
     await axios.get(taskData.api_url+'/get-item/'+ item.id).then((res)=>{
       if (res.data.error == "") {
-        item.data=res.data.item;
-        setDetailFields();
+        item.data=res.data.data;
+        let rows=[];
+        for(let i=0;i<taskData.crop_types.length;i++){
+          let crop_type=taskData.crop_types[i];
+          let row={};
+          row['id']=crop_type['id'];
+          row['crop_name']=crop_type['crop_name'];
+          row['crop_type_name']=crop_type['name'];
+          rows.push(row);
+        }
+        item.rows=rows;
         item.exists=true;
       }
       else{
@@ -175,7 +114,32 @@
       }
     });
   }
-  item.id=route.params['item_id'];
-  getItem();
+  item.id=route.params['item_id']?route.params['item_id']:'';
+  if(item.id){
+    if(!(taskData.permissions.action_0)){
+      toastFunctions.showAccessDenyMessage();
+    }
+    else{
+      let name=item.id.substring(0,4)+' -- '
+      let season_id=item.id.substring(5,item.id.lastIndexOf('_'));
+      for(let i=0;i<taskData.seasons.length;i++){
+        if(taskData.seasons[i].id==season_id){
+          name+=taskData.seasons[i].name;
+        }
+      }
+      name+=' -- '
+      let territory_id=item.id.substring(item.id.lastIndexOf('_')+1);
+      for(let i=0;i<taskData.location_territories.length;i++){
+        if(taskData.location_territories[i].id==territory_id){
+          name+=taskData.location_territories[i].name;
+        }
+      }
+      item.name=name;
+      getItem();
+    }
+  }
+  else{
+    toastFunctions.showAccessDenyMessage();
+  }
 
 </script>

@@ -52,8 +52,13 @@
     crops:[],
     crop_types:[],
     varieties:[],
+    varieties_competitor_typewise:{},
+    varieties_competitor_typewise_ordered:{},
     pack_sizes :[],
     user_locations:{},
+
+    fiscal_year:globalVariables.current_fiscal_year,
+    season_id:0,
   })
   labels.add([{language:globalVariables.language,file:'tasks'+taskData.api_url+'/labels.js'}])
 
@@ -80,22 +85,51 @@
   watch(route, () => {
     routing();
   })
-
-
-  const getItems=async(pagination)=>{
-    if(globalVariables.loadListData)
-    {
-      await axios.get(taskData.api_url+'/get-items?page='+ pagination.current_page+'&perPage='+ pagination.per_page)
-          .then(res => {
-            if(res.data.error==''){
-              taskData.items= res.data.items;
+  const getItems=async()=>{
+    if(globalVariables.loadListData) {
+      let fiscal_year = $("#fiscal_year").val();
+      let season_id = $("#season_id").val();
+      if (fiscal_year > 0 && season_id > 0) {
+        await axios.get(taskData.api_url + '/get-items/' + fiscal_year + '_' + season_id)
+            .then(res => {
+              let items = {};
+              items['data'] = [];
+              if (res.data.error == '') {
+                for (let i in taskData.location_territories) {
+                  let territoryData = Object.assign({}, taskData.location_territories[i]);
+                  let territory_id = territoryData['id']
+                  if (taskData.user_locations['part_id'] > 0) {
+                    if (taskData.user_locations['part_id'] != territoryData['part_id']) {
+                      continue;
+                    }
+                  }
+                  if (taskData.user_locations['area_id'] > 0) {
+                    if (taskData.user_locations['area_id'] != territoryData['area_id']) {
+                      continue;
+                    }
+                  }
+                  if (taskData.user_locations['territory_id'] > 0) {
+                    if (taskData.user_locations['territory_id'] != territory_id) {
+                      continue;
+                    }
+                  }
+                  territoryData['total_type_entered'] = res.data.items[territory_id] ? res.data.items[territory_id]['total_type_entered'] : 0;
+                  territoryData['total_type_competitor'] = res.data.items[territory_id] ? res.data.items[territory_id]['total_type_competitor'] : 0;
+                  territoryData['total_type_arm'] = res.data.items[territory_id] ? res.data.items[territory_id]['total_type_arm'] : 0;
+                  territoryData['id'] = fiscal_year + '_' + season_id + '_' + territory_id
+                  items['data'].push(territoryData)
+                }
+              } else {
+                toastFunctions.showResponseError(res.data)
+              }
+              items['current_page'] = 1;
+              items['last_page1'] = 1;
+              items['total'] = items['data'].length;
+              taskData.items = items;
               taskData.setFilteredItems();
-            }
-            else{
-              toastFunctions.showResponseError(res.data)
-            }
-            globalVariables.loadListData=false;
-          })
+              globalVariables.loadListData=false;
+            })
+      }
     }
   }
   taskData.setFilteredItems=()=>{
@@ -115,7 +149,8 @@
 
         taskData.crops=res.data.crops;
         taskData.crop_types=res.data.crop_types;
-        taskData.varieties=res.data.varieties;
+        taskData.varieties_competitor_typewise=res.data.varieties_competitor_typewise;
+        taskData.varieties_competitor_typewise_ordered=res.data.varieties_competitor_typewise_ordered;
 
         taskData.seasons=res.data.seasons;
 

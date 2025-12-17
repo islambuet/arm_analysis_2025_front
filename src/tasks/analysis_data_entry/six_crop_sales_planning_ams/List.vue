@@ -142,6 +142,16 @@
         filter:{from:'',to:''},
         class:'col_1'
       };
+      key='total_type_competitor';
+      columns[key]={
+        label: '# Total Types has Competitor',
+        hideable:true,
+        filterable:false,
+        sortable:true,
+        type:'number',
+        filter:{from:'',to:''},
+        class:'col_1'
+      };
       taskData.columns.all=columns
     }
     setColumns();

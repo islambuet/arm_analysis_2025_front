@@ -1,6 +1,6 @@
 export default {
     label_task:{
-        en:"Six Crop Sales Planing",
+        en:"Six Crop Sales Planing (SM)",
         bn:'ব্যবহারকারীরা'
     },
     label_new_task:{
@@ -46,6 +46,10 @@ export default {
     label_num_field_day :{
         en:"# of Field Day",
         bn:'ব্যবহারকারীরা'
+    },
+    label_total_type_entered:{
+        en:"# of types data",
+        bn:"কর্মচারী আইডি"
     },
 
 }

@@ -114,6 +114,7 @@
                     }
                   }
                   territoryData['total_type_entered'] = res.data.items[territory_id] ? res.data.items[territory_id]['total_type_entered'] : 0;
+                  territoryData['total_type_competitor'] = res.data.items[territory_id] ? res.data.items[territory_id]['total_type_competitor'] : 0;
                   territoryData['id'] = fiscal_year + '_' + season_id + '_' + territory_id
                   items['data'].push(territoryData)
                 }

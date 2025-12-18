@@ -54,6 +54,8 @@
     varieties:[],
     varieties_competitor_typewise:{},
     varieties_competitor_typewise_ordered:{},
+    varieties_arm_typewise:{},
+    varieties_arm_typewise_ordered:{},
     pack_sizes :[],
     user_locations:{},
 
@@ -151,6 +153,8 @@
         taskData.crop_types=res.data.crop_types;
         taskData.varieties_competitor_typewise=res.data.varieties_competitor_typewise;
         taskData.varieties_competitor_typewise_ordered=res.data.varieties_competitor_typewise_ordered;
+        taskData.varieties_arm_typewise=res.data.varieties_arm_typewise;
+        taskData.varieties_arm_typewise_ordered=res.data.varieties_arm_typewise_ordered;
 
         taskData.seasons=res.data.seasons;
 

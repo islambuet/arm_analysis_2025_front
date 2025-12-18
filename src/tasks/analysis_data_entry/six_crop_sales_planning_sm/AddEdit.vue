@@ -16,53 +16,59 @@
       <form id="formSaveItem">
         <input type="hidden" name="save_token" id="save_token" :value="new Date().getTime()">
         <input type="hidden" name="id" :value="item.id">
-        <table style="width: 1500px;" class="table table-bordered sticky">
+        <table style="width: 1600px;" class="table table-bordered sticky">
           <thead class="table-active">
             <tr>
               <th style="width: 150px;">{{labels.get('label_crop_name')}}</th>
               <th style="width: 200px;">{{labels.get('label_crop_type_name')}}</th>
               <th style="width: 100px;">Total Market Size</th>
               <th style="width: 200px;">Pocket Market</th>
-              <th style="">Competitors Variety</th>
+              <th style="">Compare Variety</th>
             </tr>
           </thead>
           <tbody class="table-striped table-hover">
             <tr class="row_type" v-for="row in item.rows" :key="'row_'+row.id" :id="'type_'+row.id">
               <td class="col_crop_name">{{row.crop_name}}</td>
               <td class="col_crop_type_name">{{row.crop_type_name}}</td>
-              <td class="col_market_size_total"><input type="text" :name="'items['+row.id+'][market_size_total]'" class="form-control float_positive" :value="item.data[row.id]?item.data[row.id]['market_size_total']:''"></td>
-              <td class="col_pocket_market"><input type="text" :name="'items['+row.id+'][pocket_market]'" class="form-control" :value="item.data[row.id]?item.data[row.id]['pocket_market']:''"></td>
+              <td class="col_market_size_total">{{item.data[row.id]?item.data[row.id]['market_size_total']:''}}</td>
+              <td class="col_pocket_market">{{item.data[row.id]?item.data[row.id]['pocket_market']:''}}</td>
               <td class="col_competitors_info">
-                <table class="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th style="width: 150px">Company</th>
-                      <th style="width: 150px">Variety</th>
-                      <th>Why Recommended</th>
-                      <th style="width: 110px"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-if="item.data[row.id]" v-for="(competitor_varieties_info,variety_id) in item.data[row.id]['competitor_varieties']">
-                      <td>{{ (taskData.varieties_competitor_typewise[row.id] && taskData.varieties_competitor_typewise[row.id][variety_id])?taskData.varieties_competitor_typewise[row.id][variety_id]['competitor_name']:"Other" }}</td>
-                      <td>{{ (taskData.varieties_competitor_typewise[row.id] && taskData.varieties_competitor_typewise[row.id][variety_id])?taskData.varieties_competitor_typewise[row.id][variety_id]['name']:"Other" }}</td>
-                      <td><input type="text" :name="'items['+row.id+'][competitor_varieties]['+variety_id+'][recommended_reason]'" class="form-control input_competitor_recommended_reason" :value="item.data[row.id]['competitor_varieties'][variety_id]?item.data[row.id]['competitor_varieties'][variety_id]['recommended_reason']:''" /></td>
-                      <td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_competitor"><i class="bi bi-dash-circle"></i> Remove </button></td>
-                    </tr>
-                    <tr>
-                      <td colspan="3">
-                        <div class="input-group" >
-                          <select class="form-control sel_competitor_variety">
-                            <option v-if="taskData.varieties_competitor_typewise_ordered[row.id]" v-for="variety in taskData.varieties_competitor_typewise_ordered[row.id]" :value="variety.id">
-                              {{variety.competitor_name+'-'+ variety.name}}
-                            </option>
-                          </select>
-                        </div>
-                      </td>
-                      <td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary btn_add_more_competitor_size"><i class="bi bi-plus-circle"></i> {{labels.get('action_1')}}</button></td>
-                    </tr>
-                  </tbody>
-                </table>
+                <template v-if="item.data[row.id] " v-for="(competitor_varieties_info,variety_id) in item.data[row.id]['competitor_varieties']">
+                  <div class="row">
+                    <div class="col-12">
+                      <div><strong>Company:</strong>{{ (taskData.varieties_competitor_typewise[row.id] && taskData.varieties_competitor_typewise[row.id][variety_id])?taskData.varieties_competitor_typewise[row.id][variety_id]['competitor_name']:"Other" }}  </div>
+                      <div><strong>Variety: </strong>{{ (taskData.varieties_competitor_typewise[row.id] && taskData.varieties_competitor_typewise[row.id][variety_id])?taskData.varieties_competitor_typewise[row.id][variety_id]['name']:"Other" }}</div>
+                      <div><strong>Why Recommended: </strong>{{item.data[row.id]['competitor_varieties'][variety_id]?item.data[row.id]['competitor_varieties'][variety_id]['recommended_reason']:''}}</div>
+                      <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                          <th style="width: 150px">Variety</th>
+                          <th>Why Suggested</th>
+                          <th style="width: 100px">Apporx Qtn</th>
+                          <th style="width: 100px"># Demo</th>
+                          <th style="width: 100px"># Farmer Meeting</th>
+                          <th style="width: 100px"># Dealer Meeting</th>
+                          <th style="width: 110px"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td colspan="6">
+                              <div class="input-group" >
+                                <select class="form-control sel_arm_variety" :id="'sel_arm_variety_'+variety_id">
+                                  <option v-if="taskData.varieties_arm_typewise_ordered[row.id]" v-for="variety in taskData.varieties_arm_typewise_ordered[row.id]" :value="variety.id">
+                                    {{variety.name}}
+                                  </option>
+                                </select>
+                              </div>
+                            </td>
+                            <td><button type="button" :data-competitor-variety-id="variety_id" class="mr-2 mb-2 btn btn-sm bg-gradient-primary btn_add_more_arm_variety"><i class="bi bi-plus-circle"></i> {{labels.get('action_1')}}</button></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </template>
               </td>
             </tr>
           </tbody>
@@ -97,30 +103,32 @@ let item=reactive({
 })
 $(document).ready(async function()
 {
-  $(document).off("click", ".btn_add_more_competitor_size");
-  $(document).on("click",'.btn_add_more_competitor_size',function()
+  $(document).off("click", ".btn_add_more_arm_variety");
+  $(document).on("click",'.btn_add_more_arm_variety',function()
   {
     let row_type_id=$(this).closest('.row_type').attr('id');
     let crop_type_id=row_type_id.substring(5);//after type_
-    let variety_id=$("#"+row_type_id+" .sel_competitor_variety").val();
+    let competitor_variety_id=$(this).attr('data-competitor-variety-id')
+    let arm_variety_id=$("#sel_arm_variety_"+competitor_variety_id).val();
     let variety_name="Other";
-    let competitor_name="Other";
-    if(variety_id>0){
-      variety_name=taskData.varieties_competitor_typewise[crop_type_id][variety_id]['name'];
-      competitor_name=taskData.varieties_competitor_typewise[crop_type_id][variety_id]['competitor_name'];
+    if(arm_variety_id>0){
+      variety_name=taskData.varieties_arm_typewise[crop_type_id][arm_variety_id]['name'];
     }
+    console.log(row_type_id,crop_type_id,competitor_variety_id,arm_variety_id,variety_name)
 
     let html='<tr>';
-    html+=('<td>'+competitor_name+'</td>');
     html+=('<td>'+variety_name+'</td>');
-    html+=('<td><input type="text" name="items['+crop_type_id+'][competitor_varieties]['+variety_id+'][recommended_reason]" class="form-control input_competitor_recommended_reason" /></td>');
-    html+='<td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_competitor"><i class="bi bi-dash-circle"></i> Remove </button></td>';
+    html+=('<td><input type="text" name="items['+crop_type_id+'][arm_varieties]['+competitor_variety_id+']['+arm_variety_id+'][suggested_reason]" class="form-control" /></td>');
+    html+=('<td><input type="text" name="items['+crop_type_id+'][arm_varieties]['+competitor_variety_id+']['+arm_variety_id+'][quantity_sales]" class="form-control float_positive" /></td>');
+    html+=('<td><input type="text" name="items['+crop_type_id+'][arm_varieties]['+competitor_variety_id+']['+arm_variety_id+'][num_demo]" class="form-control integer_positive" /></td>');
+    html+=('<td><input type="text" name="items['+crop_type_id+'][arm_varieties]['+competitor_variety_id+']['+arm_variety_id+'][num_farmer_meeting]" class="form-control integer_positive" /></td>');
+    html+=('<td><input type="text" name="items['+crop_type_id+'][arm_varieties]['+competitor_variety_id+']['+arm_variety_id+'][num_dealer_meeting]" class="form-control integer_positive" /></td>');
+    html+='<td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_arm_variety"><i class="bi bi-dash-circle"></i> Remove </button></td>';
     html+='</tr>';
     $(this).closest("tr").before(html);
   })
-  $(document).off("click", ".btn_remove_competitor");
-  $(document).on("click",'.btn_remove_competitor',function(){
-    let row_type_id=$(this).closest('.row_type').attr('id');
+  $(document).off("click", ".btn_remove_arm_variety");
+  $(document).on("click",'.btn_remove_arm_variety',function(){
     $(this).closest('tr').remove();
   });
 

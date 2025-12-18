@@ -54,6 +54,8 @@
     varieties:[],
     varieties_competitor_typewise:{},
     varieties_competitor_typewise_ordered:{},
+    varieties_arm_typewise:{},
+    varieties_arm_typewise_ordered:{},
     pack_sizes :[],
     user_locations:{},
 
@@ -115,6 +117,7 @@
                   }
                   territoryData['total_type_entered'] = res.data.items[territory_id] ? res.data.items[territory_id]['total_type_entered'] : 0;
                   territoryData['total_type_competitor'] = res.data.items[territory_id] ? res.data.items[territory_id]['total_type_competitor'] : 0;
+                  territoryData['total_type_arm'] = res.data.items[territory_id] ? res.data.items[territory_id]['total_type_arm'] : 0;
                   territoryData['id'] = fiscal_year + '_' + season_id + '_' + territory_id
                   items['data'].push(territoryData)
                 }
@@ -150,6 +153,8 @@
         taskData.crop_types=res.data.crop_types;
         taskData.varieties_competitor_typewise=res.data.varieties_competitor_typewise;
         taskData.varieties_competitor_typewise_ordered=res.data.varieties_competitor_typewise_ordered;
+        taskData.varieties_arm_typewise=res.data.varieties_arm_typewise;
+        taskData.varieties_arm_typewise_ordered=res.data.varieties_arm_typewise_ordered;
 
         taskData.seasons=res.data.seasons;
 

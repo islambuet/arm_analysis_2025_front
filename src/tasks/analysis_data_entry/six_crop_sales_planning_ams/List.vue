@@ -140,7 +140,7 @@
         sortable:true,
         type:'number',
         filter:{from:'',to:''},
-        class:'col_1'
+        class:'col_5'
       };
       key='total_type_competitor';
       columns[key]={
@@ -150,7 +150,17 @@
         sortable:true,
         type:'number',
         filter:{from:'',to:''},
-        class:'col_1'
+        class:'col_5'
+      };
+      key='total_type_arm';
+      columns[key]={
+        label: '# Total Types has ARM Variety',
+        hideable:true,
+        filterable:false,
+        sortable:true,
+        type:'number',
+        filter:{from:'',to:''},
+        class:'col_5'
       };
       taskData.columns.all=columns
     }

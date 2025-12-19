@@ -33,12 +33,12 @@
               <td class="col_market_size_total">{{item.data[row.id]?item.data[row.id]['market_size_total']:''}}</td>
               <td class="col_pocket_market">{{item.data[row.id]?item.data[row.id]['pocket_market']:''}}</td>
               <td class="col_competitors_info">
-                <template v-if="item.data[row.id] " v-for="(competitor_varieties_info,variety_id) in item.data[row.id]['competitor_varieties']">
+                <template v-if="item.data[row.id] " v-for="(competitor_varieties_info,competitor_variety_id) in item.data[row.id]['competitor_varieties']">
                   <div class="row">
                     <div class="col-12">
-                      <div><strong>Company:</strong>{{ (taskData.varieties_competitor_typewise[row.id] && taskData.varieties_competitor_typewise[row.id][variety_id])?taskData.varieties_competitor_typewise[row.id][variety_id]['competitor_name']:"Other" }}  </div>
-                      <div><strong>Variety: </strong>{{ (taskData.varieties_competitor_typewise[row.id] && taskData.varieties_competitor_typewise[row.id][variety_id])?taskData.varieties_competitor_typewise[row.id][variety_id]['name']:"Other" }}</div>
-                      <div><strong>Why Recommended: </strong>{{item.data[row.id]['competitor_varieties'][variety_id]?item.data[row.id]['competitor_varieties'][variety_id]['recommended_reason']:''}}</div>
+                      <div><strong>Company:</strong>{{ (taskData.varieties_competitor_typewise[row.id] && taskData.varieties_competitor_typewise[row.id][competitor_variety_id])?taskData.varieties_competitor_typewise[row.id][competitor_variety_id]['competitor_name']:"Other" }}  </div>
+                      <div><strong>Variety: </strong>{{ (taskData.varieties_competitor_typewise[row.id] && taskData.varieties_competitor_typewise[row.id][competitor_variety_id])?taskData.varieties_competitor_typewise[row.id][competitor_variety_id]['name']:"Other" }}</div>
+                      <div><strong>Why Recommended: </strong>{{item.data[row.id]['competitor_varieties'][competitor_variety_id]?item.data[row.id]['competitor_varieties'][competitor_variety_id]['recommended_reason']:''}}</div>
                       <table class="table table-bordered">
                         <thead>
                         <tr>
@@ -52,17 +52,27 @@
                         </tr>
                         </thead>
                         <tbody>
+                        <tr v-if="item.data[row.id]['arm_varieties'] && item.data[row.id]['arm_varieties'][competitor_variety_id]" v-for="(arm_varieties_info,arm_variety_id) in item.data[row.id]['arm_varieties'][competitor_variety_id]">
+                          <td>{{ (taskData.varieties_arm_typewise[row.id] && taskData.varieties_arm_typewise[row.id][arm_variety_id])?taskData.varieties_arm_typewise[row.id][arm_variety_id]['name']:"Other" }}</td>
+                          <td><input type="text" :name="'items['+[row.id]+'][arm_varieties]['+competitor_variety_id+']['+arm_variety_id+'][suggested_reason]'" :value="arm_varieties_info['suggested_reason']" class="form-control" /></td>
+                          <td><input type="text" :name="'items['+[row.id]+'][arm_varieties]['+competitor_variety_id+']['+arm_variety_id+'][quantity_sales]'" :value="arm_varieties_info['quantity_sales']" class="form-control" /></td>
+                          <td><input type="text" :name="'items['+[row.id]+'][arm_varieties]['+competitor_variety_id+']['+arm_variety_id+'][num_demo]'" :value="arm_varieties_info['num_demo']" class="form-control" /></td>
+                          <td><input type="text" :name="'items['+[row.id]+'][arm_varieties]['+competitor_variety_id+']['+arm_variety_id+'][num_farmer_meeting]'" :value="arm_varieties_info['num_farmer_meeting']" class="form-control" /></td>
+                          <td><input type="text" :name="'items['+[row.id]+'][arm_varieties]['+competitor_variety_id+']['+arm_variety_id+'][num_dealer_meeting]'" :value="arm_varieties_info['num_dealer_meeting']" class="form-control" /></td>
+                          <td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_arm_variety"><i class="bi bi-dash-circle"></i> Remove </button></td>
+
+                        </tr>
                           <tr>
                             <td colspan="6">
                               <div class="input-group" >
-                                <select class="form-control sel_arm_variety" :id="'sel_arm_variety_'+variety_id">
+                                <select class="form-control sel_arm_variety" :id="'sel_arm_variety_'+competitor_variety_id">
                                   <option v-if="taskData.varieties_arm_typewise_ordered[row.id]" v-for="variety in taskData.varieties_arm_typewise_ordered[row.id]" :value="variety.id">
                                     {{variety.name}}
                                   </option>
                                 </select>
                               </div>
                             </td>
-                            <td><button type="button" :data-competitor-variety-id="variety_id" class="mr-2 mb-2 btn btn-sm bg-gradient-primary btn_add_more_arm_variety"><i class="bi bi-plus-circle"></i> {{labels.get('action_1')}}</button></td>
+                            <td><button type="button" :data-competitor-variety-id="competitor_variety_id" class="mr-2 mb-2 btn btn-sm bg-gradient-primary btn_add_more_arm_variety"><i class="bi bi-plus-circle"></i> {{labels.get('action_1')}}</button></td>
                           </tr>
                         </tbody>
                       </table>
@@ -114,7 +124,6 @@ $(document).ready(async function()
     if(arm_variety_id>0){
       variety_name=taskData.varieties_arm_typewise[crop_type_id][arm_variety_id]['name'];
     }
-    console.log(row_type_id,crop_type_id,competitor_variety_id,arm_variety_id,variety_name)
 
     let html='<tr>';
     html+=('<td>'+variety_name+'</td>');

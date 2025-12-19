@@ -1,18 +1,18 @@
 export default {
     label_task:{
-        en:"Six Crop Sales Planing (SM)",
+        en:"Six Crop Sales Planning (SM)",
         bn:'ব্যবহারকারীরা'
     },
     label_new_task:{
-        en:"New Six Crop Sales Planing",
+        en:"New Six Crop Sales Planning",
         bn:'নতুন ব্যবহারকারী'
     },
     label_edit_task:{
-        en:"Edit Six Crop Sales Planing",
+        en:"Edit Six Crop Sales Planning",
         bn:'সম্পাদনা ব্যবহারকারী'
     },
     label_details_task:{
-        en:"Details of Six Crop Sales Planing",
+        en:"Details of Six Crop Sales Planning",
         bn:'ব্যবহারকারীর বিবরণ'
     },
     label_market_size_total :{

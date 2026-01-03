@@ -6,9 +6,6 @@
     <div v-if="taskData.method=='add'">
       <AddEdit/>
     </div>
-    <div v-if="taskData.method=='upload'">
-      <Upload/>
-    </div>
     <div v-if="taskData.method=='edit'">
       <AddEdit/>
     </div>
@@ -29,7 +26,6 @@
   import List from './List.vue'
   import AddEdit from './AddEdit.vue'
   import Details from './Details.vue'
-  import Upload from './Upload.vue'
 
   globalVariables.loadListData=true;
   const route =useRoute()
@@ -91,22 +87,51 @@
   watch(route, () => {
     routing();
   })
-
-
-  const getItems=async(pagination)=>{
-    if(globalVariables.loadListData)
-    {
-      await axios.get(taskData.api_url+'/get-items?page='+ pagination.current_page+'&perPage='+ pagination.per_page)
-          .then(res => {
-            if(res.data.error==''){
-              taskData.items= res.data.items;
+  const getItems=async()=>{
+    if(globalVariables.loadListData) {
+      let fiscal_year = $("#fiscal_year").val();
+      let season_id = $("#season_id").val();
+      if (fiscal_year > 0 && season_id > 0) {
+        await axios.get(taskData.api_url + '/get-items/' + fiscal_year + '_' + season_id)
+            .then(res => {
+              let items = {};
+              items['data'] = [];
+              if (res.data.error == '') {
+                for (let i in taskData.location_territories) {
+                  let territoryData = Object.assign({}, taskData.location_territories[i]);
+                  let territory_id = territoryData['id']
+                  if (taskData.user_locations['part_id'] > 0) {
+                    if (taskData.user_locations['part_id'] != territoryData['part_id']) {
+                      continue;
+                    }
+                  }
+                  if (taskData.user_locations['area_id'] > 0) {
+                    if (taskData.user_locations['area_id'] != territoryData['area_id']) {
+                      continue;
+                    }
+                  }
+                  if (taskData.user_locations['territory_id'] > 0) {
+                    if (taskData.user_locations['territory_id'] != territory_id) {
+                      continue;
+                    }
+                  }
+                  territoryData['total_type_entered'] = res.data.items[territory_id] ? res.data.items[territory_id]['total_type_entered'] : 0;
+                  territoryData['total_type_competitor'] = res.data.items[territory_id] ? res.data.items[territory_id]['total_type_competitor'] : 0;
+                  territoryData['total_type_arm'] = res.data.items[territory_id] ? res.data.items[territory_id]['total_type_arm'] : 0;
+                  territoryData['id'] = fiscal_year + '_' + season_id + '_' + territory_id
+                  items['data'].push(territoryData)
+                }
+              } else {
+                toastFunctions.showResponseError(res.data)
+              }
+              items['current_page'] = 1;
+              items['last_page1'] = 1;
+              items['total'] = items['data'].length;
+              taskData.items = items;
               taskData.setFilteredItems();
-            }
-            else{
-              toastFunctions.showResponseError(res.data)
-            }
-            globalVariables.loadListData=false;
-          })
+              globalVariables.loadListData=false;
+            })
+      }
     }
   }
   taskData.setFilteredItems=()=>{
@@ -123,7 +148,6 @@
         taskData.location_parts=res.data.location_parts;
         taskData.location_areas=res.data.location_areas;
         taskData.location_territories=res.data.location_territories;
-        taskData.seasons=res.data.seasons;
 
         taskData.crops=res.data.crops;
         taskData.crop_types=res.data.crop_types;
@@ -132,6 +156,7 @@
         taskData.varieties_arm_typewise=res.data.varieties_arm_typewise;
         taskData.varieties_arm_typewise_ordered=res.data.varieties_arm_typewise_ordered;
 
+        taskData.seasons=res.data.seasons;
 
         taskData.user_locations=res.data.user_locations;
         if(res.data.hidden_columns){

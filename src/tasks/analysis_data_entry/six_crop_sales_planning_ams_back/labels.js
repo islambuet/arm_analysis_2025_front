@@ -51,9 +51,5 @@ export default {
         en:"# of types data",
         bn:"কর্মচারী আইডি"
     },
-    label_total_crop_entered:{
-        en:"# of Crop data",
-        bn:"কর্মচারী আইডি"
-    },
 
 }

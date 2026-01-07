@@ -20,7 +20,7 @@
             <tr>
               <th style="width: 200px;">{{labels.get('label_crop_type_name')}}</th>
               <th style="width: 100px;">Total Market Size</th>
-              <th style="width: 400px;">Pocket Market</th>
+              <th style="width: 600px;">Pocket Market</th>
               <th style="">Competitors Variety</th>
             </tr>
             </thead>
@@ -40,10 +40,15 @@
                   </thead>
                   <tbody>
 
-                  <template v-if="item.data[row.id] && item.data[row.id]['pocket_market_unions'].length>1" v-for="union in item.location_unions" >
-                    <tr v-if="item.data[row.id]['pocket_market_unions'].includes(','+union['id']+',')">
-                      <td>{{item.location_upazilas[union['upazila_id']]?item.location_upazilas[union['upazila_id']]['name']:'NF'}}</td>
-                      <td><input type="hidden" :name="'items['+row.id+'][pocket_market_unions][]'" :value="union['id']" />{{union['name']}}</td>
+                  <template v-if="item.data[row.id]" v-for="(union_ids,upazila_id) in item.data[row.id]['pocket_market']" >
+                    <tr>
+                      <td>{{item.location_upazilas[upazila_id]?item.location_upazilas[upazila_id]['name']:'NF'}}</td>
+                      <td>
+                        <template v-for="union_id in union_ids">
+                          <input type="hidden" :name="'items['+row.id+'][pocket_market_unions][]'" :value="union_id" />
+                          {{item.location_unions[union_id]?item.location_unions[union_id]['name']:'NF'}}<br>
+                        </template>
+                      </td>
                       <td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_union"><i class="bi bi-dash-circle"></i> Remove </button></td>
                     </tr>
 
@@ -60,9 +65,7 @@
                       </div>
                     </td>
                     <td>
-                      <div class="input-group" >
-                        <select class="form-control sel_union">
-                        </select>
+                      <div class="input-group div_sel_union">
                       </div>
                     </td>
                     <td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary btn_add_more_union"><i class="bi bi-plus-circle"></i> {{labels.get('action_1')}}</button></td>
@@ -76,7 +79,7 @@
                   <tr>
                     <th style="width: 150px">Company</th>
                     <th style="width: 150px">Variety</th>
-                    <th>Why Recommended</th>
+                    <th>Reason</th>
                     <th style="width: 110px"></th>
                   </tr>
                   </thead>
@@ -385,51 +388,61 @@ $(document).ready(async function()
 
 
   $(document).off("change", ".sel_upazila");
-  $(document).on("change",'.sel_upazila',function()
+  $(document).on("change",'.sel_upazila',async function()
   {
     let row_type_id=$(this).closest('.row_type').attr('id');
     let upazila_id=$(this).val();
-    let html='<option value="0">All Unions</option>';
-    for(let index in item.location_upazilas[upazila_id]['unions']){
-      let union=item.location_upazilas[upazila_id]['unions'][index];
-      html+=('<option value="'+union['id']+'">'+union['name']+'</option>');
+    if(upazila_id>0){
+      let html='<select class="form-control sel_union" multiple>';
+      for(let index in item.location_upazilas[upazila_id]['unions']){
+        let union=item.location_upazilas[upazila_id]['unions'][index];
+        html+=('<option value="'+union['id']+'">'+union['name']+'</option>');
+      }
+      html+='</select>';
+      $('#'+row_type_id+' .div_sel_union').html(html)
+      await systemFunctions.delay(1);
+      $('#'+row_type_id+' .sel_union').multiselect({
+        buttonText: function(options, select) {
+          return options.length + ' selected';;
+        },
+      });
     }
-    $('#'+row_type_id+' .sel_union').html(html)
+    else{
+      $('#'+row_type_id+' .div_sel_union').html('')
+    }
+
+
   })
   $(document).off("click", ".btn_add_more_union");
   $(document).on("click",'.btn_add_more_union',function()
   {
     let row_type_id=$(this).closest('.row_type').attr('id');
     let crop_type_id=row_type_id.substring(5);//after type_
-    let union_id=$("#"+row_type_id+" .sel_union").val();
-    if(union_id>0)
-    {
-      let union_name=item.location_unions[union_id]['name']
-      let upazila_name=item.location_upazilas[item.location_unions[union_id]['upazila_id']]['name'];
-      let html='<tr>';
-      html+=('<td>'+upazila_name+'</td>');
-      html+=('<td><input type="hidden" name="items['+crop_type_id+'][pocket_market_unions][]" value="'+union_id+'" />'+union_name+'</td>');
-      html+='</td>';
-      html+='<td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_union"><i class="bi bi-dash-circle"></i> Remove </button></td>';
-      html+='</tr>';
-      $(this).closest("tr").before(html);
-    }
-    else{
-      let upazila_id=$("#"+row_type_id+" .sel_upazila").val();
-      let upazila_name=item.location_upazilas[upazila_id]['name'];
-      for(let index in item.location_upazilas[upazila_id]['unions']){
-        let union=item.location_upazilas[upazila_id]['unions'][index];
+    let union_ids=$("#"+row_type_id+" .sel_union").val();
+    if(union_ids && union_ids.length>0){
+      if(union_ids.length>3){
+        alert('Please select maximum 3')
+      }
+      else{
+        let upazila_name='';
+        let union_names='';
+
+        for(let index in union_ids){
+          let union_id=union_ids[index];
+          union_names+=('<input type="hidden" name="items['+crop_type_id+'][pocket_market_unions][]" value="'+union_id+'" />'+item.location_unions[union_id]['name']+'</br>')
+          upazila_name=item.location_upazilas[item.location_unions[union_id]['upazila_id']]['name'];
+        }
         let html='<tr>';
         html+=('<td>'+upazila_name+'</td>');
-        html+=('<td><input type="hidden" name="items['+crop_type_id+'][pocket_market_unions][]" value="'+union['id']+'" />'+union['name']+'</td>');
-        html+='</td>';
+        html+=('<td>'+union_names+'</td>');
         html+='<td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_union"><i class="bi bi-dash-circle"></i> Remove </button></td>';
         html+='</tr>';
         $(this).closest("tr").before(html);
 
+        $('#'+row_type_id+' .div_sel_union').html('')
+        $("#"+row_type_id+" .sel_upazila").val(0);
       }
     }
-
   })
   $(document).off("click", ".btn_remove_union");
   $(document).on("click",'.btn_remove_union',function(){

@@ -15,7 +15,7 @@
             <th style="width: 150px;">{{labels.get('label_crop_name')}}</th>
             <th style="width: 200px;">{{labels.get('label_crop_type_name')}}</th>
             <th style="width: 100px;">Total Market Size</th>
-            <th style="width: 400px;">Pocket Market</th>
+            <th style="width: 200px;">Pocket Market</th>
             <th style="">Compare Variety</th>
           </tr>
           </thead>
@@ -23,25 +23,8 @@
           <tr class="row_type" v-for="row in item.rows" :key="'row_'+row.id" :id="'type_'+row.id">
             <td class="col_crop_name">{{row.crop_name}}</td>
             <td class="col_crop_type_name">{{row.crop_type_name}}</td>
-            <td class="col_market_size_total">{{item.market_size_territory[row.id]?item.market_size_territory[row.id]['market_size_total']:''}}</td>
-            <td class="col_pocket_market">
-              <table class="table table-bordered">
-                <thead>
-                <tr>
-                  <th style="width: 150px">Upazilla</th>
-                  <th style="">Union</th>
-                </tr>
-                </thead>
-                <tbody>
-                <template v-if="item.data[row.id] && item.data[row.id]['pocket_market_unions'].length>1" v-for="union in item.location_unions" >
-                  <tr v-if="item.data[row.id]['pocket_market_unions'].includes(','+union['id']+',')">
-                    <td>{{item.location_upazilas[union['upazila_id']]?item.location_upazilas[union['upazila_id']]['name']:'NF'}}</td>
-                    <td>{{union['name']}}</td>
-                  </tr>
-                </template>
-                </tbody>
-              </table>
-            </td>
+            <td class="col_market_size_total">{{item.data[row.id]?item.data[row.id]['market_size_total']:''}}</td>
+            <td class="col_pocket_market">{{item.data[row.id]?item.data[row.id]['pocket_market']:''}}</td>
             <td class="col_competitors_info">
               <template v-if="item.data[row.id] " v-for="(competitor_varieties_info,competitor_variety_id) in item.data[row.id]['competitor_varieties']">
                 <div class="row">
@@ -103,26 +86,16 @@ let item=reactive({
   id:'',
   name:'',
   exists:false,
-  location_upazilas:{},
-  location_upazilas_ordered: {},
-  location_unions: {},
-  market_size_territory:{},
   data:{},
   rows:[]
 })
 const getItem=async ()=>{
   await axios.get(taskData.api_url+'/get-item/'+ item.id).then((res)=>{
     if (res.data.error == "") {
-      item.location_upazilas=res.data.location_upazilas;
-      item.location_upazilas_ordered=res.data.location_upazilas_ordered;
-      item.location_unions=res.data.location_unions;
-      item.market_size_territory=res.data.market_size_territory;
       item.data=res.data.data;
       let rows=[];
       for(let i=0;i<taskData.crop_types.length;i++){
         let crop_type=taskData.crop_types[i];
-        if(!item.data[crop_type['id']])
-          continue;
         let row={};
         row['id']=crop_type['id'];
         row['crop_name']=crop_type['crop_name'];

@@ -1,4 +1,4 @@
-<template>    
+<template>
   <div class="card d-print-none mb-2">
     <div class="card-body">
       <div class="row mb-2">
@@ -31,6 +31,15 @@
       </div>
     </div>
   </div>
+    <div class="card d-print-none mb-2">
+        <div class="card-body">
+            <button type="button" v-if="taskData.permissions.action_4" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" onclick="window.print();"><i class="feather icon-printer"></i> {{labels.get('action_4')}}</button>
+            <button type="button" v-if="taskData.permissions.action_5" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="systemFunctions.exportCsv(taskData.columns,taskData.itemsFiltered,'Distributors Sales.csv')"><i class="feather icon-download"></i> {{labels.get('action_5')}}</button>
+            <button type="button" v-if="taskData.permissions.action_8" class="mr-2 mb-2 btn btn-sm" :class="[show_column_controls?'bg-gradient-success':'bg-gradient-primary']" @click="show_column_controls = !show_column_controls"><i class="feather icon-command"></i> {{labels.get('action_8')}}</button>
+            <button type="button" v-if="taskData.permissions.action_0" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="taskData.reloadItems(taskData.pagination)"><i class="feather icon-rotate-cw"></i> {{labels.get('label_refresh')}}</button>
+        </div>            
+    </div>
+  <ColumnControl :url="taskData.api_url.substring(1)" :columns="taskData.columns"  v-if="show_column_controls"/>
   <div class="card mb-2">
     <div class="card-header d-print-none">
       {{labels.get('label_task')}}
@@ -56,8 +65,8 @@
           <td class="col_1 d-print-none">
             <button class="btn btn-sm bg-gradient-primary dropdown-toggle waves-effect waves-light" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{labels.get('label_action')}}</button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0; left: 0; transform: translate3d(0px, 38px, 0px);">
-              <router-link v-if="taskData.permissions.action_2"  :to="taskData.api_url+'/edit/'+item.id" class="dropdown-item text-info btn-sm" ><i class="feather icon-edit"></i> {{labels.get('label_edit')}}</router-link>
-              <router-link v-if="taskData.permissions.action_0"  :to="taskData.api_url+'/details/'+item.id" class="dropdown-item text-info btn-sm" ><i class="feather icon-camera"></i> {{labels.get('label_details')}}</router-link>
+              <router-link v-if="taskData.permissions.action_2"  :to="taskData.api_url+'/edit/'+(item.fiscal_year+'_'+item.season_id+'_'+item.territory_id)" class="dropdown-item text-info btn-sm" ><i class="feather icon-edit"></i> {{labels.get('label_edit')}}</router-link>
+              <router-link v-if="taskData.permissions.action_0"  :to="taskData.api_url+'/details/'+(item.fiscal_year+'_'+item.season_id+'_'+item.territory_id)" class="dropdown-item text-info btn-sm" ><i class="feather icon-camera"></i> {{labels.get('label_details')}}</router-link>
             </div>
           </td>
           <template v-for="(column,key) in taskData.columns.all">
@@ -89,19 +98,11 @@
     import ColumnFilter from '@/components/ColumnFilter.vue';
     import Pagination from '@/components/Pagination.vue';
     import globalVariables from "@/assets/globalVariables";
-    import axios from "axios";
-    import toastFunctions from "@/assets/toastFunctions";
 
 
     const router =useRouter()
     let taskData = inject('taskData')
     let show_column_controls=ref(false)
-    for (let i in taskData.seasons){
-      if(taskData.seasons[i]['month_'+globalVariables.current_month]==1){
-        taskData.season_id=taskData.seasons[i].id;
-        break;
-      }
-    }
     const setColumns=()=>{
       let columns={}
       let key='part_name';
@@ -122,16 +123,25 @@
         type:'text',
         filter:{from:'',to:''}
       };
-      key='name';
+      key='territory_name';
       columns[key]={
-        label: labels.get('label_territory_'+key),
+        label: labels.get('label_'+key),
         hideable:true,
         filterable:true,
         sortable:true,
         type:'text',
         filter:{from:'',to:''}
       };
-
+      key='total_crop_entered';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:false,
+        sortable:true,
+        type:'number',
+        filter:{from:'',to:''},
+        class:'col_5'
+      };
       key='total_type_entered';
       columns[key]={
         label: labels.get('label_'+key),
@@ -162,6 +172,9 @@
         filter:{from:'',to:''},
         class:'col_5'
       };
+
+
+
       taskData.columns.all=columns
     }
     setColumns();
@@ -170,13 +183,11 @@
       $(document).off("change", "#fiscal_year");
       $(document).on("change",'#fiscal_year',async function()
       {
-        console.log('called fiscal_year')
         taskData.reloadItems();
       })
       $(document).off("change", "#season_id");
       $(document).on("change",'#season_id',async function()
       {
-        console.log('called season_id')
         taskData.reloadItems();
       })
       taskData.reloadItems();//For first time dropdown

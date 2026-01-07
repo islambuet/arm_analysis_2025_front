@@ -1,6 +1,6 @@
 export default {
     label_task:{
-        en:"Six Crop Sales Planning (AMS)",
+        en:"Six Crop Sales Planning (SM)",
         bn:'ব্যবহারকারীরা'
     },
     label_new_task:{
@@ -49,10 +49,6 @@ export default {
     },
     label_total_type_entered:{
         en:"# of types data",
-        bn:"কর্মচারী আইডি"
-    },
-    label_total_crop_entered:{
-        en:"# of Crop data",
         bn:"কর্মচারী আইডি"
     },
 

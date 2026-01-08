@@ -22,7 +22,7 @@
               <th style="width: 150px;">{{labels.get('label_crop_name')}}</th>
               <th style="width: 200px;">{{labels.get('label_crop_type_name')}}</th>
               <th style="width: 100px;">Total Market Size</th>
-              <th style="width: 450px;">Pocket Market</th>
+              <th style="width: 400px;">Pocket Market</th>
               <th style="">Competitors Variety</th>
             </tr>
           </thead>
@@ -59,32 +59,35 @@
                     <div class="col-12">
                       <div><strong>Company:</strong>{{ (taskData.varieties_competitor_typewise[row.id] && taskData.varieties_competitor_typewise[row.id][competitor_variety_id])?taskData.varieties_competitor_typewise[row.id][competitor_variety_id]['competitor_name']:"Other" }}  </div>
                       <div><strong>Variety: </strong>{{ (taskData.varieties_competitor_typewise[row.id] && taskData.varieties_competitor_typewise[row.id][competitor_variety_id])?taskData.varieties_competitor_typewise[row.id][competitor_variety_id]['name']:"Other" }}</div>
-                      <div><strong>Why Recommended: </strong>{{item.data[row.id]['competitor_varieties'][competitor_variety_id]?item.data[row.id]['competitor_varieties'][competitor_variety_id]['recommended_reason']:''}}</div>
+                      <div><strong>Reason: </strong>{{item.data[row.id]['competitor_varieties'][competitor_variety_id]?item.data[row.id]['competitor_varieties'][competitor_variety_id]['recommended_reason']:''}}</div>
                       <table class="table table-bordered">
                         <thead>
                         <tr>
                           <th style="width: 150px">Variety</th>
                           <th>Recommendation</th>
-                          <th style="width: 100px">Apporx Qtn</th>
-                          <th style="width: 100px"># Demo</th>
-                          <th style="width: 100px"># Farmer Meeting</th>
-                          <th style="width: 100px"># Dealer Meeting</th>
+                          <template v-for="m in 12">
+                            <th style="width: 100px" v-if="item.season['month_'+m]">{{ labels.get('label_month_short_'+m) }}</th>
+                          </template>
+                          <th style="width: 150px">Total Qtn</th>
                           <th style="width: 110px"></th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr v-if="item.data[row.id]['arm_varieties'] && item.data[row.id]['arm_varieties'][competitor_variety_id]" v-for="(arm_varieties_info,arm_variety_id) in item.data[row.id]['arm_varieties'][competitor_variety_id]">
-                          <td>{{ (taskData.varieties_arm_typewise[row.id] && taskData.varieties_arm_typewise[row.id][arm_variety_id])?taskData.varieties_arm_typewise[row.id][arm_variety_id]['name']:"Other" }}</td>
+                          <td>{{ (taskData.varieties_arm_typewise[row.id] && taskData.varieties_arm_typewise[row.id][arm_variety_id])?taskData.varieties_arm_typewise[row.id][arm_variety_id]['name']:"NF" }}</td>
                           <td><input type="text" :name="'items['+[row.id]+'][arm_varieties]['+competitor_variety_id+']['+arm_variety_id+'][suggested_reason]'" :value="arm_varieties_info['suggested_reason']" class="form-control" /></td>
-                          <td><input type="text" :name="'items['+[row.id]+'][arm_varieties]['+competitor_variety_id+']['+arm_variety_id+'][quantity_sales]'" :value="arm_varieties_info['quantity_sales']" class="form-control" /></td>
-                          <td><input type="text" :name="'items['+[row.id]+'][arm_varieties]['+competitor_variety_id+']['+arm_variety_id+'][num_demo]'" :value="arm_varieties_info['num_demo']" class="form-control" /></td>
-                          <td><input type="text" :name="'items['+[row.id]+'][arm_varieties]['+competitor_variety_id+']['+arm_variety_id+'][num_farmer_meeting]'" :value="arm_varieties_info['num_farmer_meeting']" class="form-control" /></td>
-                          <td><input type="text" :name="'items['+[row.id]+'][arm_varieties]['+competitor_variety_id+']['+arm_variety_id+'][num_dealer_meeting]'" :value="arm_varieties_info['num_dealer_meeting']" class="form-control" /></td>
+                          <template v-for="m in 12">
+                            <td v-if="item.season['month_'+m]">
+                              <input type="text" :name="'items['+[row.id]+'][arm_varieties]['+competitor_variety_id+']['+arm_variety_id+'][quantity_month_'+m+']'" :value="arm_varieties_info['quantity_month_'+m]" class="form-control float_positive quantity_month" @input="sumMonthQuantity($event)" />
+                            </td>
+                          </template>
+
+                          <td><input type="text" :name="'items['+[row.id]+'][arm_varieties]['+competitor_variety_id+']['+arm_variety_id+'][quantity_total]'" readonly :value="arm_varieties_info['quantity_total']" class="form-control float_positive quantity_total" /></td>
                           <td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_arm_variety"><i class="bi bi-dash-circle"></i> Remove </button></td>
 
                         </tr>
                           <tr>
-                            <td colspan="6">
+                            <td :colspan="item.num_months+3">
                               <div class="input-group" >
                                 <select class="form-control sel_arm_variety" :id="'sel_arm_variety_'+competitor_variety_id">
                                   <option v-if="taskData.varieties_arm_typewise_ordered[row.id]" v-for="variety in taskData.varieties_arm_typewise_ordered[row.id]" :value="variety.id">
@@ -133,9 +136,20 @@ let item=reactive({
   location_upazilas_ordered: {},
   location_unions: {},
   market_size_territory:{},
+  season:{},
+  num_months:0,
   data:{},
   rows:[]
 })
+const sumMonthQuantity=(event)=>{
+  let total=0;
+  $(event.target).closest('tr').find('.quantity_month').each(function ()
+  {
+    total+=(+$(this).val());
+  })
+  $(event.target).closest('tr').find('.quantity_total').val(total.toFixed(3))
+
+}
 $(document).ready(async function()
 {
   $(document).off("click", ".btn_add_more_arm_variety");
@@ -153,13 +167,19 @@ $(document).ready(async function()
     let html='<tr>';
     html+=('<td>'+variety_name+'</td>');
     html+=('<td><input type="text" name="items['+crop_type_id+'][arm_varieties]['+competitor_variety_id+']['+arm_variety_id+'][suggested_reason]" class="form-control" /></td>');
-    html+=('<td><input type="text" name="items['+crop_type_id+'][arm_varieties]['+competitor_variety_id+']['+arm_variety_id+'][quantity_sales]" class="form-control float_positive" /></td>');
-    html+=('<td><input type="text" name="items['+crop_type_id+'][arm_varieties]['+competitor_variety_id+']['+arm_variety_id+'][num_demo]" class="form-control integer_positive" /></td>');
-    html+=('<td><input type="text" name="items['+crop_type_id+'][arm_varieties]['+competitor_variety_id+']['+arm_variety_id+'][num_farmer_meeting]" class="form-control integer_positive" /></td>');
-    html+=('<td><input type="text" name="items['+crop_type_id+'][arm_varieties]['+competitor_variety_id+']['+arm_variety_id+'][num_dealer_meeting]" class="form-control integer_positive" /></td>');
+    for(let m=1;m<13;m++){
+      if(item.season['month_'+m]){
+        html+=('<td><input type="text" name="items['+crop_type_id+'][arm_varieties]['+competitor_variety_id+']['+arm_variety_id+'][quantity_month_'+m+']" class="form-control float_positive quantity_month"/></td>');
+      }
+    }
+    html+=('<td><input type="text" name="items['+crop_type_id+'][arm_varieties]['+competitor_variety_id+']['+arm_variety_id+'][quantity_total]" readonly class="form-control float_positive quantity_total" /></td>');
     html+='<td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_arm_variety"><i class="bi bi-dash-circle"></i> Remove </button></td>';
     html+='</tr>';
-    $(this).closest("tr").before(html);
+    let html_elm=$(html);
+    html_elm.find('.quantity_month').each(function (){
+      $(this).on('input',sumMonthQuantity)
+    })
+    $(this).closest("tr").before(html_elm);
   })
   $(document).off("click", ".btn_remove_arm_variety");
   $(document).on("click",'.btn_remove_arm_variety',function(){
@@ -167,6 +187,7 @@ $(document).ready(async function()
   });
 
 });
+
 const save=async (save_and_new)=>{
   let formData=new FormData(document.getElementById('formSaveItem'))
   await axios.post(taskData.api_url+'/save-item',formData).then((res)=>{
@@ -225,6 +246,12 @@ if(item.id){
     let season_id=item.id.substring(5,item.id.lastIndexOf('_'));
     for(let i=0;i<taskData.seasons.length;i++){
       if(taskData.seasons[i].id==season_id){
+        item.season=taskData.seasons[i]
+        for(let m=1;m<13;m++){
+          if(item.season['month_'+m]){
+            item.num_months++;
+          }
+        }
         name+=taskData.seasons[i].name;
       }
     }

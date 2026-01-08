@@ -1,6 +1,6 @@
 export default {
     label_task:{
-        en:"Six Crop Sales Planning (AMS)",
+        en:"Six Crop Sales Planning (SM)",
         bn:'ব্যবহারকারীরা'
     },
     label_new_task:{

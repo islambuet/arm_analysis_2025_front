@@ -30,13 +30,23 @@
         <a class="btn btn-sm" data-toggle="collapse" href="#label_action_8">{{labels.get('action_8')}} </a>
       </div>
       <div id="label_action_8" class="collapse" v-if="item.exists">
-        <div class="row card-body">
-          <template v-for="column in taskData.columns.selectable">
-            <div class="col-sm-6 col-md-3">
-              <label><input type="checkbox" :value="column" :checked="taskData.columns.hidden.indexOf(column)<0" @change="toggleReportControlColumns($event)"> {{labels.get('label_'+column)}}</label>
-            </div>
-          </template>
+        <div class="card-body">
+          <div class="row">
+            <template v-for="column in taskData.columns.selectable2">
+              <div class="col-sm-6 col-md-3">
+                <label><input :class="'column_control '+column" type="checkbox" :value="column" @change="toggleReportControlColumns($event)"> {{labels.get('label_'+column)}}</label>
+              </div>
+            </template>
+          </div>
+          <div class="row">
+            <template v-for="column in taskData.columns.selectable1">
+              <div class="col-sm-6 col-md-3">
+                <label><input :class="'column_control '+column" type="checkbox" :value="column" @change="toggleReportControlColumns($event)"> {{labels.get('label_'+column)}}</label>
+              </div>
+            </template>
+          </div>
         </div>
+
       </div>
     </div>
 
@@ -45,6 +55,7 @@
     <div class="card-body pb-0 d-print-none">
       <button type="button" v-if="taskData.permissions.action_4" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" onclick="window.print();"><i class="feather icon-printer"></i> {{labels.get('action_4')}}</button>
       <button type="button" v-if="taskData.permissions.action_5" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="exportCsv"><i class="feather icon-download"></i> {{labels.get('action_5')}}</button>
+      <button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="showHtmlContentInNewWindow"><i class="feather icon-maximize-2"></i> {{labels.get('action_show_in_new_window')}}</button>
     </div>
     <div class="card-body" style='overflow-x:auto;height:600px;padding: 0'>
       <table id="table_report" :style="'width: '+table_width+'px'" class="table table-bordered sticky">
@@ -61,10 +72,10 @@
         <template v-for="row in taskData.itemsFiltered">
           <tr v-for="index  in row['num_rows']" >
             <template v-for="(column,key) in taskData.columns.all">
-              <td :class="((['quantity','unit_price','market_size_arm','amount'].indexOf(column.group) != -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
+              <td :class="((['amount_sales_net','amount_sales_gross','amount_sales_cancel','quantity_sales_net','quantity_sales_gross','quantity_sales_cancel'].indexOf(column.group) != -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
                 <template v-if="index==1">
-                  <template v-if="column.group=='amount'">{{ row[column.key]?row[column.key].toFixed(2):'' }}</template>
-                  <template v-else-if="column.group=='quantity'">{{ row[column.key]?row[column.key].toFixed(3):'' }}</template>
+                  <template v-if="(['amount_sales_net','amount_sales_gross','amount_sales_cancel'].indexOf(column.group) != -1)">{{ row[column.key]?row[column.key].toFixed(2):'' }}</template>
+                  <template v-else-if="(['quantity_sales_net','quantity_sales_gross','quantity_sales_cancel'].indexOf(column.group) != -1)">{{ row[column.key]?row[column.key].toFixed(3):'' }}</template>
                   <template v-else>{{ row[column.key] }}</template>
                 </template>
                 <template v-else>&nbsp</template>
@@ -367,6 +378,7 @@
           let rows={};
           let rows_array=[];
           let fiscal_year=options['fiscal_year'];
+
           if((options['report_format']=='crop_fiscal_year')||(options['report_format']=='type_fiscal_year')||(options['report_format']=='variety_fiscal_year')){
             let sales_data_key='crop_id';
             columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
@@ -379,10 +391,13 @@
               columns_all.push({'group':'variety_name','key':'variety_name','label':labels.get('label_variety_name')})
               sales_data_key='variety_id';
             }
-
             for(let i=0;i<options['num_fiscal_years'];i++){
-              columns_all.push({'group':'quantity','key':'quantity_'+(+fiscal_year-i),'label':((+fiscal_year-i)+' - '+(+fiscal_year-i+1))+'</br>('+labels.get('label_quantity')+')'})
-              columns_all.push({'group':'amount','key':'amount_'+(+fiscal_year-i),'label':((+fiscal_year-i)+' - '+(+fiscal_year-i+1))+'</br>('+labels.get('label_amount')+')'})
+              columns_all.push({'group':'quantity_sales_gross','key':'quantity_sales_gross_'+(+fiscal_year-i),'label':((+fiscal_year-i)+' - '+(+fiscal_year-i+1))+'</br>(Gross '+labels.get('label_quantity')+')'})
+              columns_all.push({'group':'amount_sales_gross','key':'amount_sales_gross_'+(+fiscal_year-i),'label':((+fiscal_year-i)+' - '+(+fiscal_year-i+1))+'</br>(Gross '+labels.get('label_amount')+')'})
+              columns_all.push({'group':'quantity_sales_cancel','key':'quantity_sales_cancel_'+(+fiscal_year-i),'label':((+fiscal_year-i)+' - '+(+fiscal_year-i+1))+'</br>(Cancel '+labels.get('label_quantity')+')'})
+              columns_all.push({'group':'amount_sales_cancel','key':'amount_sales_cancel_'+(+fiscal_year-i),'label':((+fiscal_year-i)+' - '+(+fiscal_year-i+1))+'</br>(Cancel '+labels.get('label_amount')+')'})
+              columns_all.push({'group':'quantity_sales_net','key':'quantity_sales_net_'+(+fiscal_year-i),'label':((+fiscal_year-i)+' - '+(+fiscal_year-i+1))+'</br>(Net '+labels.get('label_quantity')+')'})
+              columns_all.push({'group':'amount_sales_net','key':'amount_sales_net_'+(+fiscal_year-i),'label':((+fiscal_year-i)+' - '+(+fiscal_year-i+1))+'</br>(Net '+labels.get('label_amount')+')'})
             }
             if(options['report_format']=='crop_fiscal_year'){
               for(let i in taskData.crops){
@@ -422,7 +437,6 @@
                 rows[crop_type['id']]['crop_name']=crop_type['crop_name'];
                 rows[crop_type['id']]['type_name']=crop_type['name'];
                 rows_array.push(rows[crop_type['id']])//for ordering
-
               }
             }
             else if(options['report_format']=='variety_fiscal_year'){
@@ -454,43 +468,66 @@
                 rows[variety['id']]['type_name']=variety['crop_type_name'];
                 rows[variety['id']]['variety_name']=variety['name'];
                 rows_array.push(rows[variety['id']])//for ordering
-
               }
             }
             for(let id in rows){
               for(let i=0;i<options['num_fiscal_years'];i++){
-                rows[id]['quantity_'+(+fiscal_year-i)]=0;
-                rows[id]['amount_'+(+fiscal_year-i)]=0;
+                rows[id]['quantity_sales_net_'+(+fiscal_year-i)]=0;
+                rows[id]['amount_sales_net_'+(+fiscal_year-i)]=0;
+                rows[id]['quantity_sales_gross_'+(+fiscal_year-i)]=0;
+                rows[id]['amount_sales_gross_'+(+fiscal_year-i)]=0;
+                rows[id]['quantity_sales_cancel_'+(+fiscal_year-i)]=0;
+                rows[id]['amount_sales_cancel_'+(+fiscal_year-i)]=0;
               }
             }
-            for(let i in res.data.items){
-              let sales_data=res.data.items[i];
+            for(let i in res.data.sales_gross){
+              let sales_data=res.data.sales_gross[i];
               let date=moment(sales_data['sales_at'])
               let year=date.year();
               let month=date.month()+1;
               if(month<globalVariables.fiscal_year_starting_month){
                 year--;
               }
-              if(rows[sales_data[sales_data_key]] && rows[sales_data[sales_data_key]]['quantity_'+year]>=0){
-                rows[sales_data[sales_data_key]]['quantity_'+year]+=(+sales_data['quantity']);
-                rows[sales_data[sales_data_key]]['amount_'+year]+=(+sales_data['amount']);
+              if(rows[sales_data[sales_data_key]] && rows[sales_data[sales_data_key]]['quantity_sales_gross_'+year]>=0){
+                rows[sales_data[sales_data_key]]['quantity_sales_gross_'+year]+=(+sales_data['quantity']);
+                rows[sales_data[sales_data_key]]['amount_sales_gross_'+year]+=(+sales_data['amount']);
               }
             }
-          }
+            for(let i in res.data.sales_cancel){
+              let sales_data=res.data.sales_cancel[i];
+              let date=moment(sales_data['sales_at'])
+              let year=date.year();
+              let month=date.month()+1;
+              if(month<globalVariables.fiscal_year_starting_month){
+                year--;
+              }
+              if(rows[sales_data[sales_data_key]] && rows[sales_data[sales_data_key]]['quantity_sales_cancel_'+year]>=0){
+                rows[sales_data[sales_data_key]]['quantity_sales_cancel_'+year]+=(+sales_data['quantity']);
+                rows[sales_data[sales_data_key]]['amount_sales_cancel_'+year]+=(+sales_data['amount']);
+              }
+            }
 
+          }
           let row_total={}
           row_total['id']=0;
           row_total['num_rows']=1;
           for(let key in columns_all)
           {
-            row_total[columns_all[key]['key']]=((['quantity','amount'].indexOf(columns_all[key]['group']) != -1)?0:'')
+            row_total[columns_all[key]['key']]=((['amount_sales_net','amount_sales_gross','amount_sales_cancel','quantity_sales_net','quantity_sales_gross','quantity_sales_cancel'].indexOf(columns_all[key]['group']) != -1)?0:'')
           }
           row_total['crop_name']='Grand Total';
           //For ordering
           for(let i in rows_array){
             let row=rows[rows_array[i]['id']];
             for(let i=0;i<options['num_fiscal_years'];i++){
-              row_total['amount_'+(+fiscal_year-i)]+=row['amount_'+(+fiscal_year-i)];
+              row['quantity_sales_net_'+(+fiscal_year-i)]=row['quantity_sales_gross_'+(+fiscal_year-i)]-row['quantity_sales_cancel_'+(+fiscal_year-i)];
+              row['amount_sales_net_'+(+fiscal_year-i)]=row['amount_sales_gross_'+(+fiscal_year-i)]-row['amount_sales_cancel_'+(+fiscal_year-i)];
+
+              row_total['amount_sales_net_'+(+fiscal_year-i)]+=row['amount_sales_net_'+(+fiscal_year-i)];
+              row_total['amount_sales_gross_'+(+fiscal_year-i)]+=row['amount_sales_gross_'+(+fiscal_year-i)];
+              row_total['amount_sales_cancel_'+(+fiscal_year-i)]+=row['amount_sales_cancel_'+(+fiscal_year-i)];
+
+
             }
             rows_array[i]=row;
           }
@@ -508,15 +545,35 @@
     const exportCsv=async ()=>{
       systemFunctions.exportCsvFromHtmlTable('#table_report','Sales Report '+$('#report_format').val())
     }
+    const showHtmlContentInNewWindow=async ()=>{
+      systemFunctions.showHtmlContentInNewWindow('<table>'+$('#table_report').html()+'</table>',labels.get('label_task'))
+    }
     const toggleReportControlColumns=(event)=>{
       //show_report.value=false;
-      let key=event.target .value;
-      if(event.target .checked){
-        taskData.columns.hidden=taskData.columns.hidden.filter(function(value) {return value !== key});
+      let hiddenColumns=[]
+      for(let i in taskData.columns.selectable2){
+        let column2=taskData.columns.selectable2[i];
+        let checked=$('.column_control.'+column2).is(':checked');
+        if(!checked){
+          for(let j in taskData.columns.selectable1){
+            let column1=taskData.columns.selectable1[j]
+            hiddenColumns.push(column1+'_'+column2)
+          }
+        }
       }
-      else{
-        taskData.columns.hidden.push(key);
+      for(let i in taskData.columns.selectable1){
+        let column1=taskData.columns.selectable1[i];
+        let checked=$('.column_control.'+column1).is(':checked');
+        if(!checked){
+          for(let j in taskData.columns.selectable2){
+            let column2=taskData.columns.selectable2[j]
+            if(hiddenColumns.indexOf((column1+'_'+column2))==-1){
+              hiddenColumns.push(column1+'_'+column2)
+            }
+          }
+        }
       }
+      taskData.columns.hidden=hiddenColumns
       calculateTableWidth();
     }
     const calculateTableWidth=()=>{
@@ -525,22 +582,13 @@
     setInputFields();
     $(document).ready(async function()
     {
-      taskData.columns.selectable=['quantity','amount'];
+      taskData.columns.selectable2=['sales_gross','sales_cancel','sales_net'];
+      taskData.columns.selectable1=['quantity','amount'];
       taskData.columns.hidden=[];
 
+
       $(document).off("change", "#report_format");
-      // $(document).on("change",'#report_format',function()
-      // {
-      //   show_report.value=false;
-      //   let report_format=$(this).val();
-      //   let columns_selectable=[];
-      //   let columns_hidden=[]
-      //   if((report_format=='crop_fiscal_year')||(report_format=='type_fiscal_year') || (report_format=='variety_fiscal_year' )){
-      //     columns_selectable=['quantity','amount'];
-      //   }
-      //   taskData.columns.selectable=columns_selectable;
-      //   taskData.columns.hidden=columns_hidden;
-      // })
+
       $(document).off("change", "#fiscal_year");
       $(document).on("change",'#fiscal_year',async function()
       {
@@ -561,8 +609,12 @@
           $("#sales_to").val(moment().endOf('month').format('YYYY-MM-DD'))
         }
       });
-      await systemFunctions.delay(10);
-      $('#report_format').trigger('change');
+      await systemFunctions.delay(20);
+      //$('.column_control').prop('checked',true)
+      $('.column_control.sales_net').prop('checked',true)
+      $('.column_control.quantity').prop('checked',true)
+      toggleReportControlColumns();
+
       $('#fiscal_year').trigger('change')
 
 

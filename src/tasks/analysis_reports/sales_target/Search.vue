@@ -30,13 +30,30 @@
         <a class="btn btn-sm" data-toggle="collapse" href="#label_action_8">{{labels.get('action_8')}} </a>
       </div>
       <div id="label_action_8" class="collapse" v-if="item.exists">
-        <div class="row card-body">
-          <template v-for="column in taskData.columns.selectable">
-            <div class="col-sm-6 col-md-3">
-              <label><input type="checkbox" :value="column" :checked="taskData.columns.hidden.indexOf(column)<0" @change="toggleReportControlColumns($event)"> {{labels.get('label_'+column)}}</label>
-            </div>
-          </template>
+        <div class="card-body">
+          <div class="row">
+            <template v-for="column in taskData.columns.selectable2">
+              <div class="col-sm-4 col-md-2">
+                <label><input :class="'column_control '+column" type="checkbox" :value="column" @change="toggleReportControlColumns($event)"> {{labels.get('label_'+column)}}</label>
+              </div>
+            </template>
+          </div>
+          <div class="row">
+            <template v-for="column in taskData.columns.selectable1">
+              <div class="col-sm-4 col-md-2">
+                <label><input :class="'column_control '+column" type="checkbox" :value="column" @change="toggleReportControlColumns($event)"> {{labels.get('label_'+column)}}</label>
+              </div>
+            </template>
+          </div>
+          <div class="row">
+            <template v-for="column in taskData.columns.selectable3">
+              <div class="col-sm-4 col-md-2">
+                <label><input :class="'column_control '+column" type="checkbox" :value="column" @change="toggleReportControlColumns($event)"> {{labels.get('label_'+column)}}</label>
+              </div>
+            </template>
+          </div>
         </div>
+
       </div>
     </div>
 
@@ -62,10 +79,11 @@
         <template v-for="row in taskData.itemsFiltered">
           <tr v-for="index  in row['num_rows']" >
             <template v-for="(column,key) in taskData.columns.all">
-              <td :class="((['quantity','unit_price','achievement','amount'].indexOf(column.group) != -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
+              <td :class="((['crop_name','type_name','variety_name'].indexOf(column.group) == -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
                 <template v-if="index==1">
-                  <template v-if="column.group=='amount'">{{ row[column.key]?row[column.key].toFixed(2):'' }}</template>
-                  <template v-else-if="column.group=='quantity'">{{ row[column.key]?row[column.key].toFixed(3):'' }}</template>
+                  <template v-if="(['unit_price','amount_target','amount_sales_net','amount_sales_gross','amount_sales_cancel','amount_difference'].indexOf(column.group) != -1)">{{ row[column.key]?row[column.key].toFixed(2):'' }}</template>
+                  <template v-else-if="(['quantity_target','quantity_sales_net','quantity_sales_gross','quantity_sales_cancel','quantity_difference'].indexOf(column.group) != -1)">{{ row[column.key]?row[column.key].toFixed(3):'' }}</template>
+                  <template v-else-if="(['achievement'].indexOf(column.group) != -1)">{{ row[column.key]?row[column.key].toFixed(2)+'%':'' }}</template>
                   <template v-else>{{ row[column.key] }}</template>
                 </template>
                 <template v-else>&nbsp</template>
@@ -337,16 +355,22 @@
               columns_all.push({'group':'variety_name','key':'variety_name','label':labels.get('label_variety_name')})
             }
           }
+          if((options['report_format']=='variety') || (options['report_format']=='variety_arm_location')) {
+            columns_all.push({'group': 'unit_price', 'key': 'unit_price', 'label': labels.get('label_unit_price')})
+          }
           if((options['report_format']=='type')||(options['report_format']=='variety')||(options['report_format']=='crop')){
-            if((options['report_format']=='variety')) {
-              columns_all.push({'group': 'amount', 'key': 'unit_price', 'label': labels.get('label_unit_price')})
-            }
-            columns_all.push({'group':'quantity','key':'quantity_target','label':labels.get('label_quantity')+'</br>(target)'})
-            columns_all.push({'group':'amount','key':'amount_target','label':labels.get('label_amount')+'</br>(target)'})
-            columns_all.push({'group':'quantity','key':'quantity_sales','label':labels.get('label_quantity')+'</br>(sales)'})
-            columns_all.push({'group':'amount','key':'amount_sales','label':labels.get('label_amount')+'</br>(sales)'})
-            columns_all.push({'group':'quantity','key':'quantity_difference','label':labels.get('label_quantity')+'</br>(Difference)'})
-            columns_all.push({'group':'amount','key':'amount_difference','label':labels.get('label_amount')+'</br>(Difference)'})
+
+            columns_all.push({'group':'quantity_target','key':'quantity_target','label':labels.get('label_quantity')+'</br>(target)'})
+            columns_all.push({'group':'amount_target','key':'amount_target','label':labels.get('label_amount')+'</br>(target)'})
+
+            columns_all.push({'group':'quantity_sales_gross','key':'quantity_sales_gross','label':labels.get('label_quantity')+'</br>(Gross sales)'})
+            columns_all.push({'group':'amount_sales_gross','key':'amount_sales_gross','label':labels.get('label_amount')+'</br>(Gross sales)'})
+            columns_all.push({'group':'quantity_sales_cancel','key':'quantity_sales_cancel','label':labels.get('label_quantity')+'</br>(Canceled sales)'})
+            columns_all.push({'group':'amount_sales_cancel','key':'amount_sales_cancel','label':labels.get('label_amount')+'</br>(Canceled sales)'})
+            columns_all.push({'group':'quantity_sales_net','key':'quantity_sales_net','label':labels.get('label_quantity')+'</br>(Net sales)'})
+            columns_all.push({'group':'amount_sales_net','key':'amount_sales_net','label':labels.get('label_amount')+'</br>(Net sales)'})
+            columns_all.push({'group':'quantity_difference','key':'quantity_difference','label':labels.get('label_quantity')+'</br>(Difference)'})
+            columns_all.push({'group':'amount_difference','key':'amount_difference','label':labels.get('label_amount')+'</br>(Difference)'})
             columns_all.push({'group':'achievement','key':'achievement','label':labels.get('label_achievement')})
           }
           //((options['report_format']=='crop_arm_location')||(options['report_format']=='type_arm_location')||(options['report_format']=='variety_arm_location'))
@@ -375,16 +399,20 @@
               location_type='National';
               locations=taskData.location_parts;
             }
-            if((options['report_format']=='variety_arm_location')) {
-              columns_all.push({'group': 'amount', 'key': 'unit_price', 'label': labels.get('label_unit_price')})
-            }
+
             for(let index in locations){
-              columns_all.push({'group':'quantity','key':'quantity_target_'+locations[index].id,'label':labels.get('label_quantity')+'</br>(target)'+'</br>('+locations[index].name+')'})
-              columns_all.push({'group':'amount','key':'amount_target_'+locations[index].id,'label':labels.get('label_amount')+'</br>(target)'+'</br>('+locations[index].name+')'})
-              columns_all.push({'group':'quantity','key':'quantity_sales_'+locations[index].id,'label':labels.get('label_quantity')+'</br>(sales)'+'</br>('+locations[index].name+')'})
-              columns_all.push({'group':'amount','key':'amount_sales_'+locations[index].id,'label':labels.get('label_amount')+'</br>(sales)'+'</br>('+locations[index].name+')'})
-              columns_all.push({'group':'quantity','key':'quantity_difference_'+locations[index].id,'label':labels.get('label_quantity')+'</br>(Difference)'+'</br>('+locations[index].name+')'})
-              columns_all.push({'group':'amount','key':'amount_difference_'+locations[index].id,'label':labels.get('label_amount')+'</br>(Difference)'+'</br>('+locations[index].name+')'})
+              columns_all.push({'group':'quantity_target','key':'quantity_target_'+locations[index].id,'label':labels.get('label_quantity')+'</br>(target)'+'</br>('+locations[index].name+')'})
+              columns_all.push({'group':'amount_target','key':'amount_target_'+locations[index].id,'label':labels.get('label_amount')+'</br>(target)'+'</br>('+locations[index].name+')'})
+
+              columns_all.push({'group':'quantity_sales_gross','key':'quantity_sales_gross_'+locations[index].id,'label':labels.get('label_quantity')+'</br>(Gross sales)'+'</br>('+locations[index].name+')'})
+              columns_all.push({'group':'amount_sales_gross','key':'amount_sales_gross_'+locations[index].id,'label':labels.get('label_amount')+'</br>(Gross sales)'+'</br>('+locations[index].name+')'})
+              columns_all.push({'group':'quantity_sales_cancel','key':'quantity_sales_cancel_'+locations[index].id,'label':labels.get('label_quantity')+'</br>(Canceled sales)'+'</br>('+locations[index].name+')'})
+              columns_all.push({'group':'amount_sales_cancel','key':'amount_sales_cancel_'+locations[index].id,'label':labels.get('label_amount')+'</br>(Canceled sales)'+'</br>('+locations[index].name+')'})
+              columns_all.push({'group':'quantity_sales_net','key':'quantity_sales_net_'+locations[index].id,'label':labels.get('label_quantity')+'</br>(Net sales)'+'</br>('+locations[index].name+')'})
+              columns_all.push({'group':'amount_sales_net','key':'amount_sales_net_'+locations[index].id,'label':labels.get('label_amount')+'</br>(Net sales)'+'</br>('+locations[index].name+')'})
+
+              columns_all.push({'group':'quantity_difference','key':'quantity_difference_'+locations[index].id,'label':labels.get('label_quantity')+'</br>(Difference)'+'</br>('+locations[index].name+')'})
+              columns_all.push({'group':'amount_difference','key':'amount_difference_'+locations[index].id,'label':labels.get('label_amount')+'</br>(Difference)'+'</br>('+locations[index].name+')'})
               columns_all.push({'group':'achievement','key':'achievement_'+locations[index].id,'label':labels.get('label_achievement')+'</br>('+locations[index].name+')'})
             }
           }
@@ -460,86 +488,45 @@
             }
           }
           for(let id in rows){
-            if((options['report_format']=='type')||(options['report_format']=='variety')||(options['report_format']=='crop')){
-              if((options['report_format']=='variety')) {
-                rows[id]['unit_price']=0;
-              }
-              rows[id]['quantity_target']=0;
-              rows[id]['amount_target']=0;
-              rows[id]['quantity_sales']=0;
-              rows[id]['amount_sales']=0;
-              rows[id]['quantity_difference']=0;
-              rows[id]['amount_difference']=0;
-              rows[id]['achievement']='';
-            }
-            else{
-              if((options['report_format']=='variety_arm_location')) {
-                rows[id]['unit_price']=0;
-              }
-              for(let index in locations){
-                rows[id]['quantity_target_'+locations[index].id]=0;
-                rows[id]['amount_target_'+locations[index].id]=0;
-                rows[id]['quantity_sales_'+locations[index].id]=0;
-                rows[id]['amount_sales_'+locations[index].id]=0;
-                rows[id]['quantity_difference_'+locations[index].id]=0;
-                rows[id]['amount_difference_'+locations[index].id]=0;
-                rows[id]['achievement_'+locations[index].id]='';
+            for(let index in columns_all)
+            {
+              let group=columns_all[index]['group'];
+              if(['crop_name','type_name','variety_name'].indexOf(group) == -1){
+                rows[id][columns_all[index]['key']]=0;
               }
             }
           }
           //res.data.varieties_sales_target
           //console.log(res.data.sales_targets)
-          if((options['report_format']=='type')||(options['report_format']=='variety')||(options['report_format']=='crop')){
-            for(let variety_id in res.data.sales_targets){
-              let row_key=0;
-              if((options['report_format']=='variety')){
-                row_key=variety_id;
+          for(let variety_id in res.data.sales_targets){
+            let row_key=0;
+            if((options['report_format']=='variety') || (options['report_format']=='variety_arm_location')){
+              row_key=variety_id;
+            }
+            else if((options['report_format']=='type')||(options['report_format']=='type_arm_location')){
+              row_key=varieties_object[variety_id]?varieties_object[variety_id]['crop_type_id']:0;
+            }
+            else if((options['report_format']=='crop')||(options['report_format']=='crop_arm_location')){
+              row_key=varieties_object[variety_id]?(crop_types_object[varieties_object[variety_id]['crop_type_id']]?crop_types_object[varieties_object[variety_id]['crop_type_id']]['crop_id']:0):0;
+            }
+            let variety_data=res.data.sales_targets[variety_id];
+            if(rows[row_key]) {
+              if((options['report_format']=='variety') || (options['report_format']=='variety_arm_location')){
+                rows[row_key]['unit_price'] = (+variety_data['unit_price'])
               }
-              else if((options['report_format']=='type')){
-                row_key=varieties_object[variety_id]?varieties_object[variety_id]['crop_type_id']:0;
-              }
-              else if((options['report_format']=='crop')){
-                row_key=varieties_object[variety_id]?(crop_types_object[varieties_object[variety_id]['crop_type_id']]?crop_types_object[varieties_object[variety_id]['crop_type_id']]['crop_id']:0):0;
-              }
-              let variety_data=res.data.sales_targets[variety_id];
-              if(rows[row_key]) {
-                if((options['report_format']=='variety')){
-                  rows[row_key]['unit_price'] = variety_data['unit_price']
-                }
-                for(let distributor_id in variety_data['distributors']){
-                  let distributor_data=variety_data['distributors'][distributor_id];
+              for(let distributor_id in variety_data['distributors']){
+                let distributor_data=variety_data['distributors'][distributor_id];
+                if((options['report_format']=='variety')||(options['report_format']=='type')||(options['report_format']=='crop'))
+                {
                   rows[row_key]['quantity_target']+=(+distributor_data['quantity_target']);
                   rows[row_key]['amount_target']+=(+distributor_data['amount_target']);
-                  rows[row_key]['quantity_sales']+=(+distributor_data['quantity_sales']);
-                  rows[row_key]['amount_sales']+=(+distributor_data['amount_sales']);
-                  rows[row_key]['quantity_difference']=rows[row_key]['quantity_target']-rows[row_key]['quantity_sales'];
-                  rows[row_key]['amount_difference']=rows[row_key]['amount_target']-rows[row_key]['amount_sales'];
-                  if(rows[row_key]['quantity_target']>0){
-                    rows[row_key]['achievement']=(rows[row_key]['quantity_sales']*100/rows[row_key]['quantity_target']).toFixed(2)+'%';
-                  }
+                  rows[row_key]['quantity_sales_gross']+=(+distributor_data['quantity_sales_gross']);
+                  rows[row_key]['amount_sales_gross']+=(+distributor_data['amount_sales_gross']);
+                  rows[row_key]['quantity_sales_cancel']+=(+distributor_data['quantity_sales_cancel']);
+                  rows[row_key]['amount_sales_cancel']+=(+distributor_data['amount_sales_cancel']);
                 }
-              }
-            }
-          }//else location wise
-          else{
-            for(let variety_id in res.data.sales_targets){
-              let row_key=0;
-              if((options['report_format']=='variety_arm_location')){
-                row_key=variety_id;
-              }
-              else if((options['report_format']=='type_arm_location')){
-                row_key=varieties_object[variety_id]?varieties_object[variety_id]['crop_type_id']:0;
-              }
-              else if((options['report_format']=='crop_arm_location')){
-                row_key=varieties_object[variety_id]?(crop_types_object[varieties_object[variety_id]['crop_type_id']]?crop_types_object[varieties_object[variety_id]['crop_type_id']]['crop_id']:0):0;
-              }
-              let variety_data=res.data.sales_targets[variety_id];
-              if(rows[row_key]) {
-                if((options['report_format']=='variety_arm_location')){
-                  rows[row_key]['unit_price'] = variety_data['unit_price']
-                }
-                for(let distributor_id in variety_data['distributors']){
-                  let distributor_data=variety_data['distributors'][distributor_id];
+                else
+                {
                   let column_key=0;
                   if(location_type=='Distributor'){
                     column_key=distributor_id;
@@ -563,13 +550,10 @@
                   if(column_key>0){
                     rows[row_key]['quantity_target_'+column_key]+=(+distributor_data['quantity_target']);
                     rows[row_key]['amount_target_'+column_key]+=(+distributor_data['amount_target']);
-                    rows[row_key]['quantity_sales_'+column_key]+=(+distributor_data['quantity_sales']);
-                    rows[row_key]['amount_sales_'+column_key]+=(+distributor_data['amount_sales']);
-                    rows[row_key]['quantity_difference_'+column_key]=rows[row_key]['quantity_target_'+column_key]-rows[row_key]['quantity_sales_'+column_key];
-                    rows[row_key]['amount_difference_'+column_key]=rows[row_key]['amount_target_'+column_key]-rows[row_key]['amount_sales_'+column_key];
-                    if(rows[row_key]['quantity_target_'+column_key]>0){
-                      rows[row_key]['achievement_'+column_key]=(rows[row_key]['quantity_sales_'+column_key]*100/rows[row_key]['quantity_target_'+column_key]).toFixed(2)+'%';
-                    }
+                    rows[row_key]['quantity_sales_gross_'+column_key]+=(+distributor_data['quantity_sales_gross']);
+                    rows[row_key]['amount_sales_gross_'+column_key]+=(+distributor_data['amount_sales_gross']);
+                    rows[row_key]['quantity_sales_cancel_'+column_key]+=(+distributor_data['quantity_sales_cancel']);
+                    rows[row_key]['amount_sales_cancel_'+column_key]+=(+distributor_data['amount_sales_cancel']);
                   }
                 }
               }
@@ -578,34 +562,51 @@
           let row_total={}
           row_total['id']=0;
           row_total['num_rows']=1;
-          for(let key in columns_all)
+          for(let index in columns_all)
           {
-            row_total[columns_all[key]['key']]=((['quantity','amount'].indexOf(columns_all[key]['group']) != -1)?0:'')
+            row_total[columns_all[index]['key']]=((['crop_name','type_name','variety_name'].indexOf(columns_all[index]['group']) != -1)?'':0)
           }
           row_total['crop_name']='Grand Total';
-
           //For ordering
           for(let i in rows_array){
             let row=rows[rows_array[i]['id']];
-            if((options['report_format']=='type')||(options['report_format']=='variety')||(options['report_format']=='crop')){
+            if((options['report_format']=='variety')||(options['report_format']=='type')||(options['report_format']=='crop')){
+              row['quantity_sales_net']=row['quantity_sales_gross']-row['quantity_sales_cancel'];
+              row['amount_sales_net']=row['amount_sales_gross']-row['amount_sales_cancel'];
+              row['quantity_difference']=row['quantity_target']-row['quantity_sales_net'];
+              row['amount_difference']=row['amount_target']-row['amount_sales_net'];
+              if(row['quantity_target']>0){
+                row['achievement']=(row['quantity_sales_net']*100/row['quantity_target']);
+              }
               row_total['amount_target']+=row['amount_target'];
-              row_total['amount_sales']+=row['amount_sales'];
-              row_total['amount_difference']=row_total['amount_target']-row_total['amount_sales'];
+              row_total['amount_sales_gross']+=row['amount_sales_gross'];
+              row_total['amount_sales_cancel']+=row['amount_sales_cancel'];
+              row_total['amount_sales_net']+=row['amount_sales_net'];
+              row_total['amount_difference']=row_total['amount_target']-row_total['amount_sales_net'];
               if(row_total['amount_target']>0){
-                row_total['achievement']=(row_total['amount_sales']*100/row_total['amount_target']).toFixed(2)+'%';
+                row_total['achievement']=(row_total['amount_sales_net']*100/row_total['amount_target']);
               }
             }
             else{
               for(let index in locations){
-                row_total['amount_target_'+locations[index].id]+=row['amount_target_'+locations[index].id]
-                row_total['amount_sales_'+locations[index].id]+=row['amount_sales_'+locations[index].id]
-                row_total['amount_difference_'+locations[index].id]=row_total['amount_target_'+locations[index].id]-row_total['amount_sales_'+locations[index].id];
-                if(row_total['amount_target_'+locations[index].id]>0){
-                  row_total['achievement_'+locations[index].id]=(row_total['amount_sales_'+locations[index].id]*100/row_total['amount_target_'+locations[index].id]).toFixed(2)+'%';
+                let location_id=locations[index].id;
+                row['quantity_sales_net_'+location_id]=row['quantity_sales_gross_'+location_id]-row['quantity_sales_cancel_'+location_id];
+                row['amount_sales_net_'+location_id]=row['amount_sales_gross_'+location_id]-row['amount_sales_cancel_'+location_id];
+                row['quantity_difference_'+location_id]=row['quantity_target_'+location_id]-row['quantity_sales_net_'+location_id];
+                row['amount_difference_'+location_id]=row['amount_target_'+location_id]-row['amount_sales_net_'+location_id];
+                if(row['quantity_target_'+location_id]>0){
+                  row['achievement_'+location_id]=(row['quantity_sales_net_'+location_id]*100/row['quantity_target_'+location_id]);
+                }
+                row_total['amount_target_'+location_id]+=row['amount_target_'+location_id];
+                row_total['amount_sales_gross_'+location_id]+=row['amount_sales_gross_'+location_id];
+                row_total['amount_sales_cancel_'+location_id]+=row['amount_sales_cancel_'+location_id];
+                row_total['amount_sales_net_'+location_id]+=row['amount_sales_net_'+location_id];
+                row_total['amount_difference_'+location_id]=row_total['amount_target_'+location_id]-row_total['amount_sales_net_'+location_id];
+                if(row_total['amount_target_'+location_id]>0){
+                  row_total['achievement_'+location_id]=(row_total['amount_sales_net_'+location_id]*100/row_total['amount_target_'+location_id]);
                 }
               }
             }
-
             rows_array[i]=row;
           }
           rows_array.unshift(row_total)
@@ -628,13 +629,36 @@
     }
     const toggleReportControlColumns=(event)=>{
       //show_report.value=false;
-      let key=event.target .value;
-      if(event.target .checked){
-        taskData.columns.hidden=taskData.columns.hidden.filter(function(value) {return value !== key});
+      let hiddenColumns=[]
+      for(let i in taskData.columns.selectable2){
+        let column2=taskData.columns.selectable2[i];
+        let checked=$('.column_control.'+column2).is(':checked');
+        if(!checked){
+          for(let j in taskData.columns.selectable1){
+            let column1=taskData.columns.selectable1[j]
+            hiddenColumns.push(column1+'_'+column2)
+          }
+        }
       }
-      else{
-        taskData.columns.hidden.push(key);
+      for(let i in taskData.columns.selectable1){
+        let column1=taskData.columns.selectable1[i];
+        let checked=$('.column_control.'+column1).is(':checked');
+        if(!checked){
+          for(let j in taskData.columns.selectable2){
+            let column2=taskData.columns.selectable2[j]
+            if(hiddenColumns.indexOf((column1+'_'+column2))==-1){
+              hiddenColumns.push(column1+'_'+column2)
+            }
+          }
+        }
       }
+      if(!$('.column_control.unit_price').is(':checked')){
+        hiddenColumns.push('unit_price')
+      }
+      if(!$('.column_control.achievement').is(':checked')){
+        hiddenColumns.push('achievement')
+      }
+      taskData.columns.hidden=hiddenColumns
       calculateTableWidth();
     }
     const calculateTableWidth=()=>{
@@ -643,9 +667,19 @@
     setInputFields();
     $(document).ready(async function()
     {
-      taskData.columns.selectable=['quantity','amount','achievement'];
+      taskData.columns.selectable2=['target','sales_gross','sales_cancel','sales_net','difference'];
+      taskData.columns.selectable1=['quantity','amount'];
+      taskData.columns.selectable3=['unit_price','achievement'];
       taskData.columns.hidden=[];
       $(document).off("change", "#report_format");
+      await systemFunctions.delay(20);
+      //$('.column_control').prop('checked',true)
+      $('.column_control.target').prop('checked',true)
+      $('.column_control.sales_net').prop('checked',true)
+      $('.column_control.quantity').prop('checked',true)
+      $('.column_control.achievement').prop('checked',true)
+      //$('.column_control.unit_price').prop('checked',true)
+      toggleReportControlColumns();
 
       $(document).off("change", "#crop_id");
       $(document).on("change",'#crop_id',async function()

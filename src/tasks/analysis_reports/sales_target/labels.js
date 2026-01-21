@@ -15,5 +15,25 @@ export default {
         en:"Sales To",
         bn:'ব্যবহারকারীরা'
     },
+    label_target:{
+        en:"Target",
+        bn:'ব্যবহারকারীরা'
+    },
+    label_sales_net:{
+        en:"Net Sales",
+        bn:'ব্যবহারকারীরা'
+    },
+    label_sales_gross:{
+        en:"Gross Sales",
+        bn:'ব্যবহারকারীরা'
+    },
+    label_sales_cancel:{
+        en:"Canceled Sales",
+        bn:'ব্যবহারকারীরা'
+    },
+    label_difference:{
+        en:"Difference",
+        bn:'ব্যবহারকারীরা'
+    },
 
 }

@@ -46,6 +46,7 @@ let item=reactive({
     name:'',
     crop_id:'',
     crop_type_id:'',
+    variety_sub_type_id:'',
     whose:'ARM',
     principal_id:'',
     competitor_id:'',
@@ -97,6 +98,15 @@ const setInputFields=async ()=>{
     label: labels.get('label_'+key),
     type:'dropdown',
     options:[],
+    default:item.data[key],
+    mandatory:true
+  };
+  key='variety_sub_type_id';
+  inputFields[key] = {
+    name: 'item[' +key +']',
+    label: labels.get('label_'+key),
+    type:'dropdown',
+    options:taskData.variety_sub_types.map((item)=>{ return {value:item.id,label:item.name}}),
     default:item.data[key],
     mandatory:true
   };

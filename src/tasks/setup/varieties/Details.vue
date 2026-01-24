@@ -65,6 +65,12 @@
       type:'text',
       values:[item.data[key]],
     };
+    key='variety_sub_type_name';
+    detailFields[key] = {
+      label: labels.get('label_'+key),
+      type:'text',
+      values:[item.data[key]],
+    };
     key='whose';
     detailFields[key] = {
       label: labels.get('label_'+key),

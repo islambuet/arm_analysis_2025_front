@@ -128,6 +128,15 @@
         type:'text',
         filter:{from:'',to:''}
       };
+      key='variety_sub_type_name';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:true,
+        sortable:true,
+        type:'text',
+        filter:{from:'',to:''}
+      };
       key='ordering';
       columns[key]={
         label: labels.get('label_'+key),

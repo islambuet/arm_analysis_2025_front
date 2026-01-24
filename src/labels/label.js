@@ -347,6 +347,14 @@ export default {
         en:"Type",
         bn:"Type"
     },
+    label_variety_sub_type_id:{
+        en:"Sub Type",
+        bn:"Type"
+    },
+    label_variety_sub_type_name:{
+        en:"Sub Type",
+        bn:"Type"
+    },
     label_variety_id:{
         en:"Variety",
         bn:"কর্মচারী আইডি"

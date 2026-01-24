@@ -43,6 +43,7 @@
     pagination: {current_page: 1,per_page_options: [10,20,50,100,500,1000],per_page:-1,show_all_items:true},
     crops:[],
     crop_types:[],
+    variety_sub_types:[],
     principals :[],
     competitors:[],
   })
@@ -101,6 +102,7 @@
         taskData.principals=res.data.principals;
         taskData.competitors=res.data.competitors;
         taskData.crop_types=res.data.crop_types;
+        taskData.variety_sub_types=res.data.variety_sub_types;
         if(res.data.hidden_columns){
           taskData.columns.hidden=res.data.hidden_columns;
         }

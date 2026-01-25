@@ -57,8 +57,8 @@
                 <template v-if="item.data[row.id] " v-for="(competitor_varieties_info,competitor_variety_id) in item.data[row.id]['competitor_varieties']">
                   <div class="row">
                     <div class="col-12">
-                      <div><strong>Company:</strong>{{ (taskData.varieties_competitor_typewise[row.id] && taskData.varieties_competitor_typewise[row.id][competitor_variety_id])?taskData.varieties_competitor_typewise[row.id][competitor_variety_id]['competitor_name']:"Other" }}  </div>
-                      <div><strong>Variety: </strong>{{ (taskData.varieties_competitor_typewise[row.id] && taskData.varieties_competitor_typewise[row.id][competitor_variety_id])?taskData.varieties_competitor_typewise[row.id][competitor_variety_id]['name']:"Other" }}</div>
+                      <div><strong>Company:</strong>{{ (taskData.varieties_competitor_typewise[row.id] && taskData.varieties_competitor_typewise[row.id][competitor_variety_id])?taskData.varieties_competitor_typewise[row.id][competitor_variety_id]['competitor_name']:"NF" }}  </div>
+                      <div><strong>Variety: </strong>{{ (taskData.varieties_competitor_typewise[row.id] && taskData.varieties_competitor_typewise[row.id][competitor_variety_id])?taskData.varieties_competitor_typewise[row.id][competitor_variety_id]['name']:"NF" }}</div>
                       <div><strong>Reason: </strong>{{item.data[row.id]['competitor_varieties'][competitor_variety_id]?item.data[row.id]['competitor_varieties'][competitor_variety_id]['recommended_reason']:''}}</div>
                       <table class="table table-bordered">
                         <thead>
@@ -74,7 +74,7 @@
                         </thead>
                         <tbody>
                         <tr v-if="item.data[row.id]['arm_varieties'] && item.data[row.id]['arm_varieties'][competitor_variety_id]" v-for="(arm_varieties_info,arm_variety_id) in item.data[row.id]['arm_varieties'][competitor_variety_id]">
-                          <td>{{ (taskData.varieties_arm_typewise[row.id] && taskData.varieties_arm_typewise[row.id][arm_variety_id])?taskData.varieties_arm_typewise[row.id][arm_variety_id]['name']:"NF" }}</td>
+                          <td>{{ (taskData.varieties_arm_typewise[row.id] && taskData.varieties_arm_typewise[row.id][arm_variety_id])?taskData.varieties_arm_typewise[row.id][arm_variety_id]['name']+' ('+taskData.varieties_arm_typewise[row.id][arm_variety_id]['variety_sub_type_name']+')':"NF" }}</td>
                           <td><input type="text" :name="'items['+[row.id]+'][arm_varieties]['+competitor_variety_id+']['+arm_variety_id+'][suggested_reason]'" :value="arm_varieties_info['suggested_reason']" class="form-control" /></td>
                           <template v-for="m in 12">
                             <td v-if="item.season['month_'+m]">
@@ -91,7 +91,7 @@
                               <div class="input-group" >
                                 <select class="form-control sel_arm_variety" :id="'sel_arm_variety_'+competitor_variety_id">
                                   <option v-if="taskData.varieties_arm_typewise_ordered[row.id]" v-for="variety in taskData.varieties_arm_typewise_ordered[row.id]" :value="variety.id">
-                                    {{variety.name}}
+                                    {{variety.name}} ({{variety.variety_sub_type_name}})
                                   </option>
                                 </select>
                               </div>
@@ -159,9 +159,9 @@ $(document).ready(async function()
     let crop_type_id=row_type_id.substring(5);//after type_
     let competitor_variety_id=$(this).attr('data-competitor-variety-id')
     let arm_variety_id=$("#sel_arm_variety_"+competitor_variety_id).val();
-    let variety_name="Other";
+    let variety_name="NF";
     if(arm_variety_id>0){
-      variety_name=taskData.varieties_arm_typewise[crop_type_id][arm_variety_id]['name'];
+      variety_name=taskData.varieties_arm_typewise[crop_type_id][arm_variety_id]['name']+' ('+taskData.varieties_arm_typewise[crop_type_id][arm_variety_id]['variety_sub_type_name']+')';
     }
 
     let html='<tr>';

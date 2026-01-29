@@ -499,18 +499,13 @@
       //$('.column_control').prop('checked',true)
       $('.column_control.target').prop('checked',true)
       $('.column_control.sales_net').prop('checked',true)
-      $('.column_control.incentive').prop('checked',true)
       $('.column_control.quantity').prop('checked',true)
       //$('.column_control.amount').prop('checked',true)
       $('.column_control.achievement').prop('checked',true)
       $('.column_control.amount_incentive').prop('checked',true)
-      $('.column_control.unit_price').prop('checked',true)
-      $('.column_control.unit_price_net').prop('checked',true)
+      //$('.column_control.unit_price').prop('checked',true)
+      //$('.column_control.unit_price_net').prop('checked',true)
       toggleReportControlColumns();
-
-      //taskData.columns.selectable=['unit_price','unit_price_net','quantity_target','amount_target','quantity_sales','amount_sales','quantity_difference','amount_difference','achievement','quantity_incentive','amount_incentive','quantity_achievable','amount_achievable'];
-      //taskData.columns.hidden=['unit_price','unit_price_net','amount_difference','quantity_incentive','quantity_achievable','amount_achievable'];
-      //taskData.columns.hidden=['unit_price','unit_price_net','quantity_target','amount_target','quantity_sales','amount_sales','quantity_difference','amount_difference','achievement','quantity_incentive','amount_incentive',];
 
       $(document).off("change", "#crop_id");
       $(document).on("change",'#crop_id',async function()

@@ -3,7 +3,6 @@ export default {
         en:"Incentive Report",
         bn:'Variety Report'
     },
-
     label_achievement :{
         en:"Achievement(%)",
         bn:'ব্যবহারকারীরা'
@@ -16,49 +15,48 @@ export default {
         en:"Sales To",
         bn:'ব্যবহারকারীরা'
     },
-
-    label_quantity_sales:{
-        en:"Quantity (sale)",
+    label_target:{
+        en:"Target",
+        bn:"Target"
+    },
+    label_sales:{
+        en:"Sales",
         bn:"Quantity"
     },
-    label_amount_sales:{
-        en:"Amount(sale)",
-        bn:"Amount"
+    label_sales_net:{
+        en:"Net Sales",
+        bn:'ব্যবহারকারীরা'
+    },
+    label_sales_gross:{
+        en:"Gross Sales",
+        bn:'ব্যবহারকারীরা'
+    },
+    label_sales_cancel:{
+        en:"Canceled Sales",
+        bn:'ব্যবহারকারীরা'
+    },
+    label_difference:{
+        en:"Difference",
+        bn:'ব্যবহারকারীরা'
+    },
+    label_achievable:{
+        en:"Achievable",
+        bn:'ব্যবহারকারীরা'
     },
     label_unit_price_net:{
         en:"Net Unit Price",
         bn:"Amount"
     },
-    label_quantity_target:{
-        en:"Quantity (target)",
-        bn:"Quantity"
-    },
-    label_amount_target:{
-        en:"Amount (target)",
-        bn:"Quantity"
-    },
-    label_quantity_achievable:{
-        en:"Quantity (achievable)",
-        bn:"Quantity"
-    },
-    label_amount_achievable:{
-        en:"Amount (achievable)",
-        bn:"Amount"
-    },
-    label_quantity_difference:{
-        en:"Quantity (difference)",
-        bn:"Quantity"
-    },
-    label_amount_difference:{
-        en:"Amount (difference)",
+    label_incentive:{
+        en:"Incentive",
         bn:"Quantity"
     },
     label_quantity_incentive:{
-        en:"Quantity (incentive)",
+        en:"Incentive (Quantity)",
         bn:"Quantity"
     },
     label_amount_incentive:{
-        en:"Amount (incentive)",
+        en:"Incentive (Amount)",
         bn:"Quantity"
     },
 }

@@ -30,30 +30,13 @@
         <a class="btn btn-sm" data-toggle="collapse" href="#label_action_8">{{labels.get('action_8')}} </a>
       </div>
       <div id="label_action_8" class="collapse" v-if="item.exists">
-        <div class="card-body">
-          <div class="row">
-            <template v-for="column in taskData.columns.selectable2">
-              <div class="col-sm-4 col-md-2">
-                <label><input :class="'column_control '+column" type="checkbox" :value="column" @change="toggleReportControlColumns($event)"> {{labels.get('label_'+column)}}</label>
-              </div>
-            </template>
-          </div>
-          <div class="row">
-            <template v-for="column in taskData.columns.selectable1">
-              <div class="col-sm-4 col-md-2">
-                <label><input :class="'column_control '+column" type="checkbox" :value="column" @change="toggleReportControlColumns($event)"> {{labels.get('label_'+column)}}</label>
-              </div>
-            </template>
-          </div>
-          <div class="row">
-            <template v-for="column in taskData.columns.selectable3">
-              <div class="col-sm-4 col-md-2">
-                <label><input :class="'column_control '+column" type="checkbox" :value="column" @change="toggleReportControlColumns($event)"> {{labels.get('label_'+column)}}</label>
-              </div>
-            </template>
-          </div>
+        <div class="row card-body">
+          <template v-for="column in taskData.columns.selectable">
+            <div class="col-sm-6 col-md-3">
+              <label><input type="checkbox" :value="column" :checked="taskData.columns.hidden.indexOf(column)<0" @change="toggleReportControlColumns($event)"> {{labels.get('label_'+column)}}</label>
+            </div>
+          </template>
         </div>
-
       </div>
     </div>
 
@@ -79,10 +62,10 @@
         <template v-for="row in taskData.itemsFiltered">
           <tr v-for="index  in row['num_rows']" >
             <template v-for="(column,key) in taskData.columns.all">
-              <td :class="((['crop_name','type_name','variety_name'].indexOf(column.group) == -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
+              <td :class="((['unit_price','unit_price_net','quantity_target','amount_target','quantity_sales','amount_sales','quantity_difference','amount_difference','achievement','quantity_incentive','amount_incentive','quantity_achievable','amount_achievable'].indexOf(column.group) != -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
                 <template v-if="index==1">
-                  <template v-if="(['unit_price','unit_price_net','amount_target','amount_sales_net','amount_sales_gross','amount_sales_cancel','amount_difference','amount_incentive','amount_achievable'].indexOf(column.group) != -1)">{{ row[column.key]?row[column.key].toFixed(2):'' }}</template>
-                  <template v-else-if="(['quantity_target','quantity_sales_net','quantity_sales_gross','quantity_sales_cancel','quantity_difference','quantity_incentive','quantity_achievable'].indexOf(column.group) != -1)">{{ row[column.key]?row[column.key].toFixed(3):'' }}</template>
+                  <template v-if="(['unit_price','unit_price_net','amount_target','amount_sales','amount_difference','amount_incentive','amount_achievable'].indexOf(column.group) != -1)">{{ row[column.key]?row[column.key].toFixed(2):'' }}</template>
+                  <template v-else-if="(['quantity_target','quantity_sales','quantity_difference','quantity_incentive','quantity_achievable'].indexOf(column.group) != -1)">{{ row[column.key]?row[column.key].toFixed(3):'' }}</template>
                   <template v-else-if="(['achievement'].indexOf(column.group) != -1)">{{ row[column.key]?row[column.key].toFixed(2)+'%':'' }}</template>
                   <template v-else>{{ row[column.key] }}</template>
                 </template>
@@ -311,9 +294,9 @@
           let rows={};
           let rows_array=[];
 
+          let incentive_slabs=res.data.incentive_slabs;
           let net_sale_adjustment=res.data.net_sale_adjustment;
           let manager_incentive=res.data.manager_incentive;
-          let incentive_slabs=res.data.incentive_slabs;
           let incentive_varieties=res.data.incentive_varieties;
 
           columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
@@ -324,23 +307,22 @@
 
           columns_all.push({'group':'quantity_target','key':'quantity_target','label':labels.get('label_quantity')+'</br>(target)'})
           columns_all.push({'group':'amount_target','key':'amount_target','label':labels.get('label_amount')+'</br>(target)'})
-          columns_all.push({'group':'quantity_sales_gross','key':'quantity_sales_gross','label':labels.get('label_quantity')+'</br>(Gross sales)'})
-          columns_all.push({'group':'amount_sales_gross','key':'amount_sales_gross','label':labels.get('label_amount')+'</br>(Gross sales)'})
-          columns_all.push({'group':'quantity_sales_cancel','key':'quantity_sales_cancel','label':labels.get('label_quantity')+'</br>(Canceled sales)'})
-          columns_all.push({'group':'amount_sales_cancel','key':'amount_sales_cancel','label':labels.get('label_amount')+'</br>(Canceled sales)'})
-          columns_all.push({'group':'quantity_sales_net','key':'quantity_sales_net','label':labels.get('label_quantity')+'</br>(Net sales)'})
-          columns_all.push({'group':'amount_sales_net','key':'amount_sales_net','label':labels.get('label_amount')+'</br>(Net sales)'})
+
+          columns_all.push({'group':'quantity_sales','key':'quantity_sales','label':labels.get('label_quantity')+'</br>(Sales)'})
+          columns_all.push({'group':'amount_sales','key':'amount_sales','label':labels.get('label_amount')+'</br>(Sales)'})
+
           columns_all.push({'group':'quantity_difference','key':'quantity_difference','label':labels.get('label_quantity')+'</br>(Difference)'})
           columns_all.push({'group':'amount_difference','key':'amount_difference','label':labels.get('label_amount')+'</br>(Difference)'})
+
           columns_all.push({'group':'achievement','key':'achievement','label':labels.get('label_achievement')})
+
+          columns_all.push({'group':'quantity_incentive','key':'quantity_incentive','label':labels.get('label_quantity_incentive')})
+          columns_all.push({'group':'amount_incentive','key':'amount_incentive','label':labels.get('label_amount')+' incentive</br>(net sales * v% * '+manager_incentive+'%)'})
+
           for(let i in incentive_slabs){
             columns_all.push({'group':'quantity_achievable','key':'quantity_achievable_'+incentive_slabs[i].id,'label':'Quantity Achievable</br>('+incentive_slabs[i].name+'%)'})
             columns_all.push({'group':'amount_achievable','key':'amount_achievable_'+incentive_slabs[i].id,'label':'Amount Achievable</br>('+incentive_slabs[i].name+'% * v% * '+manager_incentive+'%)'})
           }
-          columns_all.push({'group':'quantity_incentive','key':'quantity_incentive','label':labels.get('label_quantity')+'</br>(incentive)'})
-          columns_all.push({'group':'amount_incentive','key':'amount_incentive','label':labels.get('label_amount')+' incentive</br>(net sales * v% * '+manager_incentive+'%)'})
-
-
 
           for(let i in taskData.varieties) {
             let variety = taskData.varieties[i];
@@ -380,18 +362,13 @@
               rows[variety_id]['unit_price_net']=(+datum['unit_price_net'])
               rows[variety_id]['quantity_target']=(+datum['quantity_target'])
               rows[variety_id]['amount_target']=(+datum['amount_target'])
-              rows[variety_id]['quantity_sales_gross']=(+datum['quantity_sales_gross'])
-              rows[variety_id]['amount_sales_gross']=(+datum['amount_sales_gross'])
-              rows[variety_id]['quantity_sales_cancel']=(+datum['quantity_sales_cancel'])
-              rows[variety_id]['amount_sales_cancel']=(+datum['amount_sales_cancel'])
-              rows[variety_id]['quantity_sales_net']=(+datum['quantity_sales_net'])
-              rows[variety_id]['amount_sales_net']=(+datum['amount_sales_net'])
-              rows[variety_id]['quantity_difference']=(rows[variety_id]['quantity_target']-rows[variety_id]['quantity_sales_net'])
-              rows[variety_id]['amount_difference']=(rows[variety_id]['amount_target']-rows[variety_id]['amount_sales_net'])
+              rows[variety_id]['quantity_sales']=(+datum['quantity_sales'])
+              rows[variety_id]['amount_sales']=(+datum['amount_sales'])
+              rows[variety_id]['quantity_difference']=(rows[variety_id]['quantity_target']-rows[variety_id]['quantity_sales'])
+              rows[variety_id]['amount_difference']=(rows[variety_id]['amount_target']-rows[variety_id]['amount_sales'])
               rows[variety_id]['achievement']=(+datum['achievement'])
               rows[variety_id]['quantity_incentive']=(+datum['quantity_incentive'])
               rows[variety_id]['amount_incentive']=(+datum['amount_incentive'])
-
               for(let i in incentive_slabs){
                 let slab=incentive_slabs[i];
                 rows[variety_id]['quantity_achievable_'+slab.id]=rows[variety_id]['quantity_target']*(+slab.name)/100;
@@ -417,15 +394,14 @@
             let row=rows[rows_array[i]['id']];
             for(let index in columns_all)
             {
-              if(['amount_target','amount_sales_gross','amount_sales_cancel','amount_sales_net','amount_difference','amount_incentive','amount_achievable'].indexOf(columns_all[index]['group']) != -1){
+              if(['amount_target','amount_sales','amount_difference','amount_incentive','amount_achievable'].indexOf(columns_all[index]['group']) != -1){
                 row_total[columns_all[index]['key']]+=row[columns_all[index]['key']]
               }
             }
             rows_array[i]=row;
           }
-
           if(row_total['amount_target']>0){
-            row_total['achievement']=(row_total['amount_sales_net']*100/row_total['amount_target'])
+            row_total['achievement']=(row_total['amount_sales']*100/row_total['amount_target'])
           }
 
 
@@ -451,37 +427,13 @@
     }
     const toggleReportControlColumns=(event)=>{
       //show_report.value=false;
-      let hiddenColumns=[]
-      for(let i in taskData.columns.selectable2){
-        let column2=taskData.columns.selectable2[i];
-        let checked=$('.column_control.'+column2).is(':checked');
-        if(!checked){
-          for(let j in taskData.columns.selectable1){
-            let column1=taskData.columns.selectable1[j]
-            hiddenColumns.push(column1+'_'+column2)
-          }
-        }
+      let key=event.target .value;
+      if(event.target .checked){
+        taskData.columns.hidden=taskData.columns.hidden.filter(function(value) {return value !== key});
       }
-      for(let i in taskData.columns.selectable1){
-        let column1=taskData.columns.selectable1[i];
-        let checked=$('.column_control.'+column1).is(':checked');
-        if(!checked){
-          for(let j in taskData.columns.selectable2){
-            let column2=taskData.columns.selectable2[j]
-            if(hiddenColumns.indexOf((column1+'_'+column2))==-1){
-              hiddenColumns.push(column1+'_'+column2)
-            }
-          }
-        }
+      else{
+        taskData.columns.hidden.push(key);
       }
-      for(let i in taskData.columns.selectable3){
-        let column3=taskData.columns.selectable3[i];
-        let checked=$('.column_control.'+column3).is(':checked');
-        if(!checked){
-          hiddenColumns.push(column3)
-        }
-      }
-      taskData.columns.hidden=hiddenColumns
       calculateTableWidth();
     }
     const calculateTableWidth=()=>{
@@ -490,26 +442,8 @@
     setInputFields();
     $(document).ready(async function()
     {
-      taskData.columns.selectable2=['target','sales_gross','sales_cancel','sales_net','difference','achievable'];
-      taskData.columns.selectable1=['quantity','amount'];
-      taskData.columns.selectable3=['unit_price','unit_price_net','achievement','quantity_incentive','amount_incentive'];
-      taskData.columns.hidden=[];
-
-      await systemFunctions.delay(20);
-      //$('.column_control').prop('checked',true)
-      $('.column_control.target').prop('checked',true)
-      $('.column_control.sales_net').prop('checked',true)
-      $('.column_control.incentive').prop('checked',true)
-      $('.column_control.quantity').prop('checked',true)
-      //$('.column_control.amount').prop('checked',true)
-      $('.column_control.achievement').prop('checked',true)
-      $('.column_control.amount_incentive').prop('checked',true)
-      $('.column_control.unit_price').prop('checked',true)
-      $('.column_control.unit_price_net').prop('checked',true)
-      toggleReportControlColumns();
-
-      //taskData.columns.selectable=['unit_price','unit_price_net','quantity_target','amount_target','quantity_sales','amount_sales','quantity_difference','amount_difference','achievement','quantity_incentive','amount_incentive','quantity_achievable','amount_achievable'];
-      //taskData.columns.hidden=['unit_price','unit_price_net','amount_difference','quantity_incentive','quantity_achievable','amount_achievable'];
+      taskData.columns.selectable=['unit_price','unit_price_net','quantity_target','amount_target','quantity_sales','amount_sales','quantity_difference','amount_difference','achievement','quantity_incentive','amount_incentive','quantity_achievable','amount_achievable'];
+      taskData.columns.hidden=['unit_price','unit_price_net','amount_difference','quantity_incentive','quantity_achievable','amount_achievable'];
       //taskData.columns.hidden=['unit_price','unit_price_net','quantity_target','amount_target','quantity_sales','amount_sales','quantity_difference','amount_difference','achievement','quantity_incentive','amount_incentive',];
 
       $(document).off("change", "#crop_id");

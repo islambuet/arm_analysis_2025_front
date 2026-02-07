@@ -62,9 +62,10 @@
         <template v-for="row in taskData.itemsFiltered">
           <tr v-for="index  in row['num_rows']" >
             <template v-for="(column,key) in taskData.columns.all">
-              <td :class="((['amount_incentive'].indexOf(column.group) != -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
+              <td :class="((['part_name','area_name','territory_name'].indexOf(column.group) == -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
                 <template v-if="index==1">
-                  <template v-if="(['amount_incentive'].indexOf(column.group) != -1)">{{ row[column.key]?row[column.key].toFixed(2):'' }}</template>
+                  <template v-if="(['unit_price','amount_target','amount_sales_net','amount_sales_gross','amount_sales_cancel','amount_difference','amount_incentive'].indexOf(column.group) != -1)">{{ row[column.key]?row[column.key].toFixed(2):'' }}</template>
+                  <template v-else-if="(['achievement'].indexOf(column.group) != -1)">{{ row[column.key]?row[column.key].toFixed(2)+'%':'' }}</template>
                   <template v-else>{{ row[column.key] }}</template>
                 </template>
                 <template v-else>&nbsp</template>
@@ -293,7 +294,15 @@
               columns_all.push({'group':'territory_name','key':'territory_name','label':labels.get('label_territory_name')})
             }
           }
-          columns_all.push({'group':'amount_incentive','key':'amount_incentive','label':labels.get('label_amount')+' incentive'})
+          columns_all.push({'group':'amount_target','key':'amount_target','label':labels.get('label_amount_target')})
+          columns_all.push({'group':'amount_sales_gross','key':'amount_sales_gross','label':labels.get('label_amount_sales_gross')})
+          columns_all.push({'group':'amount_sales_cancel','key':'amount_sales_cancel','label':labels.get('label_amount_sales_cancel')})
+          columns_all.push({'group':'amount_sales_net','key':'amount_sales_net','label':labels.get('label_amount_sales_net')})
+          columns_all.push({'group':'amount_difference','key':'amount_difference','label':labels.get('label_amount_difference')})
+          columns_all.push({'group':'achievement','key':'achievement','label':labels.get('label_achievement')})
+          columns_all.push({'group':'amount_incentive','key':'amount_incentive','label':labels.get('label_amount_incentive')})
+
+
 
           if(options['report_format']=='part'){
             for(let i in taskData.location_parts){
@@ -307,7 +316,6 @@
               rows[part['id']]['id']=part['id'];
               rows[part['id']]['num_rows']=1;
               rows[part['id']]['part_name']=part['name'];
-              rows[part['id']]['amount_incentive']=0;
               rows_array.push(rows[part['id']])//for ordering
             }
           }
@@ -329,7 +337,7 @@
               rows[area['id']]['num_rows']=1;
               rows[area['id']]['part_name']=area['part_name'];
               rows[area['id']]['area_name']=area['name'];
-              rows[area['id']]['amount_incentive']=0;
+
               rows_array.push(rows[area['id']])//for ordering
 
             }
@@ -358,27 +366,53 @@
               rows[territory['id']]['part_name']=territory['part_name'];
               rows[territory['id']]['area_name']=territory['area_name'];
               rows[territory['id']]['territory_name']=territory['name'];
-              rows[territory['id']]['amount_incentive']=0;
+
               rows_array.push(rows[territory['id']])//for ordering
 
+            }
+          }
+          for(let id in rows){
+            for(let index in columns_all)
+            {
+              let group=columns_all[index]['group'];
+              if(['part_name','area_name','territory_name'].indexOf(group) == -1){
+                rows[id][columns_all[index]['key']]=0;
+              }
             }
           }
 
           let row_total={}
           row_total['id']=0;
           row_total['num_rows']=1;
+          for(let index in columns_all)
+          {
+            row_total[columns_all[index]['key']]=((['part_name','area_name','territory_name'].indexOf(columns_all[index]['group']) != -1)?'':0)
+          }
           row_total['part_name']='Grand Total';
-          row_total['area_name']='';
-          row_total['territory_name']='';
-          row_total['amount_incentive']=0;
 
           for(let location_id in res.data.items){
             let datum=res.data.items[location_id];
             if(rows[location_id]){
-              rows[location_id]['amount_incentive']=datum['amount_incentive'];
-              row_total['amount_incentive']+=datum['amount_incentive'];
+              rows[location_id]['amount_target']=(+datum['amount_target']);
+              rows[location_id]['amount_sales_gross']=(+datum['amount_sales_gross']);
+              rows[location_id]['amount_sales_cancel']=(+datum['amount_sales_cancel']);
+              rows[location_id]['amount_sales_net']=(+datum['amount_sales_net']);
+              rows[location_id]['amount_difference']=rows[location_id]['amount_target']-rows[location_id]['amount_sales_net'];
+              if(rows[location_id]['amount_target']>0){
+                rows[location_id]['achievement']=(rows[location_id]['amount_sales_net']*100/rows[location_id]['amount_target']);
+              }
+              rows[location_id]['amount_incentive']=(+datum['amount_incentive']);
 
+              row_total['amount_target']+=rows[location_id]['amount_target'];
+              row_total['amount_sales_gross']+=rows[location_id]['amount_sales_gross'];
+              row_total['amount_sales_cancel']+=rows[location_id]['amount_sales_cancel'];
+              row_total['amount_sales_net']+=rows[location_id]['amount_sales_net'];
+              row_total['amount_difference']+=rows[location_id]['amount_difference'];
+              row_total['amount_incentive']+=rows[location_id]['amount_incentive'];
             }
+          }
+          if(row_total['amount_target']>0){
+            row_total['achievement']=(row_total['amount_sales_net']*100/row_total['amount_target']);
           }
           for(let i in rows_array){
             rows_array[i]=rows[rows_array[i]['id']]
@@ -419,8 +453,8 @@
     setInputFields();
     $(document).ready(async function()
     {
-      taskData.columns.selectable=['amount_incentive'];
-      taskData.columns.hidden=[];
+      taskData.columns.selectable=['amount_target','amount_sales_gross','amount_sales_cancel','amount_sales_net','amount_difference','achievement','amount_incentive'];
+      taskData.columns.hidden=['amount_target','amount_sales_gross','amount_sales_cancel','amount_sales_net','amount_difference','achievement'];
 
       $(document).off("change", "#report_format");
       $(document).off("change", "#crop_id");

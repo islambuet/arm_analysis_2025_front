@@ -33,7 +33,11 @@ export default {
         bn:"কর্মচারী আইডি"
     },
     label_stock_end_quantity:{
-        en:"Balance",
+        en:"Balance quantity",
+        bn:"কর্মচারী আইডি"
+    },
+    label_stock_end_amount:{
+        en:"Balance amount",
         bn:"কর্মচারী আইডি"
     },
     label_month_status:{

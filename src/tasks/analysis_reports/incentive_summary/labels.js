@@ -16,7 +16,22 @@ export default {
         en:"Sales To",
         bn:'ব্যবহারকারীরা'
     },
-
+    label_amount_sales_gross:{
+        en:"Amount Gross Sales",
+        bn:'ব্যবহারকারীরা'
+    },
+    label_amount_sales_cancel:{
+        en:"Amount Canceled Sales",
+        bn:'ব্যবহারকারীরা'
+    },
+    label_amount_sales_net:{
+        en:"Amount Net Sales",
+        bn:'ব্যবহারকারীরা'
+    },
+    label_amount_difference:{
+        en:"Amount Difference",
+        bn:'ব্যবহারকারীরা'
+    },
     label_quantity_sales:{
         en:"Quantity (sale)",
         bn:"Quantity"
@@ -29,8 +44,8 @@ export default {
         en:"Net Unit Price",
         bn:"Amount"
     },
-    label_quantity_target:{
-        en:"Quantity (target)",
+    label_amount_target:{
+        en:"Amount target",
         bn:"Quantity"
     },
     label_quantity_achievable:{

@@ -62,9 +62,10 @@
         <template v-for="row in taskData.itemsFiltered">
           <tr v-for="index  in row['num_rows']" >
             <template v-for="(column,key) in taskData.columns.all">
-              <td :class="((['season','target_quantity','sales_quantity','balance_quantity','stock_open_quantity','stock_purchase_quantity','stock_sales_quantity','stock_end_quantity'].indexOf(column.group) != -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
+              <td :class="((['season','target_quantity','sales_quantity','balance_quantity','stock_open_quantity','stock_purchase_quantity','stock_sales_quantity','stock_end_quantity','unit_price','stock_end_amount'].indexOf(column.group) != -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
                 <template v-if="index==1">
                   <template v-if="(['target_quantity','sales_quantity','balance_quantity','stock_open_quantity','stock_purchase_quantity','stock_sales_quantity','stock_end_quantity'].indexOf(column.group) != -1)">{{ row[column.key]?(row[column.key]).toFixed(3):'' }}</template>
+                  <template v-else-if="(['unit_price','stock_end_amount'].indexOf(column.group) != -1)">{{ row[column.key]?(row[column.key]).toFixed(2):'' }}</template>
                   <template v-else-if="(['season'].indexOf(column.group) != -1)">
                     <div :style="'background-color: '+(type_months_color_object[row[column.key]]?type_months_color_object[row[column.key]]['color']:'#000000')">
                       &nbsp;{{ row[column.key] }}
@@ -366,6 +367,8 @@
           columns_all.push({'group':'stock_purchase_quantity','key':'stock_purchase_quantity','label':labels.get('label_stock_purchase_quantity'),'width':120})
           columns_all.push({'group':'stock_sales_quantity','key':'stock_sales_quantity','label':labels.get('label_stock_sales_quantity'),'width':120})
           columns_all.push({'group':'stock_end_quantity','key':'stock_end_quantity','label':labels.get('label_stock_end_quantity'),'width':120})
+          columns_all.push({'group':'unit_price','key':'unit_price','label':labels.get('label_unit_price'),'width':120})
+          columns_all.push({'group':'stock_end_amount','key':'stock_end_amount','label':labels.get('label_stock_end_amount'),'width':120})
           for(let i in taskData.varieties){
             let variety=taskData.varieties[i];
             if(variety['whose']!='ARM')
@@ -410,6 +413,9 @@
             rows[variety['id']]['stock_purchase_quantity']=0;
             rows[variety['id']]['stock_sales_quantity']=0;
             rows[variety['id']]['stock_end_quantity']=0;
+            rows[variety['id']]['unit_price']=0;
+            rows[variety['id']]['stock_end_amount']=0;
+            //'unit_price','stock_end_amount'
             rows_array.push(rows[variety['id']])//for ordering
           }
 
@@ -441,6 +447,17 @@
             }
           }
 
+          let row_total={}
+          row_total['id']=0;
+          row_total['num_rows']=1;
+          for(let index in columns_all)
+          {
+            row_total[columns_all[index]['key']]=((['crop_name','type_name','variety_name'].indexOf(columns_all[index]['group']) != -1)?'':0)
+          }
+          row_total['crop_name']='Grand Total';
+          row_total['season']=-1;
+
+          let varieties_unit_price_per_kg=res.data.varieties_unit_price_per_kg
           //For ordering
           for(let i in rows_array){
             let row=rows[rows_array[i]['id']];
@@ -448,8 +465,14 @@
               row['balance_quantity']=row['target_quantity']-row['sales_quantity']
             }
             row['stock_sales_quantity']=row['stock_open_quantity']+row['stock_purchase_quantity']-row['stock_end_quantity']
+            if(varieties_unit_price_per_kg[row['id']]){
+              row['unit_price']=(+varieties_unit_price_per_kg[row['id']])
+              row['stock_end_amount']=row['stock_end_quantity']*row['unit_price']
+            }
+            row_total['stock_end_amount']+=row['stock_end_amount']
             rows_array[i]=row;
           }
+          rows_array.unshift(row_total)
           taskData.itemsFiltered=rows_array;
           taskData.columns.all=columns_all;
           calculateTableWidth();
@@ -484,8 +507,8 @@
     setInputFields();
     $(document).ready(async function()
     {
-      taskData.columns.selectable=['season','target_quantity','sales_quantity','balance_quantity','stock_open_quantity','stock_purchase_quantity','stock_sales_quantity','stock_end_quantity'];
-      taskData.columns.hidden=[];
+      taskData.columns.selectable=['season','target_quantity','sales_quantity','balance_quantity','stock_open_quantity','stock_purchase_quantity','stock_sales_quantity','stock_end_quantity','unit_price','stock_end_amount'];
+      taskData.columns.hidden=['unit_price'];
       $(document).off("change", "#fiscal_year");
       $(document).off("change", "#month");
 

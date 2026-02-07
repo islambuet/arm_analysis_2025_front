@@ -62,9 +62,10 @@
         <template v-for="row in taskData.itemsFiltered">
           <tr v-for="index  in row['num_rows']" >
             <template v-for="(column,key) in taskData.columns.all">
-              <td :class="((['stock_open_quantity','stock_purchase_quantity','stock_sales_quantity','stock_end_quantity'].indexOf(column.group) != -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
+              <td :class="((['stock_open_quantity','stock_purchase_quantity','stock_sales_quantity','stock_end_quantity','unit_price','stock_end_amount'].indexOf(column.group) != -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
                 <template v-if="index==1">
                   <template v-if="(['stock_open_quantity','stock_purchase_quantity','stock_sales_quantity','stock_end_quantity'].indexOf(column.group) != -1)">{{ row[column.key]?(row[column.key]).toFixed(3):'' }}</template>
+                  <template v-else-if="(['unit_price','stock_end_amount'].indexOf(column.group) != -1)">{{ row[column.key]?(row[column.key]).toFixed(2):'' }}</template>
                   <template v-else>{{ row[column.key] }}</template>
                 </template>
                 <template v-else>&nbsp</template>
@@ -322,6 +323,7 @@
           columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
           columns_all.push({'group':'type_name','key':'type_name','label':labels.get('label_type_name')})
           columns_all.push({'group':'variety_name','key':'variety_name','label':labels.get('label_variety_name')})
+          columns_all.push({'group':'unit_price','key':'unit_price','label':labels.get('label_unit_price')})
           let locations=[];
           if(options['distributor_id']>0){
             locations=taskData.distributors.filter((temp)=>{ if((temp.id==options['distributor_id'])&& (temp.status=='Active')){temp.location_id=temp.id;temp.label=temp.name;return true}})
@@ -344,6 +346,7 @@
             columns_all.push({'group':'stock_purchase_quantity','key':'stock_purchase_quantity_'+location['location_id'],'label':location['label']+'<br>('+labels.get('label_stock_purchase_quantity')+')','width':120})
             columns_all.push({'group':'stock_sales_quantity','key':'stock_sales_quantity_'+location['location_id'],'label':location['label']+'<br>('+labels.get('label_stock_sales_quantity')+')','width':120})
             columns_all.push({'group':'stock_end_quantity','key':'stock_end_quantity_'+location['location_id'],'label':location['label']+'<br>('+labels.get('label_stock_end_quantity')+')','width':120})
+            columns_all.push({'group':'stock_end_amount','key':'stock_end_amount_'+location['location_id'],'label':location['label']+'<br>('+labels.get('label_stock_end_amount')+')','width':120})
           }
           for(let i in taskData.varieties){
             let variety=taskData.varieties[i];
@@ -379,12 +382,14 @@
             rows[variety['id']]['crop_name']=variety['crop_name'];
             rows[variety['id']]['type_name']=variety['type_name'];
             rows[variety['id']]['variety_name']=variety['name'];
+            rows[variety['id']]['unit_price']=0;
             for(let i in locations){
               let location=locations[i];
               rows[variety['id']]['stock_open_quantity_'+location['location_id']]=0;
               rows[variety['id']]['stock_purchase_quantity_'+location['location_id']]=0;
               rows[variety['id']]['stock_sales_quantity_'+location['location_id']]=0;
               rows[variety['id']]['stock_end_quantity_'+location['location_id']]=0;
+              rows[variety['id']]['stock_end_amount_'+location['location_id']]=0;
             }
             rows_array.push(rows[variety['id']])//for ordering
           }
@@ -410,18 +415,31 @@
               rows[datum['variety_id']]['stock_purchase_quantity_'+datum['location_id']]=(+datum['quantity']);
             }
           }
+          let row_total={}
+          row_total['id']=0;
+          row_total['num_rows']=1;
+          for(let index in columns_all)
+          {
+            row_total[columns_all[index]['key']]=((['crop_name','type_name','variety_name'].indexOf(columns_all[index]['group']) != -1)?'':0)
+          }
+          row_total['crop_name']='Grand Total';
 
+          let varieties_unit_price_per_kg=res.data.varieties_unit_price_per_kg
           //For ordering
           for(let i in rows_array){
             let row=rows[rows_array[i]['id']];
+            if(varieties_unit_price_per_kg[row['id']]){
+              row['unit_price']=(+varieties_unit_price_per_kg[row['id']])
+            }
             for(let i in locations){
               let location=locations[i];
               row['stock_sales_quantity_'+location['location_id']]=row['stock_open_quantity_'+location['location_id']]+row['stock_purchase_quantity_'+location['location_id']]-row['stock_end_quantity_'+location['location_id']]
+              row['stock_end_amount_'+location['location_id']]=(+row['stock_end_quantity_'+location['location_id']])*row['unit_price']
+              row_total['stock_end_amount_'+location['location_id']]+=row['stock_end_amount_'+location['location_id']]
             }
             rows_array[i]=row;
           }
-
-
+          rows_array.unshift(row_total)
           taskData.itemsFiltered=rows_array;
           taskData.columns.all=columns_all;
           calculateTableWidth();
@@ -456,8 +474,8 @@
     setInputFields();
     $(document).ready(async function()
     {
-      taskData.columns.selectable=['stock_open_quantity','stock_purchase_quantity','stock_sales_quantity','stock_end_quantity'];
-      taskData.columns.hidden=['stock_open_quantity','stock_purchase_quantity','stock_sales_quantity'];
+      taskData.columns.selectable=['stock_open_quantity','stock_purchase_quantity','stock_sales_quantity','stock_end_quantity','stock_end_amount','unit_price'];
+      taskData.columns.hidden=['stock_open_quantity','stock_purchase_quantity','stock_sales_quantity','unit_price'];
       $(document).off("change", "#fiscal_year");
       $(document).off("change", "#month");
 

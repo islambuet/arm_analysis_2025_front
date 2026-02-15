@@ -43,5 +43,9 @@ export default {
         en:"Features",
         bn:"কর্মচারী আইডি"
     },
+    label_characteristics:{
+        en:"Characteristics",
+        bn:"কর্মচারী আইডি"
+    },
 
 }

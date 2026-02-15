@@ -71,6 +71,12 @@
       type:'text',
       values:[item.data[key]],
     };
+    key='characteristics';
+    detailFields[key] = {
+      label: labels.get('label_'+key),
+      type:'text',
+      values:[item.data[key]],
+    };
     key='whose';
     detailFields[key] = {
       label: labels.get('label_'+key),

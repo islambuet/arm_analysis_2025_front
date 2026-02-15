@@ -47,6 +47,7 @@ let item=reactive({
     crop_id:'',
     crop_type_id:'',
     variety_sub_type_id:'',
+    characteristics:'',
     whose:'ARM',
     principal_id:'',
     competitor_id:'',
@@ -109,6 +110,14 @@ const setInputFields=async ()=>{
     options:taskData.variety_sub_types.map((item)=>{ return {value:item.id,label:item.name}}),
     default:item.data[key],
     mandatory:true
+  };
+  key='characteristics';
+  inputFields[key] = {
+    name: 'item[' +key +']',
+    label: labels.get('label_'+key),
+    type:'textarea',
+    default:item.data[key],
+    mandatory:false
   };
   key='whose';
   inputFields[key] = {

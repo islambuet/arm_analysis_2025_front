@@ -85,7 +85,7 @@
         filter:{from:'',to:''},
         class:'col_1'
       };
-      key='sales_at';
+      key='sales_return_at';
       columns[key]={
         label: labels.get('label_'+key),
         hideable:true,

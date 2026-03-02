@@ -129,6 +129,25 @@ const setInputFields=async ()=>{
     default:new Date().getTime(),
     mandatory:true
   };
+  key='sales_return_at';
+  if(taskData.permissions.action_3){
+    inputFields[key] = {
+      name: 'item[' +key +']',
+      label: labels.get('label_'+key),
+      type:'datetime-local',
+      default:moment().format('YYYY-MM-DDTHH:mm'),
+      mandatory:true
+    };
+  }
+  else{
+    inputFields[key] = {
+      name: 'item[' +key +']',
+      label: labels.get('label_'+key),
+      type:'hidden',
+      default:moment().format('YYYY-MM-DDTHH:mm'),
+      mandatory:true
+    };
+  }
   key='part_id';
   inputFields[key] = {
     name: key,
@@ -363,6 +382,11 @@ $(document).ready(async function()
   })
   $(document).off("change", "#month");
   $(document).on("change",'#month',async function()
+  {
+    getItem()
+  })
+  $(document).off("change", "#sales_return_at");
+  $(document).on("change",'#sales_return_at',async function()
   {
     getItem()
   })

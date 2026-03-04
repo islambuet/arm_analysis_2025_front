@@ -193,6 +193,16 @@
         default:'',
         mandatory:false
       };
+      key='num_months';
+      inputFields[key] = {
+        name: 'options[' +key +']',
+        label: labels.get('label_'+key),
+        type:'dropdown',
+        options:new Array(12).fill().map((temp,index) => {return {value:index+1,label:index+1}}),
+        default:'',
+        mandatory:false,
+        noselect:true,
+      };
 
       key='sales_from';
       inputFields[key] = {

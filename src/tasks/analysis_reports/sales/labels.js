@@ -11,6 +11,10 @@ export default {
         en:"Num of Fiscal Year",
         bn:'ব্যবহারকারীরা'
     },
+    label_num_months :{
+        en:"Num of Months",
+        bn:'ব্যবহারকারীরা'
+    },
     label_sales_from:{
         en:"Sales From",
         bn:'ব্যবহারকারীরা'

@@ -22,7 +22,7 @@
         <div class="col-lg-4 col-8">
           <div class="input-group" >
             <select id="season_id" class="form-control">
-              <option v-for="season in taskData.seasons" :value="season.id" :selected="season.id==taskData.season_id">
+              <option v-for="season in taskData.seasons" :value="season.id" :selected="season['month_'+globalVariables.current_month]==1">
                 {{season.name}}
               </option>
             </select>

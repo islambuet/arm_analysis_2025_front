@@ -95,23 +95,32 @@ export default{
         }
         return filterItems;
     },
-    exportCsvFromHtmlTable(htmlTable,outputFile){
+    getCsvStringFromHtmlTable(htmlTable){
         let csvStr="";
-        let headers=$(htmlTable+' thead th');
+        let headers=$(htmlTable+' thead th').not('.d-print-none');
         if(headers.length>0){
             $.each( headers, function( key, header ) {
-                csvStr=csvStr+'"'+$(header).text()+'",';
+                csvStr=csvStr+'"'+$(header).children().not('.d-print-none').text()+'",';
             });
             csvStr+="\n";
         }
         let rows=$(htmlTable+' tbody tr');
         $.each( rows, function( key, row ) {
-            let cols=$(row).children('td');
+            let cols=$(row).children('td').not('.d-print-none');
             $.each( cols, function( i, col ) {
-                csvStr=csvStr+'"'+$(col).text().replace()+'",';
+                let text=$(col).text().replace();
+                text=text.replaceAll('"','""');//replace one quote to two quote/. problem mya happen if there is more than one quote
+                csvStr=csvStr+'"'+text+'",';
             });
             csvStr+="\n";
         });
+        return csvStr;
+    },
+    exportCsvFromHtmlTable(htmlTable,outputFile){
+        let csvStr=this.getCsvStringFromHtmlTable(htmlTable);
+        this.exportCsvFromCsvString(csvStr,outputFile)
+    },
+    exportCsvFromCsvString(csvStr,outputFile){
         let hiddenElement = document.createElement('a');
         hiddenElement.href = 'data:text/csv;charset=utf-8,%EF%BB%BF' + encodeURIComponent(csvStr);
         hiddenElement.target = '_blank';

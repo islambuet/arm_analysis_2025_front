@@ -11,6 +11,9 @@
   <div class="card d-print-none mb-2">
     <div class="card-body">
       <form id="formSaveItem">
+        <input type="hidden" name="save_token" :value="new Date().getTime()">
+        <input type="hidden" name="id" :value="item.id">
+
         <div class="row">
           <div class="col-md-2">
             <div class="row">
@@ -18,11 +21,9 @@
                 <label class="font-weight-bold float-right">{{labels.get('label_part_name')}}</label>
               </div>
               <div class="col-8">
-                <div class="input-group">
                   <select id="add_part_id" class="form-control">
                     <option value="">{{labels.get('label_select')}}</option>
                   </select>
-                </div>
               </div>
             </div>
           </div>
@@ -32,11 +33,9 @@
                 <label class="font-weight-bold float-right">{{labels.get('label_area_name')}}</label>
               </div>
               <div class="col-8">
-                <div class="input-group">
                   <select id="add_area_id" class="form-control">
                     <option value="">{{labels.get('label_select')}}</option>
                   </select>
-                </div>
               </div>
             </div>
           </div>
@@ -46,11 +45,9 @@
                 <label class="font-weight-bold float-right">{{labels.get('label_territory_name')}}</label>
               </div>
               <div class="col-8">
-                <div class="input-group">
                   <select id="add_territory_id" class="form-control">
                     <option value="">{{labels.get('label_select')}}</option>
                   </select>
-                </div>
               </div>
             </div>
           </div>
@@ -60,57 +57,101 @@
                 <label class="font-weight-bold float-right">{{labels.get('label_upazila_id')}}</label>
               </div>
               <div class="col-8">
-                <div class="input-group">
                   <select id="add_upazila_id" class="form-control" name="item[upazila_id]">
                     <option value="">{{labels.get('label_select')}}</option>
                   </select>
-                </div>
               </div>
             </div>
+          </div>
+        </div>
+        <div class="row mt-2">
+          <div class="col-md-2">
+            <div class="row">
+              <div class="col-4">
+                <label class="font-weight-bold float-right">{{labels.get('label_crop_name')}}</label>
+              </div>
+              <div class="col-8">
+                  <select id="add_crop_id" class="form-control">
+                    <option value="">{{labels.get('label_select')}}</option>
+                    <option v-for="row in taskData.crops" :value="row.id">
+                      {{row.name}}
+                    </option>
+                  </select>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="row">
+              <div class="col-4">
+                <label class="font-weight-bold float-right">{{labels.get('label_crop_type_name')}}</label>
+              </div>
+              <div class="col-8">
+                  <select id="add_type_id" class="form-control">
+                    <option value="">{{labels.get('label_select')}}</option>
+                  </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-2">
+          <div class="col-2"><label class="font-weight-bold float-right">Variety <span class="text-danger">*</span></label></div>
+          <div class="col-5">
+              <select id="arm_variety_id" class="form-control" name="item[variety_id_arm]">
+                <option value="">{{labels.get('label_select')}}</option>
+              </select>
+          </div>
+          <div class="col-5">
+              <select id="competitor_variety_id" class="form-control" name="item[variety_id_competitor]">
+                <option value="">{{labels.get('label_select')}}</option>
+              </select>
+          </div>
+        </div>
+        <div class="row mt-2">
+          <div class="col-2"><label class="font-weight-bold float-right">Farmer Name <span class="text-danger">*</span></label></div>
+          <div class="col-5">
+              <input id="farmer_name" type="text" class="form-control" name="item[farmer_name]">
+          </div>
+        </div>
+        <div class="row mt-2">
+          <div class="col-2"><label class="font-weight-bold float-right">Mobile <span class="text-danger">*</span></label></div>
+          <div class="col-5">
+              <input id="mobile" type="text" class="form-control" name="item[mobile_no]">
+          </div>
+        </div>
+        <div class="row mt-2">
+          <div class="col-2"><label class="font-weight-bold float-right">Sowing Date <span class="text-danger">*</span></label></div>
+          <div class="col-5">
+              <input id="arm_sowing_date" type="date" class="form-control" name="item[sowing_date_arm]">
+          </div>
+          <div class="col-5">
+              <input id="competitor_sowing_date" type="date" class="form-control" name="item[sowing_date_competitor]">
+          </div>
+        </div>
+        <div class="row mt-2">
+          <div class="col-2"><label class="font-weight-bold float-right">Picture</label></div>
+          <div class="col-5">
+              <InputTemplate :inputItems="item.inputFieldsPicturesArm" />
+          </div>
+          <div class="col-5">
+            <InputTemplate :inputItems="item.inputFieldsPicturesCompetitor" />
+          </div>
+        </div>
+        <div class="row mt-2">
+          <div class="col-2"><label class="font-weight-bold float-right">Farmer Picture</label></div>
+          <div class="col-5">
+            <InputTemplate :inputItems="item.inputFieldsPicturesFarmer" />
+          </div>
+        </div>
+        <div class="row mt-2">
+          <div class="col-2"><label class="font-weight-bold float-right">Comparison Picture</label></div>
+          <div class="col-5">
+            <InputTemplate :inputItems="item.inputFieldsPicturesComparison" />
           </div>
         </div>
       </form>
     </div>
   </div>
-  <div class="card d-print-none mb-2" v-if="item.exists">
-    <div class="card-header">
-      <div v-if="item.id>0">{{labels.get('label_edit_task')}}({{item.id}})</div>
-      <div v-else>{{labels.get('label_new_task')}}</div>
-    </div>
-    <div class="card-body">
-      <form id="formSaveItem">
-        <InputTemplate :inputItems="item.inputFields" />
-        <div class="row mb-2">
-          <div class="col-4">
-            <label class="font-weight-bold float-right">Images</label>
-          </div>
-          <div class="col-lg-4 col-8">
-            <div class="row mb-2">
-              <div class="col-12">
-                <div class="input-group input-group-sm">
-                  <div class="input-group-prepend">
-                    <label class="btn btn-sm bg-gradient-primary" style="cursor: pointer;">
-                      <input id="picture_farmer" type="file" class="d-none" name="pics[]" multiple data-preview-container="#picture_farmer_preview_container_">
-                      <i class="bi bi-upload"></i> Select File
-                    </label>
-                  </div>
-                  <label class="form-control custom-file-name"></label>
-                  <div class="input-group-append clear_file">
-                    <label class="btn btn-sm bg-gradient-info" style="cursor: pointer;">clear</label>
-                  </div><input id="picture_farmer_file_input" type="hidden" name="item[picture_farmer]">
-                </div>
-              </div>
-            </div>
-            <div class="row mb-2">
-              <div class="col-12 system_preview_container" id="picture_farmer_preview_container_">
-                <img style="max-width: 100%; max-height: 200px;" src="/theme/images/no_image.jpg">
-              </div>
-            </div>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
+
 </template>
 <script setup>
 
@@ -133,6 +174,10 @@ let item=reactive({
   id:0,
   exists:false,
   inputFields:{},
+  inputFieldsPicturesArm:{},
+  inputFieldsPicturesCompetitor:{},
+  inputFieldsPicturesFarmer:{},
+  inputFieldsPicturesComparison:{},
   data:{
     id:0,
     name:'',
@@ -144,36 +189,58 @@ let item=reactive({
   }
 })
 const setInputFields=async ()=>{
-  // item.inputFields= {};
-  // await systemFunctions.delay(1);
-  // let inputFields={}
-  // let key='save_token';
-  // inputFields[key] = {
-  //   name: key,
-  //   label: labels.get('label_'+key),
-  //   type:'hidden',
-  //   default:new Date().getTime(),
-  //   mandatory:true
-  // };
-  // key='picture_farmer';
-  // inputFields[key] = {
-  //   name: 'item[' +key +']',
-  //   label: labels.get('label_'+key),
-  //   type:'image',
-  //   default:'',
-  //   mandatory:true,
-  //   more_values:['x','y'],
-  //
-  // };
-  //
-  // item.inputFields=inputFields;
+  let inputFields={}
+  let key='picture_arm';
+  inputFields[key] = {
+    name: 'item[pictures][' +key +']',
+    //label: '',
+    type:'image',
+    default:'',
+    mandatory:true,
+    more_values:[],
+  };
+  item.inputFieldsPicturesArm=inputFields;
+  inputFields={}
+  key='picture_competitor';
+  inputFields[key] = {
+    name: 'item[pictures][' +key +']',
+    //label: '',
+    type:'image',
+    default:'',
+    mandatory:true,
+    more_values:[],
+  };
+  item.inputFieldsPicturesCompetitor=inputFields;
 
+  inputFields={}
+  key='picture_farmer';
+  inputFields[key] = {
+    name: 'item[pictures][' +key +']',
+    //label: '',
+    type:'image',
+    default:'',
+    mandatory:true,
+    more_values:[],
+  };
+  item.inputFieldsPicturesFarmer=inputFields;
+
+  inputFields={}
+  key='picture_comparison';
+  inputFields[key] = {
+    name: 'item[pictures][' +key +']',
+    //label: '',
+    type:'image',
+    default:'',
+    mandatory:true,
+    more_values:[],
+  };
+  item.inputFieldsPicturesComparison=inputFields;
 
 }
 const save=async (save_and_new)=>{
   let saveData=false;
-  //let fileFormData=await systemFunctions.getImageFormData('formSaveItem');
-  let fileFormData=new FormData(document.getElementById('formSaveItem'))
+  let fileFormData=await systemFunctions.getImageFormData('formSaveItem');
+  //let fileFormData=new FormData(document.getElementById('formSaveItem'))
   if(systemFunctions.isFormDataEmpty(fileFormData)){
     saveData=true;
     toastFunctions.showErrorMessage(labels.get("Profile Image not attached"))
@@ -187,9 +254,9 @@ const save=async (save_and_new)=>{
       if (res.data.error == "") {
         let uploadData = res.data.uploaded_files;
         console.log(uploadData)
-        // for(let key in uploadData){
-        //   $('#'+key+'_file_input').val(uploadData[key].path)
-        // }
+        for(let key in uploadData){
+          $('#'+key+'_file_input').val(uploadData[key].path)
+        }
         saveData=true;
       }
       else{
@@ -198,27 +265,27 @@ const save=async (save_and_new)=>{
     });
     //console.log(fileFormData.entries())
   }
-  // let formData=new FormData(document.getElementById('formSaveItem'))
-  // await axios.post(taskData.api_url+'/save-item',formData).then((res)=>{
-  //   if (res.data.error == "") {
-  //     globalVariables.loadListData=true;
-  //     toastFunctions.showSuccessfullySavedMessage();
-  //     if(save_and_new){
-  //       if(item.id>0){
-  //         router.push(taskData.api_url+"/add")
-  //       }
-  //       else{
-  //         setInputFields();
-  //       }
-  //     }
-  //     else{
-  //       router.push(taskData.api_url)
-  //     }
-  //   }
-  //   else{
-  //     toastFunctions.showResponseError(res.data)
-  //   }
-  // });
+  let formData=new FormData(document.getElementById('formSaveItem'))
+  await axios.post(taskData.api_url+'/save-item',formData).then((res)=>{
+    if (res.data.error == "") {
+      globalVariables.loadListData=true;
+      toastFunctions.showSuccessfullySavedMessage();
+      if(save_and_new){
+        if(item.id>0){
+          router.push(taskData.api_url+"/add")
+        }
+        else{
+          setInputFields();
+        }
+      }
+      else{
+        router.push(taskData.api_url)
+      }
+    }
+    else{
+      toastFunctions.showResponseError(res.data)
+    }
+  });
 
 }
 const getItem=async ()=>{
@@ -296,5 +363,36 @@ $(document).ready(async function() {
     $('#add_upazila_id').html(taskData.getUpazilaDropdownHtml(location_id));
     item.exists = false;
   })
+  $(document).off("change", "#add_crop_id");
+  $(document).on("change",'#add_crop_id',async function()
+  {
+    let crop_id=$(this).val();
+    let html='<option value="">'+labels.get('label_select')+'</option>';
+    for(let i in taskData.crop_types){
+      let crop_type=taskData.crop_types[i];
+      if(crop_type['crop_id']==crop_id){
+        html+=('<option value="'+crop_type['id']+'">'+crop_type['name']+'</option>');
+      }
+    }
+    $('#add_type_id').html(html);
+  })
+  $(document).off("change", "#add_type_id");
+  $(document).on("change",'#add_type_id',async function()
+  {
+    let type_id=$(this).val();
+    let html='<option value="">'+labels.get('label_select')+'</option>';
+    for(let i in taskData.varieties_arm_typewise_ordered[type_id]){
+      let variety=taskData.varieties_arm_typewise_ordered[type_id][i];
+      html+=('<option value="'+variety['id']+'">'+variety['name']+'</option>');
+    }
+    $('#arm_variety_id').html(html);
+    html='<option value="">'+labels.get('label_select')+'</option>';
+    for(let i in taskData.varieties_competitor_typewise_ordered[type_id]){
+      let variety=taskData.varieties_competitor_typewise_ordered[type_id][i];
+      html+=('<option value="'+variety['id']+'">'+variety['name']+'</option>');
+    }
+    $('#competitor_variety_id').html(html);
+  })
+
 });
 </script>

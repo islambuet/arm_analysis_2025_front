@@ -1,9 +1,9 @@
 <template>
   <div class="row mb-2" v-if="!inputItem.more_values">
-    <div class="col-4">
+    <div class="col-4" v-if="inputItem.label">
       <label class="font-weight-bold float-right">{{inputItem.label}} <span class="text-danger" v-if="inputItem.mandatory">*</span></label>
     </div>
-    <div class="col-lg-4 col-8">
+    <div :class="inputItem.label?'col-lg-4 col-8':'col-12'">
       <div class="row mb-2">
         <div class="col-12">
           <div class="input-group input-group-sm">
@@ -29,10 +29,10 @@
     </div>
   </div>
   <div class="row mb-2" :id="inputKey+'_system_add_more_input_container'" v-else>
-    <div class="col-4">
+    <div class="col-4" v-if="inputItem.label">
       <label class="font-weight-bold float-right">{{inputItem.label}} <span class="text-danger" v-if="inputItem.mandatory">*</span></label>
     </div>
-    <div class="col-lg-4 col-8">
+    <div :class="inputItem.label?'col-lg-4 col-8':'col-12'">
       <div class="row mb-2">
         <div class="col-12">
           <button type="button" class="system_add_more_button mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="addMore(inputItem.default)"><i class="bi bi-plus-circle"></i> {{labels.get('label_add_more')}}</button>

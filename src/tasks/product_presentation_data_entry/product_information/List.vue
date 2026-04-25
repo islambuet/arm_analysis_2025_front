@@ -148,16 +148,25 @@
         filter:{from:'',to:''},
         class:'col_1'
       };
-      key='name';
+      key='part_name';
       columns[key]={
         label: labels.get('label_'+key),
-        hideable:false,
+        hideable:true,
+        filterable:true,
+        sortable:true,
+        type:'dropdown',
+        filter:{from:'',to:'',options:taskData.location_parts.map((item)=>{ return {value:item.name,label:item.name}}),}
+      };
+      key='area_name';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
         filterable:true,
         sortable:true,
         type:'text',
         filter:{from:'',to:''}
       };
-      key='code';
+      key='territory_name';
       columns[key]={
         label: labels.get('label_'+key),
         hideable:true,
@@ -166,55 +175,70 @@
         type:'text',
         filter:{from:'',to:''}
       };
-      key='replica';
-      columns[key]={
-        label: labels.get('label_'+key),
-        hideable:true,
-        sortable:true,
-        filterable:true,
-        type:'dropdown',
-        filter:{from:'',to:'',options:[{label:"Yes",value:'Yes'},{label:"No",value:'No'}]},
-        class:'col_1'
-      };
-      key='initial_plants';
-      columns[key]={
-        label: labels.get('label_'+key),
-        hideable:true,
-        filterable:false,
-        sortable:true,
-        type:'number',
-        filter:{from:'',to:''},
-        class:'col_1'
-      };
-      key='ordering';
-      columns[key]={
-        label: labels.get('label_'+key),
-        hideable:true,
-        filterable:false,
-        sortable:true,
-        type:'number',
-        filter:{from:'',to:''},
-        class:'col_1'
-      };
-      key='status';
-      columns[key]={
-        label: labels.get('label_'+key),
-        hideable:true,
-        sortable:true,
-        filterable:true,
-        type:'dropdown',
-        filter:{from:'',to:'',options:[{value:'Active',label:'Active'},{value:'In-Active',label:'In-Active'}]},
-        class:'col_1'
-      };
-      key='created_at';
+      key='district_name';
       columns[key]={
         label: labels.get('label_'+key),
         hideable:true,
         filterable:true,
         sortable:true,
-        type:'date',
+        type:'text',
         filter:{from:'',to:''}
       };
+      key='upazila_name';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:true,
+        sortable:true,
+        type:'text',
+        filter:{from:'',to:''}
+      };
+      key='crop_name';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:true,
+        sortable:true,
+        type:'dropdown',
+        filter:{from:'',to:'',options:taskData.crops.map((item)=>{ return {value:item.name,label:item.name}}),}
+      };
+      key='crop_type_name';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:true,
+        sortable:true,
+        type:'text',
+        filter:{from:'',to:''}
+      };
+      key='variety_name_arm';
+      columns[key]={
+        label: 'ARM '+labels.get('label_variety_name'),
+        hideable:true,
+        filterable:true,
+        sortable:true,
+        type:'text',
+        filter:{from:'',to:''}
+      };
+      key='competitor_name';
+      columns[key]={
+        label: 'Competitor',
+        hideable:true,
+        filterable:true,
+        sortable:true,
+        type:'text',
+        filter:{from:'',to:''}
+      };
+      key='variety_name_competitor';
+      columns[key]={
+        label: 'Competitor '+labels.get('label_variety_name'),
+        hideable:true,
+        filterable:true,
+        sortable:true,
+        type:'text',
+        filter:{from:'',to:''}
+      };
+
       taskData.columns.all=columns
     }
     setColumns();

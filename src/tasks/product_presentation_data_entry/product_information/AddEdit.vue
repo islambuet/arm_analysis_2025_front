@@ -265,27 +265,27 @@ const save=async (save_and_new)=>{
     });
     //console.log(fileFormData.entries())
   }
-  let formData=new FormData(document.getElementById('formSaveItem'))
-  await axios.post(taskData.api_url+'/save-item',formData).then((res)=>{
-    if (res.data.error == "") {
-      globalVariables.loadListData=true;
-      toastFunctions.showSuccessfullySavedMessage();
-      if(save_and_new){
-        if(item.id>0){
-          router.push(taskData.api_url+"/add")
+  if(saveData) {
+    await systemFunctions.delay(2);//to confirm input is set
+    let formData = new FormData(document.getElementById('formSaveItem'))
+    await axios.post(taskData.api_url + '/save-item', formData).then((res) => {
+      if (res.data.error == "") {
+        globalVariables.loadListData = true;
+        toastFunctions.showSuccessfullySavedMessage();
+        if (save_and_new) {
+          if (item.id > 0) {
+            router.push(taskData.api_url + "/add")
+          } else {
+            setInputFields();
+          }
+        } else {
+          router.push(taskData.api_url)
         }
-        else{
-          setInputFields();
-        }
+      } else {
+        toastFunctions.showResponseError(res.data)
       }
-      else{
-        router.push(taskData.api_url)
-      }
-    }
-    else{
-      toastFunctions.showResponseError(res.data)
-    }
-  });
+    });
+  }
 
 }
 const getItem=async ()=>{

@@ -244,28 +244,10 @@
     setColumns();
     $(document).ready(async function()
     {
-      if(taskData.user_locations.part_id>0)
-      {
-        $('#list_search_part_id').html('<option value="'+taskData.user_locations.part_id+'">'+taskData.location_parts.find(temp=>temp.id==taskData.user_locations.part_id)?.name+'</option>');
-        if(taskData.user_locations.area_id>0)
-        {
-          $('#list_search_area_id').html('<option value="'+taskData.user_locations.area_id+'">'+taskData.location_areas.find(temp=>temp.id==taskData.user_locations.area_id)?.name+'</option>');
-          if(taskData.user_locations.territory_id>0)
-          {
-            $('#list_search_territory_id').html('<option value="'+taskData.user_locations.territory_id+'">'+taskData.location_territories.find(temp=>temp.id==taskData.user_locations.territory_id)?.name+'</option>');
-            $('#list_search_upazila_id').html(taskData.getUpazilaDropdownHtml(taskData.user_locations.territory_id));
-          }
-          else{
-            $('#list_search_territory_id').html(taskData.getTerritoryDropdownHtml(taskData.user_locations.area_id));
-          }
-        }
-        else{
-          $('#list_search_area_id').html(taskData.getAreaDropdownHtml(taskData.user_locations.part_id));
-        }
-      }
-      else{
-        $('#list_search_part_id').html(taskData.getPartDropdownHtml());
-      }
+      $('#list_search_part_id').html(taskData.getPartDropdownHtml(taskData.user_locations.part_id,0));
+      $('#list_search_area_id').html(taskData.getAreaDropdownHtml(taskData.user_locations.part_id,taskData.user_locations.area_id,0));
+      $('#list_search_territory_id').html(taskData.getTerritoryDropdownHtml(taskData.user_locations.area_id,taskData.user_locations.territory_id,0));
+      $('#list_search_upazila_id').html(taskData.getUpazilaDropdownHtml(taskData.user_locations.territory_id,0));
       $(document).off("change", "#list_search_part_id");
       $(document).on("change", '#list_search_part_id', async function () {
         let location_id = $(this).val();

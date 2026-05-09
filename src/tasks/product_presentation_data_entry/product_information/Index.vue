@@ -137,40 +137,56 @@ const init=async ()=>{
     }
   });
 }
-taskData.getPartDropdownHtml=()=>{
+taskData.getPartDropdownHtml=(user_part_id=0,selected=0)=>{
   let html='<option value="">'+labels.get('label_select')+'</option>';
-  for(let i in taskData.location_parts){
-    let location=taskData.location_parts[i];
-    html+=('<option value="'+location['id']+'">'+location['name']+'</option>');
+  if(user_part_id>0){
+    html='<option value="'+user_part_id+'">'+taskData.location_parts.find(temp=>temp.id==user_part_id)?.name+'</option>';
   }
+  else{
+    for(let i in taskData.location_parts){
+      let location=taskData.location_parts[i];
+      html+=('<option value="'+location['id']+'"'+(selected==location['id']?'selected':'')+' >'+location['name']+'</option>');
+    }
+  }
+
   return html;
 }
-taskData.getAreaDropdownHtml=(part_id)=>{
+taskData.getAreaDropdownHtml=(part_id,user_area_id=0,selected=0)=>{
   let html='<option value="">'+labels.get('label_select')+'</option>';
-  for(let i in taskData.location_areas){
-    let location=taskData.location_areas[i];
-    if(location['part_id']==part_id){
-      html+=('<option value="'+location['id']+'">'+location['name']+'</option>');
+  if(user_area_id>0){
+    html='<option value="'+user_area_id+'">'+taskData.location_areas.find(temp=>temp.id==user_area_id)?.name+'</option>';
+  }
+  else{
+    for(let i in taskData.location_areas){
+      let location=taskData.location_areas[i];
+      if(location['part_id']==part_id){
+        html+=('<option value="'+location['id']+'"'+(selected==location['id']?'selected':'')+' >'+location['name']+'</option>');
+      }
     }
   }
   return html;
 }
-taskData.getTerritoryDropdownHtml=(area_id)=>{
+taskData.getTerritoryDropdownHtml=(area_id,user_territory_id=0,selected=0)=>{
   let html='<option value="">'+labels.get('label_select')+'</option>';
-  for(let i in taskData.location_territories){
-    let location=taskData.location_territories[i];
-    if(location['area_id']==area_id){
-      html+=('<option value="'+location['id']+'">'+location['name']+'</option>');
+  if(user_territory_id>0){
+    html='<option value="'+user_territory_id+'">'+taskData.location_territories.find(temp=>temp.id==user_territory_id)?.name+'</option>';
+  }
+  else{
+    for(let i in taskData.location_territories){
+      let location=taskData.location_territories[i];
+      if(location['area_id']==area_id){
+        html+=('<option value="'+location['id']+'"'+(selected==location['id']?'selected':'')+' >'+location['name']+'</option>');
+      }
     }
   }
   return html;
 }
-taskData.getUpazilaDropdownHtml=(territory_id)=>{
+taskData.getUpazilaDropdownHtml=(territory_id,selected=0)=>{
   let html='<option value="">'+labels.get('label_select')+'</option>';
   for(let i in taskData.location_upazilas){
     let location=taskData.location_upazilas[i];
     if(location['territory_id']==territory_id){
-      html+=('<option value="'+location['id']+'">'+(location['name']+'-'+location['district_name'])+'</option>');
+      html+=('<option value="'+location['id']+'"'+(selected==location['id']?'selected':'')+' >'+(location['name']+'-'+location['district_name'])+'</option>');
     }
   }
   return html;

@@ -160,6 +160,12 @@
             <InputTemplate :inputItems="item.inputFieldsPicturesComparison" />
           </div>
         </div>
+        <div class="row mt-2">
+          <div class="col-2"><label class="font-weight-bold float-right">Videos</label></div>
+          <div class="col-5">
+            <InputTemplate :inputItems="item.inputFieldsVideo" />
+          </div>
+        </div>
       </form>
     </div>
   </div>
@@ -194,6 +200,7 @@ let item=reactive({
   inputFieldsPicturesCompetitor:{},
   inputFieldsPicturesFarmer:{},
   inputFieldsPicturesComparison:{},
+  inputFieldsVideo:{},
   data:{
     part_id:0,
     area_id:0,
@@ -262,6 +269,18 @@ const setInputFields=async ()=>{
     more_values:(item.data.files && item.data.files['picture_comparison']?item.data.files['picture_comparison']:[]),
   };
   item.inputFieldsPicturesComparison=inputFields;
+
+  inputFields={}
+  key='videos';
+  inputFields[key] = {
+    name: 'item[files][' +key +']',
+    //label: '',
+    type:'file',
+    default:'',
+    mandatory:true,
+    more_values:(item.data.files && item.data.files['videos']?item.data.files['videos']:[]),
+  };
+  item.inputFieldsVideo=inputFields;
 
 }
 const save=async (save_and_new)=>{

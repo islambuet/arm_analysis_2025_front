@@ -104,6 +104,16 @@ const setInputFields=()=>{
       default:'',
       mandatory:true
     };
+    key='profile_more';
+        inputFields[key] = {
+          name: 'item[' +key +']',
+          label: labels.get('label_'+key),//if label empty picture container will be col-12 otherwise col-lg-4
+          type:'image',
+          more_values:['files/profile-pictures/1/1.PNG','y'],
+          default:'',
+          mandatory:true,
+          hidePreview:true,//false or not set will show preview
+        };
     key='sowing_periods';
       inputFields2[key] = {
         name: 'item[' +key +']',

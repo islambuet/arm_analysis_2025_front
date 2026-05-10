@@ -13,7 +13,7 @@
                 <i class="bi bi-upload"></i> {{labels.get('label_upload_file')}}
               </label>
             </div>
-            <label class="form-control custom-file-name"></label>
+            <label class="form-control custom-file-name">{{systemFunctions.getAttachedFileName(inputItem.default)}}</label>
             <div class="input-group-append clear_file" @click="resetFile(inputKey,inputItem.default)">
               <label class="btn btn-sm bg-gradient-info" style="cursor: pointer;">clear</label>
             </div>
@@ -21,9 +21,8 @@
           </div>
         </div>
       </div>
-      <div class="row mb-2">
-        <div class="col-12 system_preview_container" :id="inputKey+'_preview_container'">
-          <img style="max-width: 100%;max-height:200px" :src="systemFunctions.getImageUrl(inputItem.default)">
+      <div class="row mb-2" v-if="!inputItem.hidePreview">
+        <div class="col-12 system_preview_container" :id="inputKey+'_preview_container'" v-html="systemFunctions.getAttachedFileHtml(inputItem.default)">
         </div>
       </div>
     </div>
@@ -62,9 +61,9 @@
               </div>
             </div>
           </div>
-          <div class="row mb-2">
+          <div class="row mb-2" v-if="!inputItem.hidePreview">
             <div class="col-12 system_preview_container">
-              <img style="max-width: 100%;max-height:200px" :src="systemFunctions.getImageUrl(inputItem.default)">
+
             </div>
           </div>
         </div>
@@ -98,8 +97,9 @@
     const addMore=(defaultUrl)=>{
       let curIndex=current_add_more_index;
       let html=$("#"+props.inputKey+'_system_add_more_input_container .system_add_more_content > div').clone();
-      html.find('.system_default_file').html(defaultUrl);
-      html.find('img').attr('src',systemFunctions.getImageUrl(defaultUrl));
+      html.find('.custom-file-name').html(systemFunctions.getAttachedFileName(defaultUrl));//file name
+      html.find('.system_preview_container').html(systemFunctions.getAttachedFileHtml(defaultUrl));
+
       html.find('input[type=file]').attr('id',props.inputKey+'_'+curIndex);
       html.find('input[type=file]').attr('data-preview-container','#'+props.inputKey+'_'+curIndex+'_preview_container');
       html.find('input[type=hidden]').attr('id',props.inputKey+'_'+curIndex+'_file_input');
@@ -120,7 +120,8 @@
     }
     const resetFile=(fileId,defaultUrl)=>{
       $('#'+fileId).val('').trigger('change');
-      $('#'+fileId+'_preview_container img').attr('src',systemFunctions.getImageUrl(defaultUrl));
+      $('#'+fileId+'_preview_container').html(systemFunctions.getAttachedFileHtml(defaultUrl));
+      $('#'+fileId).closest('.input-group-prepend').next('.custom-file-name').html(systemFunctions.getAttachedFileName(defaultUrl));
     }
     const removeMore=(event)=>{
       $(event.target).closest('.system_file_add_more_holder').remove();

@@ -102,7 +102,7 @@ $(document).ready(function ()
             let file_type=file.type;
             if(file_type && file_type.substring (0,5)=="image")
             {
-                let preview_height=200;
+                let preview_height='200px';
                 if($(this).attr('data-preview-height'))
                 {
                     preview_height=$(this).attr('data-preview-height');
@@ -115,21 +115,34 @@ $(document).ready(function ()
                     {
                         let preview_width=$(this).attr('data-preview-width');
                         //img_tag='<img width="'+preview_width+'" src="'+path+'" >';
-                        img_tag='<img alt="Image" style="max-height: 100%;max-width:'+preview_width+'px"  src="'+path+'"/>';
+                        img_tag='<img alt="Image" style="max-height: 100%;max-width:'+preview_width+'"  src="'+path+'"/>';
                         $(container).html(img_tag);
                     }
                     else
                     {                        
                         // img_tag='<img height="'+preview_height+'" src="'+path+'" >';
-                        img_tag='<img alt="Image" style="max-width: 100%;max-height:'+preview_height+'px"  src="'+path+'"/>';
+                        img_tag='<img alt="Image" style="max-width: 100%;max-height:'+preview_height+'"  src="'+path+'"/>';
                         $(container).html(img_tag);
                     }
+                }
+            }
+            else if(file_type && file_type.substring (0,5)=="video"){
+                if(container)
+                {
+                    let preview_width='300px';
+                    if($(this).attr('data-preview-width'))
+                    {
+                        preview_width=$(this).attr('data-preview-width');
+                    }
+                    let path=URL.createObjectURL(file);
+                    let video_tag='<video controls width="'+preview_width+'" src="'+path+'"/>';
+                    $(container).html(video_tag);
                 }
             }
             else if(container)
             {
                 //TODO path of base
-                let path='/theme/images/not_an_image.jpg';
+                let path='/theme/images/file_no_preview.jpg';
                 let img_tag='<img alt="Not an Image" style="max-width: 100%;max-height:200px"  src="'+path+'"/>';
                 $(container).html(img_tag);
                 //$(container).html('Not A Picture');
@@ -143,7 +156,7 @@ $(document).ready(function ()
         else
         {
             console.log('no file attached');
-            $(this).closest('.input-group-prepend').next('.custom-file-name').html('');
+            //$(this).closest('.input-group-prepend').next('.custom-file-name').html('');
             //$('.custom-file-name').html('');//show the file name on label
         }
     });

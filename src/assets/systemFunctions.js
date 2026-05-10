@@ -306,16 +306,34 @@ export default{
     isFormDataEmpty(formData){
         return formData.entries().next().done;
     },
-    getImageUrl(path,defaultPath='no_image.jpg'){
-        //return url?url:globalVariables.baseUrl+'theme/images/no_image.jpg';
+    getAttachedFileName(path){
+        return (path?path.substring(path.lastIndexOf('/')+1):'')
+    },
+    getAttachedFileHtml(path,width='',height=''){//width/height format =100%
+        let html='';
         if(path){
-            return globalVariables.baseURLUploadedFilesLink+'/'+path;
+            let url=globalVariables.baseURLUploadedFilesLink+'/'+path;
+            let extension = path.split('.').pop().split(/\#|\?/)[0];
+            if(['png','jpg','jpeg','bmp','gif'].includes(extension)){
+                if(width){
+                    html+=('<img alt="Image" style="max-height: 100%;max-width:'+width+'"  src="'+url+'"/>');
+                }
+                else{
+                    html+=('<img alt="Image" style="max-width: 100%;max-height:'+(height?height:'200px')+'"  src="'+url+'"/>');
+                }
+            }
+            else if(['mp4','mov','ogg'].includes(extension)){
+                html+=('<video controls width="300px" src="'+url+'"/>');
+            }
+            else{
+                html+=('<img alt="Not an Image" style="max-width: 100%;max-height:'+(height?height:'200px')+'"  src="'+(globalVariables.baseUrl+'theme/images/file_no_preview.jpg')+'"/>');
+            }
+
         }
-        if(defaultPath){
-            //check if it is url then return url. check by splitting by/ or start with http
-            return globalVariables.baseUrl+'theme/images/'+defaultPath;
+        else{
+            html+=('<img alt="Not an Image" style="max-width: 100%;max-height:'+(height?height:'200px')+'"  src="'+(globalVariables.baseUrl+'theme/images/file_not_selected.jpg')+'"/>');
         }
-        return '';
+        return html;
     },
     delay: async function(ms){
         await new Promise(res => setTimeout(res, ms));

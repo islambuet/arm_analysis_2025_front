@@ -51,6 +51,76 @@
           </div>
         </div>
       </div>
+      <div class="row mt-2">
+        <div class="col-md-2">
+          <div class="row">
+            <div class="col-4">
+              <label class="font-weight-bold float-right">{{labels.get('label_crop_name')}}</label>
+            </div>
+            <div class="col-8">
+              {{item.data.crop_name}}
+            </div>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="row">
+            <div class="col-4">
+              <label class="font-weight-bold float-right">{{labels.get('label_crop_type_name')}}</label>
+            </div>
+            <div class="col-8">
+              {{item.data.crop_type_name}}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row mt-2">
+        <div class="col-2"><label class="font-weight-bold float-right">Variety</label></div>
+        <div class="col-5">
+          {{item.data.variety_name_arm}}
+        </div>
+        <div class="col-5">
+          {{item.data.competitor_name}}-{{item.data.variety_name_competitor}}
+        </div>
+      </div>
+      <div class="row mt-2">
+        <div class="col-2"><label class="font-weight-bold float-right">Farmer Name <span class="text-danger">*</span></label></div>
+        <div class="col-5">
+          {{item.data.farmer_name}}
+        </div>
+      </div>
+      <div class="row mt-2">
+        <div class="col-2"><label class="font-weight-bold float-right">Mobile</label></div>
+        <div class="col-5">
+          {{item.data.mobile_no}}
+        </div>
+      </div>
+      <div class="row mt-2">
+        <div class="col-2"><label class="font-weight-bold float-right">Sowing Date</label></div>
+        <div class="col-5">
+          {{item.data.sowing_date_arm}}
+        </div>
+        <div class="col-5">
+          {{item.data.sowing_date_competitor}}
+        </div>
+      </div>
+      <div class="row mt-2">
+        <div class="col-2"><label class="font-weight-bold float-right">Characteristics</label></div>
+        <div class="col-5">
+          {{item.data.characteristics_arm}}
+        </div>
+        <div class="col-5">
+          {{item.data.characteristics_competitor}}
+        </div>
+      </div>
+      <div class="row mt-2">
+        <div class="col-2"><label class="font-weight-bold float-right">Picture</label></div>
+        <div class="col-5">
+
+        </div>
+        <div class="col-5">
+          <button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary"><i class="feather icon-download"></i> {{labels.get('label_download')}}</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -79,57 +149,13 @@
     }
   })
   const setDetailFields=async ()=>{
-    item.detailFields= {};
-    await systemFunctions.delay(1);
-    let detailFields={}
-    let key='id';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'hidden',
-      values:[item.data[key]],
-    };
-    key='name';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'text',
-      values:[item.data[key]],
-    };
-    key='code';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'text',
-      values:[item.data[key]],
-    };
-    key='replica';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'text',
-      values:[item.data[key]],
-    };
-    key='status';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'text',
-      values:[item.data[key]],
-    };
-    key='ordering';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'number',
-      values:[item.data[key]],
-    };
-    key='created_at';
-    detailFields[key] = {
-      label: labels.get('label_'+key),
-      type:'date-time',
-      values:[item.data[key]],
-    };
-    item.detailFields=detailFields;
+
   }
   const getItem=async ()=>{
     await axios.get(taskData.api_url+'/get-item/'+ item.id).then((res)=>{
       if (res.data.error == "") {
         item.data=res.data.item;
+        setDetailFields();
         item.exists=true;
       }
       else{

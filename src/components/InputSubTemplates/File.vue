@@ -22,7 +22,7 @@
         </div>
       </div>
       <div class="row mb-2" v-if="!inputItem.hidePreview">
-        <div class="col-12 system_preview_container" :id="inputKey+'_preview_container'" v-html="systemFunctions.getAttachedFileHtml(inputItem.default)">
+        <div class="col-12 system_preview_container" :id="inputKey+'_preview_container'" v-html="getAttachedFilePreviewHtml(inputItem.default)">
         </div>
       </div>
     </div>
@@ -75,6 +75,7 @@
     import systemFunctions from "@/assets/systemFunctions";
     import { onMounted } from 'vue'
     import labels from '@/labels'
+    import globalVariables from "@/assets/globalVariables";
 
     const props=defineProps({
         inputItem: {
@@ -94,11 +95,32 @@
         }
       }
     })
+    const getAttachedFilePreviewHtml=(path)=>{
+      let html='';
+      if(path){
+        let url=globalVariables.baseURLUploadedFilesLink+'/'+path;
+        let extension = path.split('.').pop().split(/\#|\?/)[0];
+        if(['png','jpg','jpeg','bmp','gif'].includes(extension)){
+          html+=('<img alt="Image" style="max-width: 100%;max-height:200px"  src="'+url+'"/>');
+        }
+        else if(['mp4','mov','ogg'].includes(extension)){
+          html+=('<video controls width="300px" src="'+url+'"/>');
+        }
+        else{
+          html+=('<img alt="Not an Image" style="max-width: 100%;max-height:200px"  src="'+(globalVariables.baseUrl+'theme/images/file_no_preview.jpg')+'"/>');
+        }
+
+      }
+      else{
+        html+=('<img alt="Not an Image" style="max-width: 100%;max-height:200px"  src="'+(globalVariables.baseUrl+'theme/images/file_not_selected.jpg')+'"/>');
+      }
+      return html;
+    }
     const addMore=(defaultUrl)=>{
       let curIndex=current_add_more_index;
       let html=$("#"+props.inputKey+'_system_add_more_input_container .system_add_more_content > div').clone();
       html.find('.custom-file-name').html(systemFunctions.getAttachedFileName(defaultUrl));//file name
-      html.find('.system_preview_container').html(systemFunctions.getAttachedFileHtml(defaultUrl));
+      html.find('.system_preview_container').html(getAttachedFilePreviewHtml(defaultUrl));
 
       html.find('input[type=file]').attr('id',props.inputKey+'_'+curIndex);
       html.find('input[type=file]').attr('data-preview-container','#'+props.inputKey+'_'+curIndex+'_preview_container');
@@ -120,7 +142,7 @@
     }
     const resetFile=(fileId,defaultUrl)=>{
       $('#'+fileId).val('').trigger('change');
-      $('#'+fileId+'_preview_container').html(systemFunctions.getAttachedFileHtml(defaultUrl));
+      $('#'+fileId+'_preview_container').html(getAttachedFilePreviewHtml(defaultUrl));
       $('#'+fileId).closest('.input-group-prepend').next('.custom-file-name').html(systemFunctions.getAttachedFileName(defaultUrl));
     }
     const removeMore=(event)=>{

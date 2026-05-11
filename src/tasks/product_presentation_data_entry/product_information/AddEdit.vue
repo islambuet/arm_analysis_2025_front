@@ -4,7 +4,7 @@
       <router-link :to="taskData.api_url" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" ><i class="feather icon-corner-up-left"></i> {{labels.get('label_back')}}</router-link>
       <template v-if="item.exists">
         <button  type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="save(false)"><i class="feather icon-save"></i> {{labels.get('label_save')}}</button>
-        <button  type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="save(true)"><i class="feather icon-plus-square"></i> {{labels.get('label_save_new')}}</button>
+<!--        <button  type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="save(true)"><i class="feather icon-plus-square"></i> {{labels.get('label_save_new')}}</button>-->
       </template>
     </div>
   </div>
@@ -125,18 +125,27 @@
           </div>
         </div>
         <div class="row mt-2">
-          <div class="col-2"><label class="font-weight-bold float-right">Mobile <span class="text-danger">*</span></label></div>
+          <div class="col-2"><label class="font-weight-bold float-right">Mobile</label></div>
           <div class="col-5">
               <input id="mobile" type="text" class="form-control" name="item[mobile_no]" :value="item.data.mobile_no">
           </div>
         </div>
         <div class="row mt-2">
-          <div class="col-2"><label class="font-weight-bold float-right">Sowing Date <span class="text-danger">*</span></label></div>
+          <div class="col-2"><label class="font-weight-bold float-right">Sowing Date</label></div>
           <div class="col-5">
               <input id="arm_sowing_date" type="date" class="form-control" name="item[sowing_date_arm]" :value="item.data.sowing_date_arm">
           </div>
           <div class="col-5">
               <input id="competitor_sowing_date" type="date" class="form-control" name="item[sowing_date_competitor]" :value="item.data.sowing_date_competitor">
+          </div>
+        </div>
+        <div class="row mt-2">
+          <div class="col-2"><label class="font-weight-bold float-right">Characteristics</label></div>
+          <div class="col-5">
+            <textarea class="form-control" name="item[characteristics_arm]">{{item.data.characteristics_arm}}</textarea>
+          </div>
+          <div class="col-5">
+            <textarea class="form-control" name="item[characteristics_competitor]">{{item.data.characteristics_competitor}}</textarea>
           </div>
         </div>
         <div class="row mt-2">
@@ -304,7 +313,6 @@ const save=async (save_and_new)=>{
     await axios.post(globalVariables.baseURLUploadServer+'/upload',fileFormData).then((res)=>{
       if (res.data.error == "") {
         let uploadData = res.data.uploaded_files;
-        console.log(uploadData)
         for(let key in uploadData){
           $('#'+key+'_file_input').val(uploadData[key].path)
         }
@@ -343,6 +351,12 @@ const getItem=async ()=>{
   await axios.get(taskData.api_url+'/get-item/'+ item.id).then(async (res) => {
     if (res.data.error == "") {
       item.data = res.data.item;
+      if(item.data.sowing_date_arm){
+        item.data.sowing_date_arm=moment(item.data.sowing_date_arm).format('YYYY-MM-DD')
+      }
+      if(item.data.sowing_date_competitor){
+        item.data.sowing_date_competitor=moment(item.data.sowing_date_competitor).format('YYYY-MM-DD')
+      }
       setInputFields();
       item.exists = true;
     } else {

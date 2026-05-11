@@ -63,7 +63,7 @@ let taskData=reactive({
 labels.add([{language:globalVariables.language,file:'tasks'+taskData.api_url+'/labels.js'}])
 
 const routing=async ()=>{
-  //await getItems(taskData.pagination);//Load at least once
+  await getItems(taskData.pagination);//Load at least once
   if(route.path==taskData.api_url){
     taskData.method='list';
   }

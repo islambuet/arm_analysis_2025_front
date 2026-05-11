@@ -309,32 +309,6 @@ export default{
     getAttachedFileName(path){
         return (path?path.substring(path.lastIndexOf('/')+1):'')
     },
-    getAttachedFileHtml(path,width='',height=''){//width/height format =100%
-        let html='';
-        if(path){
-            let url=globalVariables.baseURLUploadedFilesLink+'/'+path;
-            let extension = path.split('.').pop().split(/\#|\?/)[0];
-            if(['png','jpg','jpeg','bmp','gif'].includes(extension)){
-                if(width){
-                    html+=('<img alt="Image" style="max-height: 100%;max-width:'+width+'"  src="'+url+'"/>');
-                }
-                else{
-                    html+=('<img alt="Image" style="max-width: 100%;max-height:'+(height?height:'200px')+'"  src="'+url+'"/>');
-                }
-            }
-            else if(['mp4','mov','ogg'].includes(extension)){
-                html+=('<video controls width="300px" src="'+url+'"/>');
-            }
-            else{
-                html+=('<img alt="Not an Image" style="max-width: 100%;max-height:'+(height?height:'200px')+'"  src="'+(globalVariables.baseUrl+'theme/images/file_no_preview.jpg')+'"/>');
-            }
-
-        }
-        else{
-            html+=('<img alt="Not an Image" style="max-width: 100%;max-height:'+(height?height:'200px')+'"  src="'+(globalVariables.baseUrl+'theme/images/file_not_selected.jpg')+'"/>');
-        }
-        return html;
-    },
     delay: async function(ms){
         await new Promise(res => setTimeout(res, ms));
     },

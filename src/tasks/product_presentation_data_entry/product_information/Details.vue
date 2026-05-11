@@ -114,11 +114,25 @@
       </div>
       <div class="row mt-2">
         <div class="col-2"><label class="font-weight-bold float-right">Picture</label></div>
-        <div class="col-5">
+        <div class="col-5" v-html="item.detailsFieldsPicturesArm">
+        </div>
+        <div class="col-5" v-html="item.detailsFieldsPicturesCompetitor">
 
         </div>
-        <div class="col-5">
-          <button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary"><i class="feather icon-download"></i> {{labels.get('label_download')}}</button>
+      </div>
+      <div class="row mt-2">
+        <div class="col-2"><label class="font-weight-bold float-right">Farmer Picture</label></div>
+        <div class="col-5" v-html="item.detailsFieldsPicturesFarmer">
+        </div>
+      </div>
+      <div class="row mt-2">
+        <div class="col-2"><label class="font-weight-bold float-right">Comparison Picture</label></div>
+        <div class="col-5" v-html="item.detailsFieldsPicturesComparison">
+        </div>
+      </div>
+      <div class="row mt-2">
+        <div class="col-2"><label class="font-weight-bold float-right">Videos</label></div>
+        <div class="col-5" v-html="item.detailsFieldsVideo">
         </div>
       </div>
     </div>
@@ -136,6 +150,7 @@
   import DetailTemplate from '@/components/DetailTemplate.vue';
   import {useRoute} from "vue-router/dist/vue-router";
   import systemFunctions from "@/assets/systemFunctions";
+  import globalVariables from "@/assets/globalVariables";
 
 
   const route =useRoute()
@@ -144,12 +159,51 @@
   let item=reactive({
     id:0,
     exists:false,
-    detailFields:{},
+    detailsFieldsPicturesArm:'',
+    detailsFieldsPicturesCompetitor:'',
+    detailsFieldsPicturesFarmer:'',
+    detailsFieldsPicturesComparison:'',
+    detailsFieldsVideo:'',
     data:{
     }
   })
-  const setDetailFields=async ()=>{
+  const getAttachedFileDetailsHtml=(paths)=>{
+    let html='';
+    for(let i in paths){
+      let path=paths[i];
+      if(path){
+        let url=globalVariables.baseURLUploadedFilesLink+'/'+path;
+        let extension = path.split('.').pop().split(/\#|\?/)[0];
+        if(['png','jpg','jpeg','bmp','gif'].includes(extension)){
+          html+=('<div class="row mb-1"><div class="col-12"><img alt="Image" style="max-width: 100%;max-height:200px"  src="'+url+'"/></div></div>');
+        }
+        else if(['mp4','mov','ogg'].includes(extension)){
+          html+=('<div class="row mb-1"><div class="col-12"><video controls width="300px" src="'+url+'"/></div></div>');
+        }
+        else{
+          html+=('<div class="row mb-1"><div class="col-12"><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" onclick="window.open(\''+globalVariables.baseURLUploadedFilesLink+'/'+path+'\')"><i class="feather icon-download"></i>'+systemFunctions.getAttachedFileName(path)+'</button></div></div>');
+        }
+      }
+    }
+    return html;
 
+  }
+  const setDetailFields=async ()=>{
+    if(item.data.files && item.data.files['picture_arm']){
+      item.detailsFieldsPicturesArm=getAttachedFileDetailsHtml(item.data.files['picture_arm'])
+    }
+    if(item.data.files && item.data.files['picture_competitor']){
+      item.detailsFieldsPicturesCompetitor=getAttachedFileDetailsHtml(item.data.files['picture_competitor'])
+    }
+    if(item.data.files && item.data.files['picture_farmer']){
+      item.detailsFieldsPicturesFarmer=getAttachedFileDetailsHtml(item.data.files['picture_farmer'])
+    }
+    if(item.data.files && item.data.files['picture_comparison']){
+      item.detailsFieldsPicturesComparison=getAttachedFileDetailsHtml(item.data.files['picture_comparison'])
+    }
+    if(item.data.files && item.data.files['videos']){
+      item.detailsFieldsVideo=getAttachedFileDetailsHtml(item.data.files['videos'])
+    }
   }
   const getItem=async ()=>{
     await axios.get(taskData.api_url+'/get-item/'+ item.id).then((res)=>{
@@ -165,5 +219,11 @@
   }
   item.id=route.params['item_id'];
   getItem();
+  $(document).ready(async function() {
+    const downloadFile=(path)=>{
+      console.log(path)
+    }
+  });
+
 
 </script>

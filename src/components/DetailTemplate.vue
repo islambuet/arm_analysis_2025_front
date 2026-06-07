@@ -18,6 +18,7 @@
             <div class="col-12" v-else-if="detailField.type=='date-time'">
               {{systemFunctions.displayDateTime(fieldValue)}}
             </div>
+            <div class="col-12" v-else-if="detailField.type=='html'" v-html="fieldValue"></div>
 
             <div class="col-12" v-else>
               {{fieldValue}}

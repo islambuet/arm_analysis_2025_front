@@ -74,8 +74,8 @@
     key='characteristics';
     detailFields[key] = {
       label: labels.get('label_'+key),
-      type:'text',
-      values:[item.data[key]],
+      type:'html',
+      values:[item.data[key]?item.data[key].replace(/(\r\n|\r|\n)/g,'<br>'):''],
     };
     key='whose';
     detailFields[key] = {

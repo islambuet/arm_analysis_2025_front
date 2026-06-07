@@ -15,6 +15,9 @@
     <div v-if="taskData.method=='details'">
       <Details/>
     </div>
+    <div v-if="taskData.method=='delete'">
+      <Delete/>
+    </div>
   </div>
 </template>
 <script setup>
@@ -29,6 +32,7 @@
   import List from './List.vue'
   import AddEdit from './AddEdit.vue'
   import Details from './Details.vue'
+  import Delete from './Delete.vue'
   import Upload from './Upload.vue'
 
   globalVariables.loadListData=true;
@@ -76,6 +80,10 @@
     else if(route.path.indexOf(taskData.api_url+'/details/')!=-1)
     {
       taskData.method='details';
+    }
+    else if(route.path.indexOf(taskData.api_url+'/delete/')!=-1)
+    {
+      taskData.method='delete';
     }
     else if(route.path==taskData.api_url+'/upload'){
       taskData.method='upload';

@@ -3,6 +3,26 @@ import {reactive } from 'vue';
 const localStorageAuthTokenStr = 'authToken';
 const localStorageLanguageStr='language';
 const language = localStorage.getItem(localStorageLanguageStr) ? localStorage.getItem(localStorageLanguageStr) : 'en';
+let baseURLApiServer='http://localhost/arm_analysis_api/public/api';
+let baseURLUploadServer='http://localhost/uploads/public/api';
+let baseURLUploadedFilesLink='http://localhost/uploads/public';
+let active_site=1;//1=live;2=demo
+if(process.env.NODE_ENV=='production')
+{
+  if(active_site==1){
+    baseURLApiServer='https://analysis.api.malikseedsbd.com/api';
+    baseURLUploadServer='https://analysis.files.malikseedsbd.com/api';
+    baseURLUploadedFilesLink='https://analysis.files.malikseedsbd.com';
+  }
+  else if(active_site==2){
+    baseURLApiServer='https://demo.analysis.api.malikseedsbd.com/api';
+    baseURLUploadServer='https://demo.analysis.files.malikseedsbd.com/api';
+    baseURLUploadedFilesLink='https://demo.analysis.files.malikseedsbd.com';
+  }
+
+}
+//else local
+
 function getNotLoggedUser(){
   return {
     authToken: localStorage.getItem(localStorageAuthTokenStr) ? localStorage.getItem(localStorageAuthTokenStr) : '',
@@ -14,9 +34,9 @@ function getNotLoggedUser(){
   }    
 }
 export default reactive({
-  baseURLApiServer:(process.env.NODE_ENV=='production')?'https://analysis.api.malikseedsbd.com/api':'http://localhost/arm_analysis_api/public/api',
-  baseURLUploadServer:(process.env.NODE_ENV=='production')?'https://analysis.files.malikseedsbd.com/api':'http://localhost/uploads/public/api',
-  baseURLUploadedFilesLink:(process.env.NODE_ENV=='production')?'https://analysis.files.malikseedsbd.com':'http://localhost/uploads/public',
+  baseURLApiServer:baseURLApiServer,
+  baseURLUploadServer:baseURLUploadServer,
+  baseURLUploadedFilesLink:baseURLUploadedFilesLink,
   localStorageAuthTokenStr:localStorageAuthTokenStr,
   localStorageLanguageStr:localStorageLanguageStr,
   baseUrl: process.env.BASE_URL,

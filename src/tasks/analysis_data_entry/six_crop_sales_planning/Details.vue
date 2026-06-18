@@ -17,7 +17,7 @@
               <th style="width: 200px;">{{labels.get('label_crop_type_name')}}</th>
               <th style="width: 100px;">Total Market Size</th>
               <th style="width: 400px;">Pocket Market</th>
-              <th style="">Competitors Variety</th>
+              <th style="">Variety</th>
             </tr>
           </thead>
           <tbody class="table-striped table-hover">
@@ -48,42 +48,53 @@
                 </table>
               </td>
               <td class="col_competitors_info">
-                <template v-if="item.data[row.id] " v-for="(competitor_varieties_info,competitor_variety_id) in item.data[row.id]['competitor_varieties']">
-                  <div class="row">
-                    <div class="col-12">
-                      <div><strong>Company:</strong>{{ (taskData.varieties_competitor_typewise[row.id] && taskData.varieties_competitor_typewise[row.id][competitor_variety_id])?taskData.varieties_competitor_typewise[row.id][competitor_variety_id]['competitor_name']:"Other" }}  </div>
-                      <div><strong>Variety: </strong>{{ (taskData.varieties_competitor_typewise[row.id] && taskData.varieties_competitor_typewise[row.id][competitor_variety_id])?taskData.varieties_competitor_typewise[row.id][competitor_variety_id]['name']:"Other" }}</div>
-                      <div><strong>Reason: </strong>{{item.data[row.id]['competitor_varieties'][competitor_variety_id]?item.data[row.id]['competitor_varieties'][competitor_variety_id]['recommended_reason']:''}}</div>
+                <table class="table table-bordered">
+                  <thead>
+                  <tr>
+                    <th style="width: 150px">Competitor Variety</th>
+                    <th style="">Arm Variety</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr v-if="item.data[row.id]" v-for="(competitor_varieties_info,competitor_variety_id) in item.data[row.id]['competitor_varieties']">
+                    <td>
+                      {{ (taskData.varieties_competitor_typewise[row.id] && taskData.varieties_competitor_typewise[row.id][competitor_variety_id])?taskData.varieties_competitor_typewise[row.id][competitor_variety_id]['name']:"NF"}}<br>(
+                      {{ (taskData.varieties_competitor_typewise[row.id] && taskData.varieties_competitor_typewise[row.id][competitor_variety_id])?taskData.varieties_competitor_typewise[row.id][competitor_variety_id]['variety_sub_type_name']:"NF"}})<br>(
+                      {{ (taskData.varieties_competitor_typewise[row.id] && taskData.varieties_competitor_typewise[row.id][competitor_variety_id])?taskData.varieties_competitor_typewise[row.id][competitor_variety_id]['competitor_name']:"NF"}})
+                    </td>
+
+                    <td>
                       <table class="table table-bordered">
                         <thead>
                         <tr>
-                          <th style="width: 150px">Variety</th>
-                          <th>Recommendation</th>
+                          <th style="">Arm Variety</th>
                           <template v-for="m in 12">
-                            <th style="width: 100px" v-if="item.season['month_'+m]">{{ labels.get('label_month_short_'+m) }}</th>
+                            <th style="width: 70px" v-if="item.season['month_'+m]">{{ labels.get('label_month_short_'+m) }}</th>
                           </template>
-                          <th style="width: 150px">Total Qtn</th>
+                          <th style="width: 70px">Total Qtn</th>
                         </tr>
                         </thead>
                         <tbody>
+
                         <tr v-if="item.data[row.id]['arm_varieties'] && item.data[row.id]['arm_varieties'][competitor_variety_id]" v-for="(arm_varieties_info,arm_variety_id) in item.data[row.id]['arm_varieties'][competitor_variety_id]">
-                          <td>{{ (taskData.varieties_arm_typewise[row.id] && taskData.varieties_arm_typewise[row.id][arm_variety_id])?taskData.varieties_arm_typewise[row.id][arm_variety_id]['name']:"NF" }}</td>
-                          <td>{{ arm_varieties_info['suggested_reason'] }}</td>
+                          <td>{{ (taskData.varieties_arm_typewise[row.id] && taskData.varieties_arm_typewise[row.id][arm_variety_id])?taskData.varieties_arm_typewise[row.id][arm_variety_id]['name']+' ('+taskData.varieties_arm_typewise[row.id][arm_variety_id]['variety_sub_type_name']+')':"NF" }}</td>
                           <template v-for="m in 12">
-                            <td v-if="item.season['month_'+m]">
+                            <td v-if="item.season['month_'+m]" class="text-right">
                               {{arm_varieties_info['quantity_month_'+m]}}
                             </td>
                           </template>
 
-                          <td>{{arm_varieties_info['quantity_total']}}</td>
-
+                          <td class="text-right">{{arm_varieties_info['quantity_total']}}</td>
                         </tr>
 
                         </tbody>
                       </table>
-                    </div>
-                  </div>
-                </template>
+                    </td>
+
+                  </tr>
+
+                  </tbody>
+                </table>
               </td>
             </tr>
           </tbody>

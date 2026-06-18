@@ -7,7 +7,7 @@
         </div>
         <div class="col-lg-4 col-8">
           <div class="input-group" >
-            <select id="fiscal_year" class="form-control">
+            <select id="list_fiscal_year" class="form-control">
               <option v-for="i in globalVariables.current_fiscal_year-globalVariables.starting_year+1" :value="i+globalVariables.starting_year-1" :selected="(i+globalVariables.starting_year-1)==taskData.fiscal_year">
                 {{i+globalVariables.starting_year-1}}-{{i+globalVariables.starting_year}}
               </option>
@@ -21,7 +21,7 @@
         </div>
         <div class="col-lg-4 col-8">
           <div class="input-group" >
-            <select id="season_id" class="form-control">
+            <select id="list_season_id" class="form-control">
               <option v-for="season in taskData.seasons" :value="season.id" :selected="season['month_'+globalVariables.current_month]==1">
                 {{season.name}}
               </option>
@@ -180,13 +180,13 @@
     setColumns();
     $(document).ready(function()
     {
-      $(document).off("change", "#fiscal_year");
-      $(document).on("change",'#fiscal_year',async function()
+      $(document).off("change", "#list_fiscal_year");
+      $(document).on("change",'#list_fiscal_year',async function()
       {
         taskData.reloadItems();
       })
-      $(document).off("change", "#season_id");
-      $(document).on("change",'#season_id',async function()
+      $(document).off("change", "#list_season_id");
+      $(document).on("change",'#list_season_id',async function()
       {
         taskData.reloadItems();
       })

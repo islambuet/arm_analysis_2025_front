@@ -96,8 +96,8 @@
   const getItems=async()=>{
     if(globalVariables.loadListData)
     {
-      let fiscal_year = $("#fiscal_year").val();
-      let season_id = $("#season_id").val();
+      let fiscal_year = $("#list_fiscal_year").val();
+      let season_id = $("#list_season_id").val();
       if (fiscal_year > 0 && season_id > 0) {
         await axios.get(taskData.api_url + '/get-items/' + fiscal_year + '_' + season_id)
             .then(res => {

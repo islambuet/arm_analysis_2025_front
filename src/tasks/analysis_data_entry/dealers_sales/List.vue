@@ -1,11 +1,40 @@
-<template>    
+<template>
+  <div class="card d-print-none mb-2">
+    <div class="card-body">
+      <form id="formListSearch">
+        <div class="row">
+          <div class="col-md-3">
+            <div class="row">
+              <div class="col-3">
+                <label class="font-weight-bold float-right">{{labels.get('label_from')}}</label>
+              </div>
+              <div class="col-9">
+                <input type="date" class="form-control" name="options[sales_from]" value=""/>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="row">
+              <div class="col-3">
+                <label class="font-weight-bold float-right">{{labels.get('label_to')}}</label>
+              </div>
+              <div class="col-9">
+                <input type="date" class="form-control" name="options[sales_to]" value=""/>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
     <div class="card d-print-none mb-2">
         <div class="card-body">
             <router-link v-if="taskData.permissions.action_1 || taskData.permissions.action_2"  :to="taskData.api_url+'/add'" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" ><i class="feather icon-plus-circle"></i> {{labels.get('action_1')}}/{{labels.get('label_edit')}}</router-link>
             <button type="button" v-if="taskData.permissions.action_4" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" onclick="window.print();"><i class="feather icon-printer"></i> {{labels.get('action_4')}}</button>
             <button type="button" v-if="taskData.permissions.action_5" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="systemFunctions.exportCsv(taskData.columns,taskData.itemsFiltered,'Distributors Sales.csv')"><i class="feather icon-download"></i> {{labels.get('action_5')}}</button>
             <button type="button" v-if="taskData.permissions.action_8" class="mr-2 mb-2 btn btn-sm" :class="[show_column_controls?'bg-gradient-success':'bg-gradient-primary']" @click="show_column_controls = !show_column_controls"><i class="feather icon-command"></i> {{labels.get('action_8')}}</button>
-            <button type="button" v-if="taskData.permissions.action_0" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="taskData.reloadItems(taskData.pagination)"><i class="feather icon-rotate-cw"></i> {{labels.get('label_refresh')}}</button>
+            <button type="button" v-if="taskData.permissions.action_0" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="taskData.reloadItems(taskData.pagination)"><i class="feather icon-rotate-cw"></i> {{labels.get('label_search')}}</button>
             <router-link v-if="taskData.permissions.action_7"  :to="taskData.api_url+'/upload'" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" ><i class="feather icon-upload"></i> {{labels.get('label_upload')}}</router-link>
         </div>            
     </div>
@@ -143,5 +172,9 @@
       taskData.columns.all=columns
     }
     setColumns();
+    $(document).ready(async function()
+    {
+      taskData.reloadItems(taskData.pagination)
+    })
 </script>
 

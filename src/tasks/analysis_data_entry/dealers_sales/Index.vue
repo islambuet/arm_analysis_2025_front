@@ -35,7 +35,7 @@
   import Delete from './Delete.vue'
   import Upload from './Upload.vue'
 
-  globalVariables.loadListData=true;
+  globalVariables.loadListData=false;
   const route =useRoute()
   const router =useRouter()
 
@@ -97,7 +97,10 @@
   const getItems=async(pagination)=>{
     if(globalVariables.loadListData)
     {
-      await axios.get(taskData.api_url+'/get-items?page='+ pagination.current_page+'&perPage='+ pagination.per_page)
+      let formData=new FormData(document.getElementById('formListSearch'))
+      formData.set('page',pagination.current_page)
+      formData.set('perPage',pagination.per_page)
+      await axios.post(taskData.api_url+'/get-items',formData)
           .then(res => {
             if(res.data.error==''){
               taskData.items= res.data.items;

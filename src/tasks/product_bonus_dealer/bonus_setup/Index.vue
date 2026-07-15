@@ -82,15 +82,15 @@
                 res.data.items.data[i]['crop_name']=taskData.crops.find(t=>t.id==row['crop_id'])?.name;
                 let html='';
                 let crop_type_ids=row['crop_type_ids'].split(',');
-                for(let i=1;i<crop_type_ids.length-1;i++){
-                  let crop_type_id=crop_type_ids[i];
+                for(let j=1;j<crop_type_ids.length-1;j++){
+                  let crop_type_id=crop_type_ids[j];
                   html+=(taskData.crop_types.find(t=>t.id==crop_type_id)?.name+'<br>')
                 }
                 res.data.items.data[i]['crop_type_name']=html
               }
 
               taskData.items= res.data.items;
-              console.log(res.data.items.data)
+
               taskData.setFilteredItems();
             }
             else{

@@ -142,7 +142,7 @@
         </tr>
         </tbody>
       </table>
-
+      <Pagination :items = "taskData.items" :onChangePageOption="taskData.reloadItems" :pagination="taskData.pagination"/>
     </div>
   </div>
 </template>

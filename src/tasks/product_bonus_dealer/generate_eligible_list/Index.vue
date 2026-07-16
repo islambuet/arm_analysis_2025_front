@@ -36,11 +36,27 @@
     method:'list',
 
     permissions:{},
-    lastGeneratedDate: {},
     items: {data:[]},   //from Laravel server with pagination and info
     itemsFiltered: [],    //for display
     columns:{all:{},hidden:[],sort:{key:'',dir:''}},
     pagination: {current_page: 1,per_page_options: [10,20,50,100,500,1000],per_page:-1,show_all_items:true},
+
+    analysis_years:[],
+    location_parts:[],
+    location_areas:[],
+    location_territories:[],
+    location_upazilas:[],
+    distributors:[],
+    dealers:[],
+    seasons:[],
+
+    crops:[],
+    crop_types:[],
+    varieties:[],
+    pack_sizes :[],
+    user_locations:{},
+    lastGeneratedDate: {},
+    bonus_setup: {},
   })
   labels.add([{language:globalVariables.language,file:'tasks'+taskData.api_url+'/labels.js'}])
 
@@ -93,7 +109,31 @@
     await axios.get(taskData.api_url+'/initialize').then((res)=>{
       if (res.data.error == "") {
         taskData.permissions=res.data.permissions;
+        taskData.location_parts=res.data.location_parts;
+        taskData.location_areas=res.data.location_areas;
+        taskData.location_territories=res.data.location_territories;
+        taskData.dealers=res.data.dealers;
         taskData.lastGeneratedDate=res.data.lastGeneratedDate;
+
+        taskData.crops=res.data.crops;
+        taskData.crop_types=res.data.crop_types;
+        let bonus_setup={}
+        for(let i in res.data.bonus_setup){
+          let row=res.data.bonus_setup[i];
+          row['crop_name']=taskData.crops.find(t=>t.id==row['crop_id'])?.name;
+          let html='';
+          let crop_type_ids=row['crop_type_ids'].split(',');
+          for(let j=1;j<crop_type_ids.length-1;j++){
+            let crop_type_id=crop_type_ids[j];
+            html+=(taskData.crop_types.find(t=>t.id==crop_type_id)?.name+'<br>')
+          }
+          row['crop_type_name']=html
+          bonus_setup[row['id']]=row;
+        }
+        taskData.bonus_setup=bonus_setup;
+
+        taskData.user_locations=res.data.user_locations;
+
         if(res.data.hidden_columns){
           taskData.columns.hidden=res.data.hidden_columns;
         }

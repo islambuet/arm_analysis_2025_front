@@ -124,6 +124,7 @@ const getItems=async(pagination)=>{
                   row['quantity_sales']=(bonus_datum['quantity_sales'])
                   row['quantity_balance_old']=(bonus_datum['quantity_balance_old'])
                   row['quantity_delivered']=(bonus_datum['quantity_delivered'])
+                  row['quantity_num_delivered']=(bonus_datum['quantity_num_delivered'])
                   row['quantity_balance_new']=(bonus_datum['quantity_balance_new'])
                   rows.push(row)
                 }

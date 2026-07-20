@@ -175,7 +175,7 @@
         hideable:true,
         filterable:true,
         sortable:true,
-        type:'number',
+        type:'text',
         filter:{from:'',to:''},
         class:'col_1'
       };
@@ -269,6 +269,15 @@
         type:'text',
         filter:{from:'',to:''}
       };
+      key='quantity_num_delivered';
+      columns[key]={
+        label: "Delivery Count",
+        hideable:true,
+        filterable:true,
+        sortable:true,
+        type:'text',
+        filter:{from:'',to:''}
+      };
       key='quantity_balance_new';
       columns[key]={
         label: "New Balance",
@@ -278,6 +287,7 @@
         type:'text',
         filter:{from:'',to:''}
       };
+
 
       taskData.columns.all=columns
     }

@@ -112,6 +112,7 @@
         taskData.location_parts=res.data.location_parts;
         taskData.location_areas=res.data.location_areas;
         taskData.location_territories=res.data.location_territories;
+        taskData.distributors=res.data.distributors;
         taskData.dealers=res.data.dealers;
         taskData.lastGeneratedDate=res.data.lastGeneratedDate;
 

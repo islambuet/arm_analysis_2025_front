@@ -62,6 +62,20 @@
             <div class="col-md-2">
               <div class="row">
                 <div class="col-4">
+                  <label class="font-weight-bold float-right">{{labels.get('label_distributor_name')}}</label>
+                </div>
+                <div class="col-8">
+                  <div class="input-group">
+                    <select id="details_search_distributor_id" class="form-control" name="options[distributor_id]">
+                      <option value="">{{labels.get('label_select')}}</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <div class="row">
+                <div class="col-4">
                   <label class="font-weight-bold float-right">{{labels.get('label_dealer_id')}}</label>
                 </div>
                 <div class="col-8">
@@ -205,6 +219,15 @@
       type:'text',
       filter:{from:'',to:''}
     };
+    key='distributor_name';
+    columns[key]={
+      label: labels.get('label_'+key),
+      hideable:true,
+      filterable:true,
+      sortable:true,
+      type:'text',
+      filter:{from:'',to:''}
+    };
     key='dealer_name';
     columns[key]={
       label: labels.get('label_'+key),
@@ -322,6 +345,7 @@
               row['part_name']=(bonus_item['part_name'])
               row['area_name']=(bonus_item['area_name'])
               row['territory_name']=(bonus_item['territory_name'])
+              row['distributor_name']=(bonus_item['distributor_name'])
               row['dealer_name']=(bonus_item['dealer_name'])
               row['crop_name']=(taskData.bonus_setup[j]?taskData.bonus_setup[j]['crop_name']:j);
               row['crop_type_name']=(taskData.bonus_setup[j]?taskData.bonus_setup[j]['crop_type_name']:j);
@@ -354,6 +378,7 @@
       let part_id=$(this).val();
       let html='<option value="">'+labels.get('label_select')+'</option>';
       $('#details_search_territory_id').html(html);
+      $('#details_search_distributor_id').html(html);
       $('#details_search_dealer_id').html(html);
 
       for(let i in taskData.location_areas){
@@ -370,6 +395,7 @@
     {
       let area_id=$(this).val();
       let html='<option value="">'+labels.get('label_select')+'</option>';
+      $('#details_search_distributor_id').html(html);
       $('#details_search_dealer_id').html(html);
       for(let i in taskData.location_territories){
         let location=taskData.location_territories[i];
@@ -384,9 +410,23 @@
     {
       let territory_id=$(this).val();
       let html='<option value="">'+labels.get('label_select')+'</option>';
+      $('#details_search_dealer_id').html(html);
+      for(let i in taskData.distributors){
+        let location=taskData.distributors[i];
+        if(location['territory_id']==territory_id){
+          html+=('<option value="'+location['id']+'" >'+location['name']+'</option>');
+        }
+      }
+      $('#details_search_distributor_id').html(html);
+    })
+    $(document).off("change", "#details_search_distributor_id");
+    $(document).on("change",'#details_search_distributor_id',async function()
+    {
+      let distributor_id=$(this).val();
+      let html='<option value="">'+labels.get('label_select')+'</option>';
       for(let i in taskData.dealers){
         let location=taskData.dealers[i];
-        if(location['territory_id']==territory_id){
+        if(location['distributor_id']==distributor_id){
           html+=('<option value="'+location['id']+'" >'+location['name']+'</option>');
         }
       }

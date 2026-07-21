@@ -117,6 +117,7 @@ const getItems=async(pagination)=>{
                   row['part_name']=(bonus_item['part_name'])
                   row['area_name']=(bonus_item['area_name'])
                   row['territory_name']=(bonus_item['territory_name'])
+                  row['distributor_name']=(bonus_item['distributor_name'])
                   row['dealer_name']=(bonus_item['dealer_name'])
                   row['crop_name']=(taskData.bonus_setup[j]?taskData.bonus_setup[j]['crop_name']:j);
                   row['crop_type_name']=(taskData.bonus_setup[j]?taskData.bonus_setup[j]['crop_type_name']:j);
@@ -160,6 +161,7 @@ const init=async ()=>{
       taskData.location_parts=res.data.location_parts;
       taskData.location_areas=res.data.location_areas;
       taskData.location_territories=res.data.location_territories;
+      taskData.distributors=res.data.distributors;
       taskData.dealers=res.data.dealers;
       taskData.lastGeneratedDate=res.data.lastGeneratedDate;
 
@@ -237,11 +239,21 @@ taskData.getTerritoryDropdownHtml=(area_id,user_territory_id=0,selected=0)=>{
   }
   return html;
 }
-taskData.getDealerDropdownHtml=(territory_id,selected=0)=>{
+taskData.getDistributorDropdownHtml=(territory_id,selected=0)=>{
+  let html='<option value="">'+labels.get('label_select')+'</option>';
+  for(let i in taskData.distributors){
+    let location=taskData.distributors[i];
+    if(location['territory_id']==territory_id){
+      html+=('<option value="'+location['id']+'"'+(selected==location['id']?'selected':'')+' >'+location['name']+'</option>');
+    }
+  }
+  return html;
+}
+taskData.getDealerDropdownHtml=(distributor_id,selected=0)=>{
   let html='<option value="">'+labels.get('label_select')+'</option>';
   for(let i in taskData.dealers){
     let location=taskData.dealers[i];
-    if(location['territory_id']==territory_id){
+    if(location['distributor_id']==distributor_id){
       html+=('<option value="'+location['id']+'"'+(selected==location['id']?'selected':'')+' >'+location['name']+'</option>');
     }
   }

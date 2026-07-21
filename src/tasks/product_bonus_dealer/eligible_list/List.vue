@@ -77,6 +77,20 @@
           <div class="col-md-2">
             <div class="row">
               <div class="col-4">
+                <label class="font-weight-bold float-right">{{labels.get('label_distributor_name')}}</label>
+              </div>
+              <div class="col-8">
+                <div class="input-group">
+                  <select id="list_search_distributor_id" class="form-control" name="options[distributor_id]">
+                    <option value="">{{labels.get('label_select')}}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="row">
+              <div class="col-4">
                 <label class="font-weight-bold float-right">{{labels.get('label_dealer_id')}}</label>
               </div>
               <div class="col-8">
@@ -206,6 +220,15 @@
         type:'text',
         filter:{from:'',to:''}
       };
+      key='distributor_name';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:true,
+        sortable:true,
+        type:'text',
+        filter:{from:'',to:''}
+      };
       key='dealer_name';
       columns[key]={
         label: labels.get('label_'+key),
@@ -215,6 +238,7 @@
         type:'text',
         filter:{from:'',to:''}
       };
+
       key='crop_name';
       columns[key]={
         label: labels.get('label_'+key),
@@ -239,7 +263,7 @@
         hideable:true,
         filterable:true,
         sortable:true,
-        type:'text',
+        type:'number',
         filter:{from:'',to:''}
       };
       key='quantity_sales';
@@ -248,7 +272,7 @@
         hideable:true,
         filterable:true,
         sortable:true,
-        type:'text',
+        type:'number',
         filter:{from:'',to:''}
       };
       key='quantity_balance_old';
@@ -257,7 +281,7 @@
         hideable:true,
         filterable:true,
         sortable:true,
-        type:'text',
+        type:'number',
         filter:{from:'',to:''}
       };
       key='quantity_delivered';
@@ -266,7 +290,7 @@
         hideable:true,
         filterable:true,
         sortable:true,
-        type:'text',
+        type:'number',
         filter:{from:'',to:''}
       };
       key='quantity_num_delivered';
@@ -275,7 +299,7 @@
         hideable:true,
         filterable:true,
         sortable:true,
-        type:'text',
+        type:'number',
         filter:{from:'',to:''}
       };
       key='quantity_balance_new';
@@ -284,7 +308,7 @@
         hideable:true,
         filterable:true,
         sortable:true,
-        type:'text',
+        type:'number',
         filter:{from:'',to:''}
       };
 
@@ -297,26 +321,33 @@
       $('#list_search_part_id').html(taskData.getPartDropdownHtml(taskData.user_locations.part_id,0));
       $('#list_search_area_id').html(taskData.getAreaDropdownHtml(taskData.user_locations.part_id,taskData.user_locations.area_id,0));
       $('#list_search_territory_id').html(taskData.getTerritoryDropdownHtml(taskData.user_locations.area_id,taskData.user_locations.territory_id,0));
-      $('#list_search_dealer_id').html(taskData.getDealerDropdownHtml(taskData.user_locations.territory_id,0));
+      $('#list_search_distributor_id').html(taskData.getDistributorDropdownHtml(taskData.user_locations.territory_id,0));
       $(document).off("change", "#list_search_part_id");
       $(document).on("change", '#list_search_part_id', async function () {
         let location_id = $(this).val();
-        $('#list_search_upazila_id').html('<option value="">'+labels.get('label_select')+'</option>');
+        $('#list_search_dealer_id').html('<option value="">'+labels.get('label_select')+'</option>');
+        $('#list_search_distributor_id').html('<option value="">'+labels.get('label_select')+'</option>');
         $('#list_search_territory_id').html('<option value="">'+labels.get('label_select')+'</option>');
         $('#list_search_area_id').html(taskData.getAreaDropdownHtml(location_id));
       })
       $(document).off("change", "#list_search_area_id");
       $(document).on("change", '#list_search_area_id', async function () {
         let location_id = $(this).val();
-        $('#list_search_upazila_id').html('<option value="">'+labels.get('label_select')+'</option>');
+        $('#list_search_dealer_id').html('<option value="">'+labels.get('label_select')+'</option>');
+        $('#list_search_distributor_id').html('<option value="">'+labels.get('label_select')+'</option>');
         $('#list_search_territory_id').html(taskData.getTerritoryDropdownHtml(location_id));
       })
       $(document).off("change", "#list_search_territory_id");
       $(document).on("change", '#list_search_territory_id', async function () {
         let location_id = $(this).val();
+        $('#list_search_dealer_id').html('<option value="">'+labels.get('label_select')+'</option>');
+        $('#list_search_distributor_id').html(taskData.getDistributorDropdownHtml(location_id));
+      })
+      $(document).off("change", "#list_search_distributor_id");
+      $(document).on("change", '#list_search_distributor_id', async function () {
+        let location_id = $(this).val();
         $('#list_search_dealer_id').html(taskData.getDealerDropdownHtml(location_id));
       })
-
       taskData.reloadItems(taskData.pagination)
     })
 </script>

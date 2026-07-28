@@ -19,15 +19,19 @@
                 <th>Crop</th>
                 <th>Type</th>
                 <th>Variety</th>
-                <th>Quantity</th>
+                <th>Product</th>
+                <th>Quantity (pkt) </th>
+                <th>Quantity (Kg) </th>
               </tr>
               </thead>
               <tbody>
-              <tr v-for="(quantity,variety_id) in item.data.varieties">
-                <td>{{varieties_object[variety_id]?varieties_object[variety_id].crop_name:'NF'}}</td>
-                <td>{{varieties_object[variety_id]?varieties_object[variety_id].type_name:'NF'}}</td>
-                <td>{{varieties_object[variety_id]?varieties_object[variety_id].name:'NF'}}</td>
-                <td>{{quantity}}</td>
+              <tr v-for="(quantity,pack_size_id) in item.data.pack_sizes">
+                <td>{{pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id].crop_name:'NF'}}</td>
+                <td>{{pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id].type_name:'NF'}}</td>
+                <td>{{pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id].variety_name:'NF'}}</td>
+                <td>{{pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id].name:'NF'}}</td>
+                <td class="text-right">{{quantity}}</td>
+                <td class="quantity_kg text-right">{{pack_sizes_object[pack_size_id]?((+pack_sizes_object[pack_size_id].value)*(+quantity)/1000):'0'}}</td>
               </tr>
               </tbody>
             </table>
@@ -73,6 +77,11 @@
   for(let i in taskData.varieties){
     varieties_object[taskData.varieties[i]['id']]=taskData.varieties[i];
   }
+  let pack_sizes_object={};
+  for(let i in taskData.pack_sizes){
+    pack_sizes_object[taskData.pack_sizes[i]['id']]=taskData.pack_sizes[i];
+  }
+  let l
   const setDetailFields=async ()=>{
     item.detailFields= {};
     await systemFunctions.delay(1);
@@ -114,6 +123,12 @@
       values:[item.data[key]],
     };
     key='dealer_name';
+    detailFields[key] = {
+      label: labels.get('label_'+key),
+      type:'text',
+      values:[item.data[key]],
+    };
+    key='status';
     detailFields[key] = {
       label: labels.get('label_'+key),
       type:'text',

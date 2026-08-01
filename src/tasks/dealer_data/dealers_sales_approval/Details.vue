@@ -5,8 +5,9 @@
       <template v-if="item.exists">
         <button v-if="item.data.status=='Pending'"  type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-success" @click="approveItem"><i class="feather icon-save"></i> Approve</button>
         <router-link v-if="item.data.status=='Pending'" :to="taskData.api_url+'/edit/'+item.id" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" ><i class="feather icon-edit"></i> Go To Edit</router-link>
-        <button v-if="taskData.permissions.action_3"  type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger" @click="deleteItem"><i class="feather icon-minus-circle"></i> Delete</button>
         <button v-if="item.data.status=='Approved'" type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary disabled">Approved</button>
+        <button v-if="taskData.permissions.action_3"  type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger" @click="deleteItem"><i class="feather icon-minus-circle"></i> Delete</button>
+
       </template>
     </div>
   </div>
@@ -148,8 +149,8 @@
     item.detailFields=detailFields;
   }
   const approveItem=async ()=>{
-    const userConfirmed = confirm("Are you sure you want to Approve?");
-    if(userConfirmed)
+    // const userConfirmed = confirm("Are you sure you want to Approve?");
+    // if(userConfirmed)
     {
       await axios.get(taskData.api_url+'/approve-item/'+ item.id).then((res)=>{
         if (res.data.error == "") {
@@ -162,9 +163,9 @@
         }
       });
     }
-    else{
-      console.log('approve cancelted')
-    }
+    // else{
+    //   console.log('approve cancelted')
+    // }
   }
   const deleteItem=async ()=>{
     const userConfirmed = confirm("Are you sure you want to proceed?");

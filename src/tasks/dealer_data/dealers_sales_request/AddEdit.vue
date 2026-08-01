@@ -433,6 +433,7 @@ $(document).ready(async function()
       $(this).closest("tr").before(html);
     }
     $('#pack_size_id').val('');
+    $('#quantity_pkt').val('')
     $('#select2-pack_size_id-container').html(labels.get('label_select'));
     $('#quantity').val('')
   })

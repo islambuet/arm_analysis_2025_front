@@ -1,9 +1,10 @@
 <template>
   <div class="card d-print-none mb-2">
     <div class="card-body">
-      <router-link :to="taskData.api_url" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" ><i class="feather icon-corner-up-left"></i> {{labels.get('label_back')}}</router-link>
+      <router-link :to="taskData.api_url" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" ><i class="feather icon-corner-up-left"></i> Go to List</router-link>
       <template v-if="item.exists">
-        <button v-if="item.status=='Pending'"  type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="save(false)"><i class="feather icon-save"></i> {{labels.get('label_save')}}</button>
+        <button v-if="item.data.status=='Pending'"  type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="save(false)"><i class="feather icon-save"></i> {{labels.get('label_save')}}</button>
+        <router-link v-if="item.data.status=='Pending'" :to="taskData.api_url+'/details/'+item.id" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" ><i class="feather icon-camera"></i> Go To View</router-link>
         <button v-if="item.status=='Approved'" type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary disabled">{{item.status}}</button>
       </template>
     </div>
@@ -86,12 +87,8 @@ let taskData = inject('taskData')
 let item=reactive({
   id:0,
   exists:false,
-  status:"Pending",
   inputFields:{},
-  inputFields2:{crop_types:[],varieties:[]},
-  data:{
-    pack_sizes:{},
-  }
+  data:{},
 })
 let crops_object={};
 for(let i in taskData.crops){
@@ -141,121 +138,63 @@ const setInputFields=async ()=>{
     default:new Date().getTime(),
     mandatory:true
   };
+  key='id';
+  inputFields[key] = {
+    name: key,
+    label: labels.get('label_'+key),
+    type:'hidden',
+    default:item.data[key],
+    mandatory:true
+  };
 
   key='sales_at';
-  if(taskData.permissions.action_3){
-    inputFields[key] = {
-      name: 'item[' +key +']',
-      label: labels.get('label_'+key),
-      type:'datetime-local',
-      default:moment().format('YYYY-MM-DDTHH:mm'),
-      mandatory:true
-    };
-  }
-  else{
-    inputFields[key] = {
-      name: 'item[' +key +']',
-      label: labels.get('label_'+key),
-      type:'hidden',
-      default:moment().format('YYYY-MM-DDTHH:mm'),
-      mandatory:true
-    };
-  }
-
-  key='part_id';
-  inputFields[key] = {
-    name: key,
-    label: labels.get('label_'+key),
-    type:'dropdown',
-    options:taskData.location_parts.filter((temp)=>{ if(temp.status=='Active'){temp.value=temp.id.toString();temp.label=temp.name;return true}}),
-    default:'',
-    mandatory:false
-  };
-  if(taskData.user_locations.part_id>0){
-    inputFields[key] = {
-      name: key,
-      label: labels.get('label_'+key),
-      type:'hidden',
-      default:taskData.user_locations.part_id,
-      mandatory:true
-    };
-    key='part_name';
-    inputFields[key] = {
-      name: key,
-      label: labels.get('label_'+key),
-      type:'textonly',
-      default: location_parts_object[taskData.user_locations.part_id]['name'],
-      mandatory:false
-    };
-  }
-  key='area_id';
-  inputFields[key] = {
-    name: key,
-    label: labels.get('label_'+key),
-    type:'dropdown',
-    options:(taskData.user_locations.part_id>0)?taskData.location_areas.filter((temp)=>{ if((temp.part_id==taskData.user_locations.part_id)&&(temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}}):[],
-    default:'',
-    mandatory:false
-  };
-  if(taskData.user_locations.area_id>0){
-    inputFields[key] = {
-      name: key,
-      label: labels.get('label_'+key),
-      type:'hidden',
-      default:taskData.user_locations.area_id,
-      mandatory:true
-    };
-    key='area_name';
-    inputFields[key] = {
-      name: key,
-      label: labels.get('label_'+key),
-      type:'textonly',
-      default: location_areas_object[taskData.user_locations.area_id]['name'],
-      mandatory:false
-    };
-  }
-  key='territory_id';
-  inputFields[key] = {
-    name: key,
-    label: labels.get('label_'+key),
-    type:'dropdown',
-    options:(taskData.user_locations.area_id>0)?taskData.location_territories.filter((temp)=>{ if((temp.area_id==taskData.user_locations.area_id) && (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}}):[],
-    default:'',
-    mandatory:false
-  };
-  if(taskData.user_locations.territory_id>0){
-    inputFields[key] = {
-      name: key,
-      label: labels.get('label_'+key),
-      type:'hidden',
-      default:taskData.user_locations.territory_id,
-      mandatory:true
-    };
-    key='territory_name';
-    inputFields[key] = {
-      name: key,
-      label: labels.get('label_'+key),
-      type:'textonly',
-      default: location_territories_object[taskData.user_locations.territory_id]['name'],
-      mandatory:false
-    };
-  }
-  key='distributor_id';
-  inputFields[key] = {
-    name: key,
-    label: labels.get('label_'+key),
-    type:'dropdown',
-    options:(taskData.user_locations.territory_id>0)?taskData.distributors.filter((temp)=>{ if((temp.territory_id==taskData.user_locations.territory_id) && (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}}):[],
-    default:'',
-    mandatory:false
-  };
-  key='dealer_id';
   inputFields[key] = {
     name: 'item[' +key +']',
     label: labels.get('label_'+key),
-    type:'dropdown',
-    options:[],
-    default:'',
+    type:'textonly',
+    default:item.data[key],
+    mandatory:true
+  };
+
+
+  key='part_name';
+  inputFields[key] = {
+    name: key,
+    label: labels.get('label_'+key),
+    type:'textonly',
+    default:item.data[key],
+    mandatory:false
+  };
+  key='area_name';
+  inputFields[key] = {
+    name: key,
+    label: labels.get('label_'+key),
+    type:'textonly',
+    default:item.data[key],
+    mandatory:false
+  };
+  key='territory_name';
+  inputFields[key] = {
+    name: key,
+    label: labels.get('label_'+key),
+    type:'textonly',
+    default:item.data[key],
+    mandatory:false
+  };
+  key='distributor_name';
+  inputFields[key] = {
+    name: key,
+    label: labels.get('label_'+key),
+    type:'textonly',
+    default:item.data[key],
+    mandatory:false
+  };
+  key='dealer_name';
+  inputFields[key] = {
+    name: key,
+    label: labels.get('label_'+key),
+    type:'textonly',
+    default:item.data[key],
     mandatory:false
   };
   item.inputFields=inputFields;
@@ -267,7 +206,7 @@ const save=async (save_and_new)=>{
     if (res.data.error == "") {
       globalVariables.loadListData=true;
       toastFunctions.showSuccessfullySavedMessage();
-      router.push(taskData.api_url)
+      router.push(taskData.api_url+'/details/'+item.id)
     }
     else{
       toastFunctions.showResponseError(res.data)
@@ -276,134 +215,23 @@ const save=async (save_and_new)=>{
 
 }
 const getItem=async ()=>{
-  item.exists=false;
-  $('#table_varieties tbody tr:not(:last)').remove();
-  if($('#distributor_id').val()>0){
-    await systemFunctions.delay(1);
-    let formData=new FormData(document.getElementById('formSaveItem'))
-    await axios.post(taskData.api_url+'/get-item/0',formData).then((res)=>{
-      if (res.data.error == "") {
-        if(res.data.item.pack_sizes){
-          item.data.pack_sizes=res.data.item.pack_sizes;
-          item.status=res.data.item.status;
-        }
-        else{
-          item.data.pack_sizes={}
-          item.status='Pending';
-        }
-
-        item.exists=true;
-      }
-      else{
-        toastFunctions.showResponseError(res.data)
-      }
-    });
-
-  }
-
+  await axios.get(taskData.api_url+'/get-item/'+ item.id).then((res)=>{
+    if (res.data.error == "") {
+      item.data=res.data.item;
+      setInputFields();
+      item.exists=true;
+    }
+    else{
+      toastFunctions.showResponseError(res.data)
+    }
+  });
 }
-setInputFields();
-
+item.id=route.params['item_id'];
+getItem();
 $(document).ready(async function()
 {
   $('#pack_size_id').select2();
-  $(document).off("change", "#crop_id");
-  $(document).on("change",'#crop_id',async function()
-  {
-    let crop_id=$(this).val();
-    item.inputFields2['crop_types']=taskData.crop_types.filter((temp)=>{ if((temp.crop_id==crop_id) && (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
-    await systemFunctions.delay(1);
-    $('#type_id').val('');
-    item.inputFields2['varieties']=[]
-    $('#variety_id').val('');
-  })
-  $(document).off("change", "#type_id");
-  $(document).on("change",'#type_id',async function()
-  {
-    let type_id=$(this).val();
-    item.inputFields2['varieties']=taskData.varieties.filter((temp)=>{ if((temp.crop_type_id==type_id) && (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
-    await systemFunctions.delay(1);
-    $('#variety_id').val('');
-  })
 
-  $(document).off("change", "#part_id");
-  $(document).on("change",'#part_id',async function()
-  {
-    let part_id=$(this).val();
-    let key='area_id';
-    item.inputFields[key].options=taskData.location_areas.filter((temp)=>{ if((temp.part_id==part_id) && (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
-    await systemFunctions.delay(1);
-    $('#'+key).val('');
-    key='territory_id';
-    item.inputFields[key].options=[];
-    $('#'+key).val('');
-    key='distributor_id';
-    item.inputFields[key].options=[];
-    $('#'+key).val('');
-    key='dealer_id';
-    item.inputFields[key].options=[];
-    $('#'+key).val('');
-    item.exists=false;
-  })
-  $(document).off("change", "#area_id");
-  $(document).on("change",'#area_id',async function()
-  {
-    let area_id=$(this).val();
-    let key='territory_id';
-    item.inputFields[key].options=taskData.location_territories.filter((temp)=>{ if((temp.area_id==area_id)&& (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
-    await systemFunctions.delay(1);
-    $('#'+key).val('');
-    key='distributor_id';
-    item.inputFields[key].options=[];
-    $('#'+key).val('');
-    key='dealer_id';
-    item.inputFields[key].options=[];
-    $('#'+key).val('');
-    item.exists=false;
-  })
-  $(document).off("change", "#territory_id");
-  $(document).on("change",'#territory_id',async function()
-  {
-    let territory_id=$(this).val();
-    let key='distributor_id';
-    item.inputFields[key].options=taskData.distributors.filter((temp)=>{ if((temp.territory_id==territory_id)&& (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
-    await systemFunctions.delay(1);
-    $('#'+key).val('');
-    key='dealer_id';
-    item.inputFields[key].options=[];
-    $('#'+key).val('');
-    item.exists=false;
-  })
-  $(document).off("change", "#distributor_id");
-  $(document).on("change",'#distributor_id',async function()
-  {
-    let distributor_id=$(this).val();
-    let key='dealer_id';
-    item.inputFields[key].options=taskData.dealers.filter((temp)=>{ if((temp.distributor_id==distributor_id)&& (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
-    await systemFunctions.delay(1);
-    $('#'+key).val('');
-    item.exists=false;
-  })
-  $(document).off("change", "#dealer_id");
-  $(document).on("change",'#dealer_id',async function()
-  {
-    getItem()
-  })
-  $(document).off("change", "#fiscal_year");
-  $(document).on("change",'#fiscal_year',async function()
-  {
-    getItem()
-  })
-  $(document).off("change", "#month");
-  $(document).on("change",'#month',async function()
-  {
-    getItem()
-  })
-  $(document).off("change", "#sales_at");
-  $(document).on("change",'#sales_at',async function()
-  {
-    getItem()
-  })
 
   $(document).off("click", ".btn_add_more_pack_size");
   $(document).on("click",'.btn_add_more_pack_size',function()
@@ -433,6 +261,7 @@ $(document).ready(async function()
       $(this).closest("tr").before(html);
     }
     $('#pack_size_id').val('');
+    $('#quantity_pkt').val('')
     $('#select2-pack_size_id-container').html(labels.get('label_select'));
     $('#quantity').val('')
   })
@@ -448,4 +277,5 @@ $(document).ready(async function()
   });
 
 });
+
 </script>

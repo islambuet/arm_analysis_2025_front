@@ -4,7 +4,7 @@ export default {
         bn:'ব্যবহারকারীরা'
     },
     label_new_task:{
-        en:"New Dealer Sales",
+        en:"New Dealer Sales Return",
         bn:'নতুন ব্যবহারকারী'
     },
     label_edit_task:{
@@ -16,7 +16,7 @@ export default {
         bn:'ব্যবহারকারীর বিবরণ'
     },
     label_sales_return_at:{
-        en:"Sales Retun Entry Time",
+        en:"Sales Return Entry Time",
         bn:"কর্মচারী আইডি"
     },
 

@@ -15,6 +15,9 @@
     <div v-if="taskData.method=='details'">
       <Details/>
     </div>
+    <div v-if="taskData.method=='delete'">
+      <Delete/>
+    </div>
   </div>
 </template>
 <script setup>
@@ -29,9 +32,10 @@
   import List from './List.vue'
   import AddEdit from './AddEdit.vue'
   import Details from './Details.vue'
+  import Delete from './Delete.vue'
   import Upload from './Upload.vue'
 
-  globalVariables.loadListData=true;
+  globalVariables.loadListData=false;
   const route =useRoute()
   const router =useRouter()
 
@@ -44,7 +48,7 @@
     items: {data:[]},   //from Laravel server with pagination and info
     itemsFiltered: [],    //for display
     columns:{all:{},hidden:[],sort:{key:'',dir:''}},
-    pagination: {current_page: 1,per_page_options: [10,20,50,100,500,1000],per_page:20,show_all_items:false},
+    pagination: {current_page: 1,per_page_options: [10,20,50,100,500,1000],per_page:100,show_all_items:false},
 
     analysis_years:[],
     location_parts:[],
@@ -77,6 +81,10 @@
     {
       taskData.method='details';
     }
+    else if(route.path.indexOf(taskData.api_url+'/delete/')!=-1)
+    {
+      taskData.method='delete';
+    }
     else if(route.path==taskData.api_url+'/upload'){
       taskData.method='upload';
     }
@@ -89,7 +97,10 @@
   const getItems=async(pagination)=>{
     if(globalVariables.loadListData)
     {
-      await axios.get(taskData.api_url+'/get-items?page='+ pagination.current_page+'&perPage='+ pagination.per_page)
+      let formData=new FormData(document.getElementById('formListSearch'))
+      formData.set('page',pagination.current_page)
+      formData.set('perPage',pagination.per_page)
+      await axios.post(taskData.api_url+'/get-items',formData)
           .then(res => {
             if(res.data.error==''){
               taskData.items= res.data.items;
@@ -121,6 +132,7 @@
         taskData.crops=res.data.crops;
         taskData.crop_types=res.data.crop_types;
         taskData.varieties=res.data.varieties;
+        taskData.pack_sizes=res.data.pack_sizes;
 
         taskData.user_locations=res.data.user_locations;
         if(res.data.hidden_columns){
@@ -132,6 +144,70 @@
         toastFunctions.showResponseError(res.data)
       }
     });
+  }
+  taskData.getPartDropdownHtml=(user_part_id=0,selected=0)=>{
+    let html='<option value="">'+labels.get('label_select')+'</option>';
+    if(user_part_id>0){
+      html='<option value="'+user_part_id+'">'+taskData.location_parts.find(temp=>temp.id==user_part_id)?.name+'</option>';
+    }
+    else{
+      for(let i in taskData.location_parts){
+        let location=taskData.location_parts[i];
+        html+=('<option value="'+location['id']+'"'+(selected==location['id']?'selected':'')+' >'+location['name']+'</option>');
+      }
+    }
+
+    return html;
+  }
+  taskData.getAreaDropdownHtml=(part_id,user_area_id=0,selected=0)=>{
+    let html='<option value="">'+labels.get('label_select')+'</option>';
+    if(user_area_id>0){
+      html='<option value="'+user_area_id+'">'+taskData.location_areas.find(temp=>temp.id==user_area_id)?.name+'</option>';
+    }
+    else{
+      for(let i in taskData.location_areas){
+        let location=taskData.location_areas[i];
+        if(location['part_id']==part_id){
+          html+=('<option value="'+location['id']+'"'+(selected==location['id']?'selected':'')+' >'+location['name']+'</option>');
+        }
+      }
+    }
+    return html;
+  }
+  taskData.getTerritoryDropdownHtml=(area_id,user_territory_id=0,selected=0)=>{
+    let html='<option value="">'+labels.get('label_select')+'</option>';
+    if(user_territory_id>0){
+      html='<option value="'+user_territory_id+'">'+taskData.location_territories.find(temp=>temp.id==user_territory_id)?.name+'</option>';
+    }
+    else{
+      for(let i in taskData.location_territories){
+        let location=taskData.location_territories[i];
+        if(location['area_id']==area_id){
+          html+=('<option value="'+location['id']+'"'+(selected==location['id']?'selected':'')+' >'+location['name']+'</option>');
+        }
+      }
+    }
+    return html;
+  }
+  taskData.getDistributorDropdownHtml=(territory_id,selected=0)=>{
+    let html='<option value="">'+labels.get('label_select')+'</option>';
+    for(let i in taskData.distributors){
+      let location=taskData.distributors[i];
+      if(location['territory_id']==territory_id){
+        html+=('<option value="'+location['id']+'"'+(selected==location['id']?'selected':'')+' >'+location['name']+'</option>');
+      }
+    }
+    return html;
+  }
+  taskData.getDealerDropdownHtml=(distributor_id,selected=0)=>{
+    let html='<option value="">'+labels.get('label_select')+'</option>';
+    for(let i in taskData.dealers){
+      let location=taskData.dealers[i];
+      if(location['distributor_id']==distributor_id){
+        html+=('<option value="'+location['id']+'"'+(selected==location['id']?'selected':'')+' >'+location['name']+'</option>');
+      }
+    }
+    return html;
   }
   provide('taskData',taskData)
   if(!(globalVariables.user.id>0)){

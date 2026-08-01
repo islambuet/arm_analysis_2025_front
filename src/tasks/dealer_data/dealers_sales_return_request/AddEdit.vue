@@ -3,7 +3,8 @@
     <div class="card-body">
       <router-link :to="taskData.api_url" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" ><i class="feather icon-corner-up-left"></i> {{labels.get('label_back')}}</router-link>
       <template v-if="item.exists">
-        <button  type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="save(false)"><i class="feather icon-save"></i> {{labels.get('label_save')}}</button>
+        <button v-if="item.status=='Pending'"  type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="save(false)"><i class="feather icon-save"></i> {{labels.get('label_save')}}</button>
+        <button v-if="item.status=='Approved'" type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary disabled">{{item.status}}</button>
       </template>
     </div>
   </div>
@@ -24,16 +25,28 @@
                 <th>Crop</th>
                 <th>Type</th>
                 <th>Variety</th>
-                <th>Quantity</th>
+                <th>Product</th>
+                <th style="width: 100px;">Quantity (pkt) </th>
+                <th style="width: 100px">Quantity (Kg) </th>
                 <th></th>
               </tr>
               </thead>
               <tbody>
+
+              <tr v-for="(quantity,pack_size_id) in item.data.pack_sizes" v-if="item.exists">
+                <td>{{pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id].crop_name:'NF'}}</td>
+                <td>{{pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id].type_name:'NF'}}</td>
+                <td>{{pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id].variety_name:'NF'}}</td>
+                <td>{{pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id].name:'NF'}}</td>
+                <td><input type="text" :data-value="pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id].value:'0'" class="form-control integer_positive quantity_pkt" :name="'item[pack_sizes]['+pack_size_id+']'" :value="quantity"></td>
+                <td  class="quantity_kg text-right">{{pack_sizes_object[pack_size_id]?((+pack_sizes_object[pack_size_id].value)*(+quantity)/1000):'0'}}</td>
+                <td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_pack_size"><i class="bi bi-dash-circle"></i> Remove </button></td>
+              </tr>
               <tr>
-                <td colspan="3">
-                  <select id="variety_id" class="form-control">
+                <td colspan="4">
+                  <select id="pack_size_id" class="form-control">
                     <option value="">{{labels.get('label_select')}}</option>
-                    <template v-for="row in taskData.varieties">
+                    <template v-for="row in taskData.pack_sizes">
                       <option  :value="row.id" v-if="row.status=='Active'">
                         {{row.name}}
                       </option>
@@ -41,15 +54,9 @@
 
                   </select>
                 </td>
-                <td><input type="text" class="form-control float_positive" id="quantity" value=""></td>
-                <td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary btn_add_more_variety"><i class="bi bi-plus-circle"></i> {{labels.get('action_1')}}</button></td>
-              </tr>
-              <tr v-for="(quantity,variety_id) in item.data.varieties" v-if="item.exists">
-                <td>{{varieties_object[variety_id]?varieties_object[variety_id].crop_name:'NF'}}</td>
-                <td>{{varieties_object[variety_id]?varieties_object[variety_id].type_name:'NF'}}</td>
-                <td>{{varieties_object[variety_id]?varieties_object[variety_id].name:'NF'}}</td>
-                <td><input type="text" class="form-control float_positive" :name="'item[varieties]['+variety_id+']'" :value="quantity"></td>
-                <td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_variety"><i class="bi bi-dash-circle"></i> Remove </button></td>
+                <td><input type="text" class="form-control float_positive" id="quantity_pkt" value=""></td>
+                <td></td>
+                <td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary btn_add_more_pack_size"><i class="bi bi-plus-circle"></i> {{labels.get('action_1')}}</button></td>
               </tr>
               </tbody>
             </table>
@@ -79,10 +86,11 @@ let taskData = inject('taskData')
 let item=reactive({
   id:0,
   exists:false,
+  status:"Pending",
   inputFields:{},
   inputFields2:{crop_types:[],varieties:[]},
   data:{
-    varieties:{},
+    pack_sizes:{},
   }
 })
 let crops_object={};
@@ -96,6 +104,10 @@ for(let i in taskData.crop_types){
 let varieties_object={};
 for(let i in taskData.varieties){
   varieties_object[taskData.varieties[i]['id']]=taskData.varieties[i];
+}
+let pack_sizes_object={};
+for(let i in taskData.pack_sizes){
+  pack_sizes_object[taskData.pack_sizes[i]['id']]=taskData.pack_sizes[i];
 }
 let location_parts_object={};
 for(let i in taskData.location_parts){
@@ -129,6 +141,7 @@ const setInputFields=async ()=>{
     default:new Date().getTime(),
     mandatory:true
   };
+
   key='sales_return_at';
   if(taskData.permissions.action_3){
     inputFields[key] = {
@@ -148,6 +161,7 @@ const setInputFields=async ()=>{
       mandatory:true
     };
   }
+
   key='part_id';
   inputFields[key] = {
     name: key,
@@ -253,9 +267,7 @@ const save=async (save_and_new)=>{
     if (res.data.error == "") {
       globalVariables.loadListData=true;
       toastFunctions.showSuccessfullySavedMessage();
-      item.exists=false;
-      $('#dealer_id').val('');
-      $('#save_token').val(new Date().getTime());
+      router.push(taskData.api_url)
     }
     else{
       toastFunctions.showResponseError(res.data)
@@ -265,17 +277,19 @@ const save=async (save_and_new)=>{
 }
 const getItem=async ()=>{
   item.exists=false;
-  $('#table_varieties tbody tr:not(:first)').remove();
+  $('#table_varieties tbody tr:not(:last)').remove();
   if($('#distributor_id').val()>0){
     await systemFunctions.delay(1);
     let formData=new FormData(document.getElementById('formSaveItem'))
     await axios.post(taskData.api_url+'/get-item/0',formData).then((res)=>{
       if (res.data.error == "") {
-        if(res.data.item.varieties){
-          item.data.varieties=res.data.item.varieties;
+        if(res.data.item.pack_sizes){
+          item.data.pack_sizes=res.data.item.pack_sizes;
+          item.status=res.data.item.status;
         }
         else{
-          item.data.varieties={}
+          item.data.pack_sizes={}
+          item.status='Pending';
         }
 
         item.exists=true;
@@ -292,7 +306,7 @@ setInputFields();
 
 $(document).ready(async function()
 {
-  $('#variety_id').select2();
+  $('#pack_size_id').select2();
   $(document).off("change", "#crop_id");
   $(document).on("change",'#crop_id',async function()
   {
@@ -385,40 +399,52 @@ $(document).ready(async function()
   {
     getItem()
   })
-  $(document).off("change", "#sales_return_at");
-  $(document).on("change",'#sales_return_at',async function()
+  $(document).off("change", "#sales_at");
+  $(document).on("change",'#sales_at',async function()
   {
     getItem()
   })
 
-  $(document).off("click", ".btn_add_more_variety");
-  $(document).on("click",'.btn_add_more_variety',function()
+  $(document).off("click", ".btn_add_more_pack_size");
+  $(document).on("click",'.btn_add_more_pack_size',function()
   {
-    let variety_id=$('#variety_id').val();
-    if(variety_id>0){
+    let pack_size_id=$('#pack_size_id').val();
+    if(pack_size_id>0){
       let crop_name='NF';
       let type_name='NF';
       let variety_name='NF';
-      if(varieties_object[variety_id]){
-        variety_name=varieties_object[variety_id].name;
-        crop_name=varieties_object[variety_id].crop_name;
-        type_name=varieties_object[variety_id].type_name;
+      let pack_size_name='NF';
+      let pack_size_value=0;
+      if(pack_sizes_object[pack_size_id]){
+        pack_size_name=pack_sizes_object[pack_size_id].name;
+        variety_name=pack_sizes_object[pack_size_id].variety_name;
+        crop_name=pack_sizes_object[pack_size_id].crop_name;
+        type_name=pack_sizes_object[pack_size_id].type_name;
+        pack_size_value=pack_sizes_object[pack_size_id].value;
       }
-
       let html=('<tr><td>'+crop_name+'</td>');
       html+=('<td>'+type_name+'</td>');
       html+=('<td>'+variety_name+'</td>');
-      html+=('<td><input type="text" class="form-control float_positive" name="item[varieties]['+variety_id+']" value="'+$('#quantity').val()+'"></td>');
-      html+='<td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_variety"><i class="bi bi-dash-circle"></i> Remove </button>';
+      html+=('<td>'+pack_size_name+'</td>');
+      html+=('<td><input type="text" data-value="'+pack_size_value+'" class="form-control integer_positive quantity_pkt" name="item[pack_sizes]['+pack_size_id+']" value="'+$('#quantity_pkt').val()+'"></td>');
+      html+=('<td class="quantity_kg text-right">'+(+$('#quantity_pkt').val()/1000)*(+pack_size_value)+'</td>');
+      html+='<td><button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-danger btn_remove_pack_size"><i class="bi bi-dash-circle"></i> Remove </button>';
       html+='</tr>';
-      $(this).closest("tr").after(html);
+      $(this).closest("tr").before(html);
     }
-    $('#variety_id').val('');
-    $('#select2-variety_id-container').html(labels.get('label_select'));
+    $('#pack_size_id').val('');
+    $('#quantity_pkt').val('')
+    $('#select2-pack_size_id-container').html(labels.get('label_select'));
     $('#quantity').val('')
   })
-  $(document).off("click", ".btn_remove_variety");
-  $(document).on("click",'.btn_remove_variety',function(){
+  $(document).off("input", ".quantity_pkt");
+  $(document).on("input",'.quantity_pkt',function(){
+    let quantity=(+$(this).val())
+    let pack_size_value=$(this).attr('data-value');
+    $(this).parent().siblings('.quantity_kg').html(quantity*pack_size_value/1000)
+  });
+  $(document).off("click", ".btn_remove_pack_size");
+  $(document).on("click",'.btn_remove_pack_size',function(){
     $(this).closest('tr').remove();
   });
 

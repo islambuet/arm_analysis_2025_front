@@ -64,7 +64,7 @@ const init=async ()=>{
       taskData.location_territories=res.data.location_territories;
       taskData.distributors=res.data.distributors;
       taskData.dealers=res.data.dealers;
-      taskData.varieties=res.data.varieties;
+      taskData.pack_sizes=res.data.pack_sizes;
 
       taskData.user_locations=res.data.user_locations;
       if(res.data.hidden_columns){

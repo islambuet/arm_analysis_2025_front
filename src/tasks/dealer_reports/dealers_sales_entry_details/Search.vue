@@ -65,7 +65,7 @@
         <template v-for="row in taskData.itemsFiltered">
           <tr>
             <template v-for="(column,key) in taskData.columns.all">
-              <td :class="((['id','quantity'].indexOf(column.group) == -1)?'':'text-right')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
+              <td :class="((['id','quantity_pkt','quantity_kg'].indexOf(column.group) == -1)?'':'text-right')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
                 {{ row[column.key] }}
               </td>
             </template>
@@ -127,9 +127,9 @@
       let dealer_id=taskData.dealers[i]['id'];
       dealers_object[dealer_id]=taskData.dealers[i];
     }
-    let varieties_object={};
-    for(let i in taskData.varieties){
-      varieties_object[taskData.varieties[i]['id']]=taskData.varieties[i];
+    let pack_sizes_object={};
+    for(let i in taskData.pack_sizes){
+      pack_sizes_object[taskData.pack_sizes[i]['id']]=taskData.pack_sizes[i];
     }
     const setInputFields=async ()=>{
       item.inputFields1= {};
@@ -275,14 +275,16 @@
           let rows_array=[];
           for(let i in res.data.items){
             let item=res.data.items[i];
-            if(item['varieties']){
-              let varieties=JSON.parse(item['varieties'])
-              for(let variety_id in varieties){
+            if(item['pack_sizes']){
+              let pack_sizes=JSON.parse(item['pack_sizes'])
+              for(let pack_size_id in pack_sizes){
                 let row=Object.assign({},item)
-                row['crop_name']=varieties_object[variety_id]?varieties_object[variety_id].crop_name:'NF'
-                row['crop_type_name']=varieties_object[variety_id]?varieties_object[variety_id].type_name:'NF';
-                row['variety_name']=varieties_object[variety_id]?varieties_object[variety_id].name:'NF';
-                row['quantity']=varieties[variety_id];
+                row['crop_name']=pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id].crop_name:'NF'
+                row['crop_type_name']=pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id].type_name:'NF'
+                row['variety_name']=pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id].variety_name:'NF'
+                row['pack_size_name']=pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id].name:'NF'
+                row['quantity_pkt']=pack_sizes[pack_size_id];
+                row['quantity_kg']=pack_sizes_object[pack_size_id]?((+pack_sizes_object[pack_size_id].value)*(+row['quantity_pkt'])/1000):'NF'
                 rows_array.push(row)
               }
             }
@@ -332,10 +334,12 @@
       columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
       columns_all.push({'group':'crop_type_name','key':'crop_type_name','label':labels.get('label_crop_type_name')})
       columns_all.push({'group':'variety_name','key':'variety_name','label':labels.get('label_variety_name')})
-      columns_all.push({'group':'quantity','key':'quantity','label':labels.get('label_quantity')})
+      columns_all.push({'group':'pack_size_name','key':'pack_size_name','label':labels.get('label_pack_size_name')})
+      columns_all.push({'group':'quantity_pkt','key':'quantity_pkt','label':labels.get('label_quantity_pkt')})
+      columns_all.push({'group':'quantity_kg','key':'quantity_kg','label':labels.get('label_quantity_kg')})
       taskData.columns.all=columns_all;
       calculateTableWidth();
-      taskData.columns.selectable=['id','sales_at','part_name','area_name','territory_name','distributor_name','dealer_name','crop_name','crop_type_name','variety_name','quantity'];
+      taskData.columns.selectable=['id','sales_at','part_name','area_name','territory_name','distributor_name','dealer_name','crop_name','crop_type_name','variety_name','pack_size_name','quantity_pkt','quantity_kg'];
       taskData.columns.hidden=[];
       $(document).off("change", "#report_format");
 

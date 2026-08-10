@@ -203,6 +203,14 @@ export default {
         en:"Quantity",
         bn:"Quantity"
     },
+    label_quantity_pkt:{
+        en:"Quantity (pkt)",
+        bn:"Quantity"
+    },
+    label_quantity_kg:{
+        en:"Quantity (Kg)",
+        bn:"Quantity"
+    },
     label_unit_price:{
         en:"Unit Price",
         bn:"কর্মচারী আইডি"

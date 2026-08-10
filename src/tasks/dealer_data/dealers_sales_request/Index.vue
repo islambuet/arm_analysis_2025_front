@@ -168,7 +168,9 @@
       for(let i in taskData.location_areas){
         let location=taskData.location_areas[i];
         if(location['part_id']==part_id){
-          html+=('<option value="'+location['id']+'"'+(selected==location['id']?'selected':'')+' >'+location['name']+'</option>');
+          if(location['status']=='Active') {
+            html += ('<option value="' + location['id'] + '"' + (selected == location['id'] ? 'selected' : '') + ' >' + location['name'] + '</option>');
+          }
         }
       }
     }
@@ -183,7 +185,9 @@
       for(let i in taskData.location_territories){
         let location=taskData.location_territories[i];
         if(location['area_id']==area_id){
-          html+=('<option value="'+location['id']+'"'+(selected==location['id']?'selected':'')+' >'+location['name']+'</option>');
+          if(location['status']=='Active') {
+            html += ('<option value="' + location['id'] + '"' + (selected == location['id'] ? 'selected' : '') + ' >' + location['name'] + '</option>');
+          }
         }
       }
     }
@@ -194,7 +198,9 @@
     for(let i in taskData.distributors){
       let location=taskData.distributors[i];
       if(location['territory_id']==territory_id){
-        html+=('<option value="'+location['id']+'"'+(selected==location['id']?'selected':'')+' >'+location['name']+'</option>');
+        if(location['status']=='Active') {
+          html += ('<option value="' + location['id'] + '"' + (selected == location['id'] ? 'selected' : '') + ' >' + location['name'] + '</option>');
+        }
       }
     }
     return html;
@@ -204,7 +210,10 @@
     for(let i in taskData.dealers){
       let location=taskData.dealers[i];
       if(location['distributor_id']==distributor_id){
-        html+=('<option value="'+location['id']+'"'+(selected==location['id']?'selected':'')+' >'+location['name']+'</option>');
+        if(location['status']=='Active')
+        {
+          html+=('<option value="'+location['id']+'"'+(selected==location['id']?'selected':'')+' >'+location['name']+'</option>');
+        }
       }
     }
     return html;

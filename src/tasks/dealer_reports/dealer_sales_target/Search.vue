@@ -190,6 +190,22 @@
         mandatory:true,
         noselect:true,
       };
+      key='sales_from';
+      inputFields[key] = {
+        name: 'options[' +key +']',
+        label: labels.get('label_'+key),
+        type:'date',
+        default:item.data[key],
+        mandatory:true
+      };
+      key='sales_to';
+      inputFields[key] = {
+        name: 'options[' +key +']',
+        label: labels.get('label_'+key),
+        type:'date',
+        default:item.data[key],
+        mandatory:true
+      };
       item.inputFields1=inputFields;
       //inputFields2
       inputFields={}
@@ -696,6 +712,28 @@
       taskData.columns.selectable3=['unit_price','achievement'];
       taskData.columns.hidden=[];
       $(document).off("change", "#report_format");
+
+      $(document).off("change", "#fiscal_year");
+      $(document).on("change",'#fiscal_year',async function()
+      {
+        let fiscal_year=$(this).val();
+        if(fiscal_year>0){
+          let start_date_temp=moment(fiscal_year+'-'+globalVariables.fiscal_year_starting_month+'-01','YYYY-MM-DD');
+          let end_date=start_date_temp.clone().add(1,'year').add(-1,'day')
+          let start_date=start_date_temp.clone()
+          if($("#num_fiscal_years").val()>1){
+            start_date=start_date_temp.clone().add(($("#num_fiscal_years").val()*-1+1),'year')
+          }
+
+          $("#sales_from").val(start_date.format('YYYY-MM-DD'))
+          $("#sales_to").val(end_date.format('YYYY-MM-DD'))
+        }
+        else{
+          $("#sales_from").val(moment().startOf('month').format('YYYY-MM-DD'))
+          $("#sales_to").val(moment().endOf('month').format('YYYY-MM-DD'))
+        }
+      });
+
       await systemFunctions.delay(20);
       //$('.column_control').prop('checked',true)
       $('.column_control.target').prop('checked',true)
@@ -704,6 +742,7 @@
       $('.column_control.achievement').prop('checked',true)
       //$('.column_control.unit_price').prop('checked',true)
       toggleReportControlColumns();
+      $('#fiscal_year').trigger('change')
 
       $(document).off("change", "#crop_id");
       $(document).on("change",'#crop_id',async function()

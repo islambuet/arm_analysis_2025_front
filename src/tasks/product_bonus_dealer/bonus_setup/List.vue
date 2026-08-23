@@ -38,7 +38,7 @@
             </div>
           </td>
           <template v-for="(column,key) in taskData.columns.all">
-            <td :class="((['id','ordering','quantity'].indexOf(key) != -1)?'text-right':'')+(column.class?(' '+column.class):'col_9')" v-if="taskData.columns.hidden.indexOf(key)<0" :key="'td_'+key">
+            <td :class="((['id','ordering','quantity','percentage_bonus'].indexOf(key) != -1)?'text-right':'')+(column.class?(' '+column.class):'col_9')" v-if="taskData.columns.hidden.indexOf(key)<0" :key="'td_'+key">
               <template v-if="(['crop_type_name'].indexOf(key) != -1)">
                 <div v-html="item[key]"></div>
               </template>
@@ -104,6 +104,16 @@
         filter:{from:'',to:''}
       };
       key='quantity';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:false,
+        sortable:true,
+        type:'number',
+        filter:{from:'',to:''},
+        class:'col_1'
+      };
+      key='percentage_bonus';
       columns[key]={
         label: labels.get('label_'+key),
         hideable:true,

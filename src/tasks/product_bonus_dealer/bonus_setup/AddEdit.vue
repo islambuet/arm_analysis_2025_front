@@ -99,6 +99,15 @@ const setInputFields=async ()=>{
     default:item.data[key],
     mandatory:false
   };
+  key='percentage_bonus';
+  inputFields[key] = {
+    name: 'item[' +key +']',
+    label: labels.get('label_'+key),
+    type:'text',
+    class:'float_positive',
+    default:item.data[key],
+    mandatory:false
+  };
   key='ordering';
   inputFields[key] = {
     name: 'item[' +key +']',

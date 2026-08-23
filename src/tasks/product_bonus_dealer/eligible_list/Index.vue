@@ -59,6 +59,7 @@ let taskData=reactive({
   varieties_arm_typewise:{},
   varieties_arm_typewise_ordered:{},
   pack_sizes :[],
+  couriers:[],
   user_locations:{},
   lastGeneratedDate: {},
   bonus_setup: {},
@@ -122,11 +123,11 @@ const getItems=async(pagination)=>{
                   row['crop_name']=(taskData.bonus_setup[j]?taskData.bonus_setup[j]['crop_name']:j);
                   row['crop_type_name']=(taskData.bonus_setup[j]?taskData.bonus_setup[j]['crop_type_name']:j);
                   row['quantity_eligible']=(bonus_datum['quantity_eligible'])
-                  row['quantity_sales']=(bonus_datum['quantity_sales'])
-                  row['quantity_balance_old']=(bonus_datum['quantity_balance_old'])
-                  row['quantity_delivered']=(bonus_datum['quantity_delivered'])
+                  row['quantity_sales']=(bonus_datum['quantity_sales'].toFixed(3))
+                  row['quantity_balance_old']=(bonus_datum['quantity_balance_old'].toFixed(3))
+                  row['quantity_delivered']=(bonus_datum['quantity_delivered'].toFixed(3))
                   row['quantity_num_delivered']=(bonus_datum['quantity_num_delivered'])
-                  row['quantity_balance_new']=(bonus_datum['quantity_balance_new'])
+                  row['quantity_balance_new']=(bonus_datum['quantity_balance_new'].toFixed(3))
                   rows.push(row)
                 }
               }
@@ -163,12 +164,14 @@ const init=async ()=>{
       taskData.location_territories=res.data.location_territories;
       taskData.distributors=res.data.distributors;
       taskData.dealers=res.data.dealers;
+      taskData.couriers=res.data.couriers;
       taskData.lastGeneratedDate=res.data.lastGeneratedDate;
 
 
 
       taskData.crops=res.data.crops;
       taskData.crop_types=res.data.crop_types;
+      taskData.pack_sizes=res.data.pack_sizes;
       let bonus_setup={}
       for(let i in res.data.bonus_setup){
         let row=res.data.bonus_setup[i];

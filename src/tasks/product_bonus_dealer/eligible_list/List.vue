@@ -145,10 +145,11 @@
             </div>
           </td>
           <template v-for="(column,key) in taskData.columns.all">
-            <td :class="((['quantity_eligible','quantity_balance_old','quantity_sales','quantity_balance_new','quantity_delivered','quantity_num_delivered'].indexOf(key) != -1)?'text-right':'')+(column.class?(' '+column.class):' col_9')" v-if="taskData.columns.hidden.indexOf(key)<0" :key="'td_'+key">
+            <td :class="((['product_bonus_quantity','quantity_balance_old','quantity_sales','quantity_balance_new','quantity_balance_adjusted','quantity_num_delivered'].indexOf(key) != -1)?'text-right':'')+(column.class?(' '+column.class):' col_9')" v-if="taskData.columns.hidden.indexOf(key)<0" :key="'td_'+key">
               <template v-if="(['crop_type_name'].indexOf(key) != -1)">
                 <div v-html="item[key]"></div>
               </template>
+              <template v-else-if="(['product_bonus_quantity','quantity_balance_old','quantity_sales','quantity_balance_new','quantity_balance_adjusted','quantity_num_delivered'].indexOf(key) != -1)">{{ item[key]?item[key].toFixed(3):'' }}</template>
               <template  v-else>{{ item[key] }}</template>
             </td>
           </template>
@@ -257,9 +258,9 @@
         type:'text',
         filter:{from:'',to:''}
       };
-      key='quantity_eligible';
+      key='product_bonus_quantity';
       columns[key]={
-        label: "Eligible qtn",
+        label: "Eligible bonus slot",
         hideable:true,
         filterable:true,
         sortable:true,
@@ -284,18 +285,9 @@
         type:'number',
         filter:{from:'',to:''}
       };
-      key='quantity_delivered';
+      key='quantity_balance_adjusted';
       columns[key]={
-        label: "Delivery Qtn",
-        hideable:true,
-        filterable:true,
-        sortable:true,
-        type:'number',
-        filter:{from:'',to:''}
-      };
-      key='quantity_num_delivered';
-      columns[key]={
-        label: "Delivery Count",
+        label: "Adjusted Qtn",
         hideable:true,
         filterable:true,
         sortable:true,

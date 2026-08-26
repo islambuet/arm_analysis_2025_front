@@ -149,10 +149,11 @@
         <template v-for="row in item.rows">
           <tr>
             <template v-for="(column,key) in item.columns.all">
-              <td :class="((['quantity_eligible','quantity_balance_old','quantity_sales','quantity_balance_new','quantity_delivered','quantity_num_delivered'].indexOf(key) != -1)?'text-right':'')+(column.class?(' '+column.class):' col_9')" >
+              <td :class="((['product_bonus_quantity','quantity_balance_old','quantity_sales','quantity_balance_new','quantity_balance_adjusted','quantity_num_delivered'].indexOf(key) != -1)?'text-right':'')+(column.class?(' '+column.class):' col_9')" >
                 <template v-if="(['crop_type_name'].indexOf(key) != -1)">
                   <div v-html="row[key]"></div>
                 </template>
+                <template v-else-if="(['product_bonus_quantity','quantity_balance_old','quantity_sales','quantity_balance_new','quantity_balance_adjusted','quantity_num_delivered'].indexOf(key) != -1)">{{ row[key]?row[key].toFixed(3):'' }}</template>
                 <template  v-else>{{ row[key] }}</template>
               </td>
             </template>
@@ -255,9 +256,9 @@
       type:'text',
       filter:{from:'',to:''}
     };
-    key='quantity_eligible';
+    key='product_bonus_quantity';
     columns[key]={
-      label: "Eligible qtn",
+      label: "Eligible bonus slot",
       hideable:true,
       filterable:true,
       sortable:true,
@@ -282,9 +283,9 @@
       type:'text',
       filter:{from:'',to:''}
     };
-    key='quantity_delivered';
+    key='quantity_balance_adjusted';
     columns[key]={
-      label: "Delivery Qtn",
+      label: "Adjusted Qtn",
       hideable:true,
       filterable:true,
       sortable:true,
@@ -328,12 +329,12 @@
             }
             if(show_eligible=="Yes")
             {
-              if((+bonus_datum['quantity_sales'])+(+bonus_datum['quantity_balance_old'])<(+bonus_datum['quantity_eligible']))
+              if((+bonus_datum['quantity_sales'])+(+bonus_datum['quantity_balance_old'])<(+bonus_datum['product_bonus_quantity']))
                 continue;
             }
             else if(show_eligible=="No")
             {
-              if((+bonus_datum['quantity_sales'])+(+bonus_datum['quantity_balance_old'])>=(+bonus_datum['quantity_eligible']))
+              if((+bonus_datum['quantity_sales'])+(+bonus_datum['quantity_balance_old'])>=(+bonus_datum['product_bonus_quantity']))
                 continue;
             }
 
@@ -349,12 +350,13 @@
               row['dealer_name']=(bonus_item['dealer_name'])
               row['crop_name']=(taskData.bonus_setup[j]?taskData.bonus_setup[j]['crop_name']:j);
               row['crop_type_name']=(taskData.bonus_setup[j]?taskData.bonus_setup[j]['crop_type_name']:j);
-              row['quantity_eligible']=(bonus_datum['quantity_eligible'])
+              row['product_bonus_quantity']=(parseFloat(bonus_datum['product_bonus_quantity']))
               row['quantity_sales']=(bonus_datum['quantity_sales'])
               row['quantity_balance_old']=(bonus_datum['quantity_balance_old'])
-              row['quantity_delivered']=(bonus_datum['quantity_delivered'])
+              row['quantity_balance_adjusted']=(bonus_datum['quantity_balance_adjusted'])
               row['quantity_balance_new']=(bonus_datum['quantity_balance_new'])
               rows.push(row)
+
             }
           }
         }

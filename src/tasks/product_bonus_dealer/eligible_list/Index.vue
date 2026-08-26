@@ -111,7 +111,7 @@ const getItems=async(pagination)=>{
                   if(taskData.bonus_setup[j]['crop_id']!=crop_id)
                     continue;
                 }
-                if((+bonus_datum['quantity_sales'])+(+bonus_datum['quantity_balance_old'])>=(+bonus_datum['quantity_eligible']))
+                if((+bonus_datum['quantity_sales'])+(+bonus_datum['quantity_balance_old'])>=(+bonus_datum['product_bonus_quantity']))
                 {
                   let row={}
                   row['id']=(bonus_item['id']+'_'+j)
@@ -122,12 +122,11 @@ const getItems=async(pagination)=>{
                   row['dealer_name']=(bonus_item['dealer_name'])
                   row['crop_name']=(taskData.bonus_setup[j]?taskData.bonus_setup[j]['crop_name']:j);
                   row['crop_type_name']=(taskData.bonus_setup[j]?taskData.bonus_setup[j]['crop_type_name']:j);
-                  row['quantity_eligible']=(bonus_datum['quantity_eligible'])
-                  row['quantity_sales']=(bonus_datum['quantity_sales'].toFixed(3))
-                  row['quantity_balance_old']=(bonus_datum['quantity_balance_old'].toFixed(3))
-                  row['quantity_delivered']=(bonus_datum['quantity_delivered'].toFixed(3))
-                  row['quantity_num_delivered']=(bonus_datum['quantity_num_delivered'])
-                  row['quantity_balance_new']=(bonus_datum['quantity_balance_new'].toFixed(3))
+                  row['product_bonus_quantity']=(parseFloat(bonus_datum['product_bonus_quantity']))
+                  row['quantity_sales']=(bonus_datum['quantity_sales'])
+                  row['quantity_balance_old']=(bonus_datum['quantity_balance_old'])
+                  row['quantity_balance_adjusted']=(bonus_datum['quantity_balance_adjusted'])
+                  row['quantity_balance_new']=(bonus_datum['quantity_balance_new'])
                   rows.push(row)
                 }
               }

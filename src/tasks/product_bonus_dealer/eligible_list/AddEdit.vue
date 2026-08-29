@@ -253,12 +253,28 @@ const setInputFields=async ()=>{
     default:item.data.delivery_data['courier_id']?item.data.delivery_data['courier_id']:'',
     mandatory:true
   };
-  key='quantity_eligible';
+  key='product_bonus_quantity';
   inputFields[key] = {
     name: 'item[' +key +']',
-    label: "Eligible Quantity",
+    label: "Eligible bonus slot",
     type:'textonly',
-    default:item.data.bonus_data[key],
+    default:(+item.data.bonus_data[key]).toFixed(3),
+    mandatory:false
+  };
+  key='quantity_sales';
+  inputFields[key] = {
+    name: 'item[' +key +']',
+    label: "Sales qtn",
+    type:'textonly',
+    default:item.data.bonus_data[key].toFixed(3),
+    mandatory:false
+  };
+  key='quantity_balance_old';
+  inputFields[key] = {
+    name: 'item[' +key +']',
+    label: 'Old Balance',
+    type:'textonly',
+    default:item.data.bonus_data[key].toFixed(3),
     mandatory:false
   };
   key='quantity_balance_new';
@@ -269,14 +285,29 @@ const setInputFields=async ()=>{
     default:item.data.bonus_data[key].toFixed(3),
     mandatory:false
   };
-  key='quantity_adjust';
+  let num_of_slot=Math.trunc(((+item.data.bonus_data['quantity_sales'])+(+item.data.bonus_data['quantity_balance_old']))/(+item.data.bonus_data['product_bonus_quantity']));
+  key='quantity_balance_adjusted';
   inputFields[key] = {
     name: 'item[' +key +']',
     label: 'Adjusted Quantity',
     type:'text',
     class:'float_all',
-    default:item.data.delivery_data['quantity_adjust']?item.data.delivery_data['quantity_adjust']:'',
+    default:item.data.delivery_data['quantity_adjust']?item.data.delivery_data['quantity_adjust']:(num_of_slot*(+item.data.bonus_data['product_bonus_quantity'])),
     mandatory:true
+  };
+  key='product_bonus_percentage';
+  inputFields[key] = {
+    label: 'Bonus percentage',
+    type:'textonly',
+    default:(+item.data.bonus_data[key]).toFixed(2),
+    mandatory:false
+  };
+  key='bonus_delivery_quantity';
+  inputFields[key] = {
+    label: 'Bonus Quantity',
+    type:'textonly',
+    default:(+inputFields['quantity_balance_adjusted']['default']*(+item.data.bonus_data['product_bonus_percentage'])/100).toFixed(3),
+    mandatory:false
   };
   item.inputFields=inputFields;
 }
@@ -335,6 +366,14 @@ const getItem=async ()=>{
     getItem();
   }
 $(document).ready(async function() {
+  $(document).off("input", "#quantity_balance_adjusted");
+  $(document).on("input",'#quantity_balance_adjusted',function(){
+    let quantity_balance_adjusted=(+$(this).val())
+    console.log(quantity_balance_adjusted)
+    //let pack_size_value=$(this).attr('data-value');
+    //$(this).parent().siblings('.quantity_kg').html(quantity*pack_size_value/1000)
+  });
+
   $(document).off("click", ".btn_add_more_pack_size");
   $(document).on("click",'.btn_add_more_pack_size',function()
   {

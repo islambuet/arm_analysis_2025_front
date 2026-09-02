@@ -264,6 +264,7 @@ import {inject, nextTick, reactive} from "vue";
 import axios from "axios";
 import InputTemplate from '@/components/InputTemplate.vue';
 import {useRoute} from "vue-router/dist/vue-router";
+import Textarea from "@/components/InputSubTemplates/Textarea";
 
 
 const route =useRoute()
@@ -549,3 +550,28 @@ $(document).ready(async function() {
   });
 });
 </script>
+<style scoped>
+#div_challan{
+  border: none !important;
+}
+@media print {
+  /* Enforce border visibility for the table and all cells */
+  .table-bordered,
+  .table-bordered thead,
+  .table-bordered tbody,
+  .table-bordered th,
+  .table-bordered td
+  {
+    border: 1px solid black !important; /* Forces standard Bootstrap border color */
+  }
+  .card,textarea{
+    border: none;
+  }
+
+  /* Prevent browsers from optimizing away colors and borders */
+  table{
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+</style>

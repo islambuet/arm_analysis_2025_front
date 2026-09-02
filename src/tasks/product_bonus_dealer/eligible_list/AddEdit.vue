@@ -85,128 +85,124 @@
         </div>
         <div id="label_challan" :class="'collapse'+(item.data.delivery_data['delivery_at']?' show':'')">
           <div class="d-flex justify-content-center">
-              <!-- <div style="width: 740px;height: 1050px;border: 1px solid red"> -->
-              <div style="width: 740px;height: 1000px;">
-<!--                header image-->
-                <div class="row mb-2">
-                  <div class="col-sm-12">
-                    <img style="width: 100%;" v-bind:src="globalVariables.baseUrl+'theme/images/challan_top.png'" alt="">
-                  </div>
-                </div>
-<!--                contact info-->
-                <div class="row mb-2">
-                  <div class="col-sm-12">
-                    <div class="border" style="border-color: black !important;">
-                      <div class="row">
-                        <div class="col-sm-6">
-                          <div class="row mb-2">
-                            <div class="col-sm-6">
-                              Name<span class="float-right">:</span>
+            <!-- <div style="width: 210*5=1050px;height: 297*7=1485;border: 1px solid red"> -->
+            <div style="width: 1050px;height: 1435px;font-size: 25px">
+              <div style="width: 1050px;height: 1395px;">
+                <div style="width: 1050px;min-height: 1100px;">
+                  <img style="width: 100%;" v-bind:src="globalVariables.baseUrl+'theme/images/challan_top.png'" alt="">
+                  <!-- contact info-->
+                  <div class="row mb-2">
+                    <div class="col-sm-12">
+                      <div class="border" style="border-color: black !important;">
+                        <div class="row">
+                          <div class="col-sm-6">
+                            <div class="row mb-2">
+                              <div class="col-sm-6">
+                                Name<span class="float-right">:</span>
+                              </div>
+                              <div class="col-sm-6">
+                                {{item.dealer.name}}
+                              </div>
                             </div>
-                            <div class="col-sm-6">
-                              {{item.dealer.name}}
+                            <div class="row mb-2">
+                              <div class="col-sm-6">
+                                Address<span class="float-right">:</span>
+                              </div>
+                              <div class="col-sm-6">
+                                {{item.dealer.address}}
+                              </div>
                             </div>
-                          </div>
-                          <div class="row mb-2">
-                            <div class="col-sm-6">
-                              Address<span class="float-right">:</span>
-                            </div>
-                            <div class="col-sm-6">
-                              {{item.dealer.address}}
-                            </div>
-                          </div>
-                          <div class="row mb-2">
-                            <div class="col-sm-6">
-                              Contact No<span class="float-right">:</span>
-                            </div>
-                            <div class="col-sm-6">
-                              {{item.dealer.mobile_no}}
+                            <div class="row mb-2">
+                              <div class="col-sm-6">
+                                Contact No<span class="float-right">:</span>
+                              </div>
+                              <div class="col-sm-6">
+                                {{item.dealer.mobile_no}}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <div class="col-sm-6">
-                          <div class="row mb-2">
-                            <div class="col-sm-6">
-                              Challan Number<span class="float-right">:</span>
+                          <div class="col-sm-6">
+                            <div class="row mb-2">
+                              <div class="col-sm-6">
+                                Challan Number<span class="float-right">:</span>
+                              </div>
+                              <div class="col-sm-6">
+                                {{item.id}}
+                              </div>
                             </div>
-                            <div class="col-sm-6">
-                              {{item.id}}
+                            <div class="row mb-2">
+                              <div class="col-sm-6">
+                                Delivery Date<span class="float-right">:</span>
+                              </div>
+                              <div class="col-sm-6">
+                                {{systemFunctions.displayDate(item.data.delivery_data['delivery_at'])}}
+                              </div>
                             </div>
-                          </div>
-                          <div class="row mb-2">
-                            <div class="col-sm-6">
-                              Delivery Date<span class="float-right">:</span>
-                            </div>
-                            <div class="col-sm-6">
-                              {{systemFunctions.displayDate(item.data.delivery_data['delivery_at'])}}
-                            </div>
-                          </div>
-                          <div class="row mb-2">
-                            <div class="col-sm-6">
-                              Courier Name<span class="float-right">:</span>
-                            </div>
-                            <div class="col-sm-6">
-                              {{taskData.couriers.find(t=>t.id==item.data.delivery_data['courier_id'])?.name}}
+                            <div class="row mb-2">
+                              <div class="col-sm-6">
+                                Courier Name<span class="float-right">:</span>
+                              </div>
+                              <div class="col-sm-6">
+                                {{taskData.couriers.find(t=>t.id==item.data.delivery_data['courier_id'])?.name}}
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
 
+                    </div>
+                  </div>
+                  <!-- product info-->
+                  <div class="row mb-2">
+                    <div class="col-12">
+                      <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                          <th>Crop</th>
+                          <th>Type</th>
+                          <th>Variety</th>
+                          <th>Product</th>
+                          <th style="width: 100px;">Quantity (pkt) </th>
+                          <th style="width: 100px">Quantity (Kg) </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(quantity,pack_size_id) in item.data.delivery_data.pack_sizes" v-if="item.exists">
+                          <td>{{pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id].crop_name:'NF'}}</td>
+                          <td>{{pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id].type_name:'NF'}}</td>
+                          <td>{{pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id].variety_name:'NF'}}</td>
+                          <td>{{pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id].name:'NF'}}</td>
+                          <td class="text-right">{{quantity}}</td>
+                          <td class="text-right">{{pack_sizes_object[pack_size_id]?((+pack_sizes_object[pack_size_id].value)*(+quantity)/1000):'0'}}</td>
+                        </tr>
+                        <tr>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td class="text-right"><label class="font-weight-bold float-right">Total :</label></td>
+                          <td class="text-right"><label class="font-weight-bold float-right" id="table_total_quantity_pkt"></label></td>
+                          <td class="text-right"><label class="font-weight-bold float-right" id="table_total_quantity_kg"></label></td>
+                        </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div class="row mb-2">
+                    <div class="col-3"><label class="font-weight-bold">Description :</label></div>
+                    <div class="col-9">
+                      <div class="input-group"><textarea class="form-control" style="font-size: 25px;"></textarea></div>
+                    </div>
                   </div>
                 </div>
-<!--                product info-->
-                <div class="row mb-2">
-                  <div class="col-12">
-                    <table class="table table-bordered">
-                      <thead>
-                      <tr>
-                        <th>Crop</th>
-                        <th>Type</th>
-                        <th>Variety</th>
-                        <th>Product</th>
-                        <th style="width: 100px;">Quantity (pkt) </th>
-                        <th style="width: 100px">Quantity (Kg) </th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                      <tr v-for="(quantity,pack_size_id) in item.data.delivery_data.pack_sizes" v-if="item.exists">
-                        <td>{{pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id].crop_name:'NF'}}</td>
-                        <td>{{pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id].type_name:'NF'}}</td>
-                        <td>{{pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id].variety_name:'NF'}}</td>
-                        <td>{{pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id].name:'NF'}}</td>
-                        <td class="text-right">{{quantity}}</td>
-                        <td class="text-right">{{pack_sizes_object[pack_size_id]?((+pack_sizes_object[pack_size_id].value)*(+quantity)/1000):'0'}}</td>
-                      </tr>
-                      <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td class="text-right"><label class="font-weight-bold float-right">Total :</label></td>
-                        <td class="text-right"><label class="font-weight-bold float-right" id="table_total_quantity_pkt"></label></td>
-                        <td class="text-right"><label class="font-weight-bold float-right" id="table_total_quantity_kg"></label></td>
-                      </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-                <div class="row mb-2">
-                  <div class="col-3"><label class="font-weight-bold">Description :</label></div>
-                  <div class="col-9">
-                    <div class="input-group"><textarea class="form-control"></textarea></div>
-                  </div>
-                </div>
-                <div class="row mb-2">
-                  <div class="col-3"><label class="font-weight-bold">Prepared by :</label></div>
-                  <div class="col-9">
-                    <div class="input-group">{{globalVariables.user.name}}</div>
-                  </div>
-                </div>
+                <div><label class="font-weight-bold">Prepared by :</label></div>
+                <div>{{globalVariables.user.name}}</div>
               </div>
+              <div class="text-center">
+                System generated, Sign Not Required
+              </div>
+            </div>
           </div>
-          <div class="d-flex justify-content-center">
-            System generated, Sign Not Required
-          </div>
+
           <div class="d-flex justify-content-center d-print-none">
               <button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" onclick="window.print();"><i class="feather icon-printer"></i> {{labels.get('action_4')}}</button>
           </div>

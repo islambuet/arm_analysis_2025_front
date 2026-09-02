@@ -95,54 +95,54 @@
                     <div class="col-sm-12">
                       <div class="border" style="border-color: black !important;">
                         <div class="row">
-                          <div class="col-sm-6">
+                          <div class="col-6">
                             <div class="row mb-2">
-                              <div class="col-sm-6">
+                              <div class="col-6">
                                 Name<span class="float-right">:</span>
                               </div>
-                              <div class="col-sm-6">
+                              <div class="col-6">
                                 {{item.dealer.name}}
                               </div>
                             </div>
                             <div class="row mb-2">
-                              <div class="col-sm-6">
+                              <div class="col-6">
                                 Address<span class="float-right">:</span>
                               </div>
-                              <div class="col-sm-6">
+                              <div class="col-6">
                                 {{item.dealer.address}}
                               </div>
                             </div>
                             <div class="row mb-2">
-                              <div class="col-sm-6">
+                              <div class="col-6">
                                 Contact No<span class="float-right">:</span>
                               </div>
-                              <div class="col-sm-6">
+                              <div class="col-6">
                                 {{item.dealer.mobile_no}}
                               </div>
                             </div>
                           </div>
-                          <div class="col-sm-6">
+                          <div class="col-6">
                             <div class="row mb-2">
-                              <div class="col-sm-6">
+                              <div class="col-6">
                                 Challan Number<span class="float-right">:</span>
                               </div>
-                              <div class="col-sm-6">
+                              <div class="col-6">
                                 {{item.id}}
                               </div>
                             </div>
                             <div class="row mb-2">
-                              <div class="col-sm-6">
+                              <div class="col-6">
                                 Delivery Date<span class="float-right">:</span>
                               </div>
-                              <div class="col-sm-6">
+                              <div class="col-6">
                                 {{systemFunctions.displayDate(item.data.delivery_data['delivery_at'])}}
                               </div>
                             </div>
                             <div class="row mb-2">
-                              <div class="col-sm-6">
+                              <div class="col-6">
                                 Courier Name<span class="float-right">:</span>
                               </div>
-                              <div class="col-sm-6">
+                              <div class="col-6">
                                 {{taskData.couriers.find(t=>t.id==item.data.delivery_data['courier_id'])?.name}}
                               </div>
                             </div>

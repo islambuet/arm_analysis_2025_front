@@ -86,7 +86,7 @@
         <div id="label_challan" :class="'collapse'+(item.data.delivery_data['delivery_at']?' show':'')">
           <div class="d-flex justify-content-center">
             <!-- <div style="width: 210*5=1050px;height: 297*7=1485;border: 1px solid red"> -->
-            <div style="width: 1050px;height: 1435px;font-size: 25px">
+            <div style="width: 1050px;height: 1435px;font-size: 18px">
               <div style="width: 1050px;height: 1395px;">
                 <div style="width: 1050px;min-height: 1100px;">
                   <img style="width: 100%;" v-bind:src="globalVariables.baseUrl+'theme/images/challan_top.png'" alt="">
@@ -188,8 +188,8 @@
                     </div>
                   </div>
                   <div class="row mb-2">
-                    <div class="col-3"><label class="font-weight-bold">Description :</label></div>
-                    <div class="col-9">
+                    <div class="col-2"><label class="font-weight-bold">Description :</label></div>
+                    <div class="col-10">
                       <div class="input-group"><textarea class="form-control" style="font-size: 25px;"></textarea></div>
                     </div>
                   </div>
@@ -198,7 +198,7 @@
                 <div>{{globalVariables.user.name}}</div>
               </div>
               <div class="text-center">
-                System generated, Sign Not Required
+                System Generated, Sign Not Required
               </div>
             </div>
           </div>
@@ -215,6 +215,7 @@
         <div id="label_courier_delivery_info" :class="'collapse'+(item.data.delivery_data['delivery_at']?' show':'')">
           <form id="formSaveCourierDeliveryInfo">
             <div class="card-body">
+              <InputTemplate :inputItems="item.inputFieldsCourier" />
               <div class="row mb-2">
                 <div class="col-4"><label class="font-weight-bold float-right">Courier Name</label></div>
                 <div class="col-lg-4 col-8">{{taskData.couriers.find(t=>t.id==item.data.delivery_data['courier_id'])?.name}}</div>
@@ -279,6 +280,7 @@ let item=reactive({
   id:'',//link id
   exists:false,
   inputFields:{},
+  inputFieldsCourier:{},
   dealer:{},
   data:{
     id:'',//db id
@@ -292,6 +294,7 @@ const setInputFields=async ()=>{
   item.inputFields= {};
   await systemFunctions.delay(1);
   let inputFields={}
+  let inputFieldsCourier={}
   let key='save_token';
   inputFields[key] = {
     name: key,
@@ -300,8 +303,22 @@ const setInputFields=async ()=>{
     default:new Date().getTime(),
     mandatory:true
   };
+  inputFieldsCourier[key] = {
+    name: key,
+    label: labels.get('label_'+key),
+    type:'hidden',
+    default:new Date().getTime(),
+    mandatory:true
+  };
   key='id';
   inputFields[key] = {
+    name: key,
+    label: labels.get('label_'+key),
+    type:'hidden',
+    default:item.id,
+    mandatory:true
+  };
+  inputFieldsCourier[key] = {
     name: key,
     label: labels.get('label_'+key),
     type:'hidden',
@@ -412,6 +429,7 @@ const setInputFields=async ()=>{
     mandatory:false
   };
   item.inputFields=inputFields;
+  item.inputFieldsCourier=inputFieldsCourier;
 }
 const save=async ()=>{
   if((+($('#bonus_delivery_quantity').html()))<(+($('#total_delivery_quantity_kg').html())))
@@ -432,7 +450,21 @@ const save=async ()=>{
       }
     });
   }
+}
+const saveCourierInfo=async ()=>{
 
+    let formData=new FormData(document.getElementById('formSaveCourierDeliveryInfo'))
+    await axios.post(taskData.api_url+'/save-courier-info',formData).then((res)=>{
+      if (res.data.error == "") {
+        //globalVariables.loadListData=true;
+        toastFunctions.showSuccessfullySavedMessage();
+        getItem();
+        //router.push(taskData.api_url)
+      }
+      else{
+        toastFunctions.showResponseError(res.data)
+      }
+    });
 
 }
 const cancelDelivery=async ()=>{
@@ -547,10 +579,11 @@ $(document).ready(async function() {
 });
 </script>
 <style scoped>
-#div_challan{
-  border: none !important;
-}
+
 @media print {
+  #accordion{
+    margin-top: -70px !important;
+  }
   /* Enforce border visibility for the table and all cells */
   .table-bordered,
   .table-bordered thead,

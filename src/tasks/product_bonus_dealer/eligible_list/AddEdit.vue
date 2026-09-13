@@ -116,7 +116,7 @@
                               <div class="col-6">
                                 Contact No<span class="float-right">:</span>
                               </div>
-                              <div class="col-6">
+                              <div class="col-6 font-weight-bold">
                                 {{item.dealer.mobile_no}}
                               </div>
                             </div>
@@ -132,7 +132,7 @@
                             </div>
                             <div class="row mb-2">
                               <div class="col-6">
-                                Delivery Date<span class="float-right">:</span>
+                                Challan Date<span class="float-right">:</span>
                               </div>
                               <div class="col-6">
                                 {{systemFunctions.displayDate(item.data.delivery_data['delivery_at'])}}
@@ -236,7 +236,9 @@
                 <div class="col-4">
                 </div>
                 <div class="col-4">
-                  <button type="button" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="saveCourierInfo()"><i class="feather icon-save"></i> {{labels.get('label_save')}}</button>
+                  <button type="button" v-if="item.data.delivery_data['courier_tracking_number']" class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="saveCourierInfo()"><i class="feather icon-save"></i> Save Update</button>
+                  <button type="button" v-else class="mr-2 mb-2 btn btn-sm bg-gradient-primary" @click="saveCourierInfo()"><i class="feather icon-save"></i> {{labels.get('label_save')}}</button>
+
                 </div>
                 <div class="col-4">
                 </div>

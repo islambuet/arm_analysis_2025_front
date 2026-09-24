@@ -83,7 +83,7 @@
                 <div v-html="row[column.key]"></div>
               </template>
               <template v-else-if="(['distributor_quantity_sales_gross','distributor_quantity_sales_cancel','distributor_quantity_sales_net',
-              'dealer_quantity_sales_gross','distributor_quantity_sales_cancel','dealer_quantity_sales_net','quantity_difference_net'].indexOf(column.key) != -1)">
+              'dealer_quantity_sales_gross','dealer_quantity_sales_cancel','dealer_quantity_sales_net','quantity_difference_net'].indexOf(column.key) != -1)">
                 {{ row[column.key]?row[column.key].toFixed(3):'' }}
               </template>
               <template v-else-if="(['achievement'].indexOf(column.key) != -1)">
@@ -427,15 +427,15 @@
       columns_all.push({'group':'crop_name','key':'crop_name','label':labels.get('label_crop_name')})
       columns_all.push({'group':'crop_type_name','key':'crop_type_name','label':labels.get('label_crop_type_name')})
 
-      columns_all.push({'group':'quantity_sales_gross','key':'distributor_quantity_sales_gross','label':'(Gross sales)'})
-      columns_all.push({'group':'quantity_sales_cancel','key':'distributor_quantity_sales_cancel','label':'(Canceled sales)'})
-      columns_all.push({'group':'quantity_sales_net','key':'distributor_quantity_sales_net','label':'(Net sales)'})
+      columns_all.push({'group':'quantity_sales_gross','key':'distributor_quantity_sales_gross','label':'Gross sales'})
+      columns_all.push({'group':'quantity_sales_cancel','key':'distributor_quantity_sales_cancel','label':'Canceled sales'})
+      columns_all.push({'group':'quantity_sales_net','key':'distributor_quantity_sales_net','label':'Net sales'})
 
-      columns_all.push({'group':'quantity_sales_gross','key':'dealer_quantity_sales_gross','label':'(Gross sales Dealer)'})
-      columns_all.push({'group':'quantity_sales_cancel','key':'dealer_quantity_sales_cancel','label':'(Canceled sales Dealer)'})
-      columns_all.push({'group':'quantity_sales_net','key':'dealer_quantity_sales_net','label':'(Net sales Dealer)'})
+      columns_all.push({'group':'quantity_sales_gross','key':'dealer_quantity_sales_gross','label':'Gross sales Dealer'})
+      columns_all.push({'group':'quantity_sales_cancel','key':'dealer_quantity_sales_cancel','label':'Canceled sales Dealer'})
+      columns_all.push({'group':'quantity_sales_net','key':'dealer_quantity_sales_net','label':'Net sales Dealer'})
 
-      columns_all.push({'group':'quantity_difference','key':'quantity_difference_net','label':labels.get('label_quantity')+'</br>(Difference)'})
+      columns_all.push({'group':'quantity_difference','key':'quantity_difference_net','label':labels.get('label_quantity')+'</br>(Balance)'})
       columns_all.push({'group':'achievement','key':'achievement','label':labels.get('label_achievement')})
 
       taskData.columns.all=columns_all;

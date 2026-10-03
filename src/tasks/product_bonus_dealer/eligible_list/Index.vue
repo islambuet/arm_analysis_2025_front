@@ -104,6 +104,7 @@ const getItems=async(pagination)=>{
             for(let i in bonus_items){
               let bonus_item=bonus_items[i];
               let bonus_data=JSON.parse(bonus_item['bonus_data'])
+              //here j is bonus_id
               for(let j in bonus_data){
                 let bonus_datum=bonus_data[j];
                 //if(crop_id>0 && crop_id!=taskData.bonus_setup[])

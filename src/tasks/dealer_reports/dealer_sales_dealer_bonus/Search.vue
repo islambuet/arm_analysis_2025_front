@@ -85,8 +85,8 @@
               <template v-else-if="(['quantity_target','quantity_sales_net','quantity_bonus_adjusted','quantity_eligible','quantity_balance'].indexOf(column.key) != -1)">
                 {{ row[column.key]?row[column.key].toFixed(3):'' }}
               </template>
-              <template v-else-if="(['achievement'].indexOf(column.key) != -1)">
-                {{ row[column.key]?row[column.key].toFixed(2)+'%':'' }}
+              <template v-else-if="(['num_bonus_eligible','num_bonus_delivered','num_bonus_delivery_pending'].indexOf(column.key) != -1)">
+                {{ row[column.key]?row[column.key]:'' }}
               </template>
               <template  v-else>{{row[column.key]}}</template>
 
@@ -335,11 +335,16 @@
       $('#formSearch :input').each(function() {
         options[$(this).attr('id')]=$(this).val();
       });
+      console.log(options['crop_id'])
       let formData=new FormData(document.getElementById('formSearch'))
       await axios.post(taskData.api_url+'/get-items',formData).then((res)=>{
         if (res.data.error == "") {
           let rows_array=[];
           for(let bonus_id in res.data.items){
+            if(options['crop_id']>0){
+              if(taskData.bonus_setup[bonus_id]['crop_id']!=options['crop_id'])
+                continue;
+            }
             let sales_datum=res.data.items[bonus_id]
             let row={}
             row['crop_name']=(taskData.bonus_setup[bonus_id]?taskData.bonus_setup[bonus_id]['crop_name']:bonus_id);
@@ -349,6 +354,12 @@
             row['quantity_sales_net']=(+sales_datum['quantity_sales_gross'])-(+sales_datum['quantity_sales_cancel']);
             row['quantity_bonus_adjusted']=(+sales_datum['quantity_bonus_adjusted']);
             row['quantity_balance']=(row['quantity_sales_net']-row['quantity_bonus_adjusted']);
+            if(row['quantity_eligible']>0)
+            {
+              row['num_bonus_eligible']=Math.trunc(row['quantity_sales_net']/row['quantity_eligible']);
+              row['num_bonus_delivered']=Math.trunc(row['quantity_bonus_adjusted']/row['quantity_eligible']);
+            }
+            row['num_bonus_delivery_pending']=row['num_bonus_eligible']-row['num_bonus_delivered'];
             rows_array.push(row)
           }
           taskData.itemsFiltered=rows_array;

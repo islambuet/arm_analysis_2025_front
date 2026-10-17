@@ -44,6 +44,7 @@ let item=reactive({
   data:{
     id:0,
     name:'',
+    credit_limit:200000,
     part_id:'',
     area_id:'',
     territory_id:'',
@@ -87,6 +88,14 @@ const setInputFields=async ()=>{
     label: labels.get('label_'+key),
     type:'dropdown',
     options:taskData.dealer_types.map((item)=>{ return {value:item.id,label:item.name}}),
+    default:item.data[key],
+    mandatory:true
+  };
+  key='credit_limit';
+  inputFields[key] = {
+    name: 'item[' +key +']',
+    label: labels.get('label_'+key),
+    type:'number',
     default:item.data[key],
     mandatory:true
   };

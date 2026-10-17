@@ -39,7 +39,7 @@
             </div>
           </td>
           <template v-for="(column,key) in taskData.columns.all">
-            <td :class="((['id','ordering'].indexOf(key) != -1)?'text-right':'')+(column.class?(' '+column.class):'col_9')" v-if="taskData.columns.hidden.indexOf(key)<0" :key="'td_'+key">
+            <td :class="((['id','ordering','credit_limit'].indexOf(key) != -1)?'text-right':'')+(column.class?(' '+column.class):' col_9')" v-if="taskData.columns.hidden.indexOf(key)<0" :key="'td_'+key">
               {{ item[key] }}
             </td>
           </template>
@@ -133,6 +133,15 @@
         sortable:true,
         type:'text',
         filter:{from:'',to:''}
+      };
+      key='credit_limit';
+      columns[key]={
+        label: labels.get('label_'+key),
+        hideable:true,
+        filterable:false,
+        sortable:true,
+        type:'number',
+        filter:{from:'',to:''},
       };
       key='mobile_no';
       columns[key]={

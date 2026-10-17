@@ -15,5 +15,9 @@ export default {
         en:"Details of Dealer",
         bn:'ব্যবহারকারীর বিবরণ'
     },
+    label_credit_limit:{
+        en:"Credit Limit",
+        bn:'ব্যবহারকারীর বিবরণ'
+    },
 
 }

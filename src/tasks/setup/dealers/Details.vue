@@ -53,6 +53,12 @@
       type:'text',
       values:[item.data[key]],
     };
+    key='credit_limit';
+    detailFields[key] = {
+      label: labels.get('label_'+key),
+      type:'text',
+      values:[item.data[key]],
+    };
     key='part_name';
     detailFields[key] = {
       label: labels.get('label_'+key),

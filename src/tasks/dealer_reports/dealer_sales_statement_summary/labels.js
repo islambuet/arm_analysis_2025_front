@@ -43,6 +43,10 @@ export default {
         en:"Opening Balance",
         bn:'ব্যবহারকারীরা'
     },
+    label_end_balance:{
+        en:"End Balance",
+        bn:'ব্যবহারকারীরা'
+    },
     label_last_invoice_date:{
         en:"Last Invoice date",
         bn:'ব্যবহারকারীরা'

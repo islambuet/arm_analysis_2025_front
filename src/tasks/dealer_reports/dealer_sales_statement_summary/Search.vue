@@ -312,33 +312,6 @@
       item.inputFields2=inputFields;
       //inputFields3
       inputFields={}
-      key='crop_id';
-      inputFields[key] = {
-        name: 'options[' +key +']',
-        label: labels.get('label_'+key),
-        type:'dropdown',
-        options:taskData.crops.filter((temp)=>{ if(temp.status=='Active'){temp.value=temp.id.toString();temp.label=temp.name;return true}}),
-        default:item.data[key],
-        mandatory:false
-      };
-      key='crop_type_id';
-      inputFields[key] = {
-        name: 'options[' +key +']',
-        label: labels.get('label_'+key),
-        type:'dropdown',
-        options:[],
-        default:item.data[key],
-        mandatory:false
-      };
-      key='variety_id';
-      inputFields[key] = {
-        name: 'options[' +key +']',
-        label: labels.get('label_'+key),
-        type:'dropdown',
-        options:[],
-        default:item.data[key],
-        mandatory:true
-      };
       key='status';
       inputFields[key] = {
         name: 'options[' +key +']',
@@ -381,6 +354,7 @@
             row['sales_canceled']=(+item['sales_canceled']);
             row['sales_net']=(row['sales_gross']-row['sales_canceled']);
             row['payment_total']=(+item['payment_total']);
+            row['end_balance']=(row['opening_balance']-row['sales_net']+row['payment_total'])
 
             row['last_invoice_date']=item['last_invoice_date'];
             row['last_invoice_duration']=(+item['last_invoice_duration']);
@@ -450,6 +424,7 @@
       columns_all.push({'group':'sales_canceled','key':'sales_canceled','label':labels.get('label_sales_canceled')})
       columns_all.push({'group':'sales_net','key':'sales_net','label':labels.get('label_sales_net')})
       columns_all.push({'group':'payment_total','key':'payment_total','label':labels.get('label_payment_total')})
+      columns_all.push({'group':'end_balance','key':'end_balance','label':labels.get('label_end_balance')})
 
       columns_all.push({'group':'last_invoice_date','key':'last_invoice_date','label':labels.get('label_last_invoice_date')})
       columns_all.push({'group':'last_invoice_duration','key':'last_invoice_duration','label':labels.get('label_last_invoice_duration')})
@@ -460,7 +435,7 @@
       calculateTableWidth();
 
       taskData.columns.selectable1=['part_name','area_name','territory_name','distributor_name','dealer_name'];
-      taskData.columns.selectable2=['credit_limit','opening_balance','sales_gross','sales_canceled','sales_net','payment_total'];
+      taskData.columns.selectable2=['credit_limit','opening_balance','sales_gross','sales_canceled','sales_net','payment_total','end_balance'];
       taskData.columns.selectable3=['last_invoice_date','last_invoice_duration','last_payment_date','last_payment_duration'];
       taskData.columns.hidden=[];
       await systemFunctions.delay(20);
@@ -477,6 +452,7 @@
       $('.column_control.sales_canceled').prop('checked',true)
       $('.column_control.sales_net').prop('checked',true)
       $('.column_control.payment_total').prop('checked',true)
+      $('.column_control.end_balance').prop('checked',true)
       $('.column_control.last_invoice_date').prop('checked',true)
       $('.column_control.last_invoice_duration').prop('checked',true)
       $('.column_control.last_payment_date').prop('checked',true)

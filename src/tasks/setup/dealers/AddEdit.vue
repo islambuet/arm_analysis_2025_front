@@ -45,6 +45,7 @@ let item=reactive({
     id:0,
     name:'',
     credit_limit:200000,
+    opening_balance:'',
     part_id:'',
     area_id:'',
     territory_id:'',
@@ -92,6 +93,14 @@ const setInputFields=async ()=>{
     mandatory:true
   };
   key='credit_limit';
+  inputFields[key] = {
+    name: 'item[' +key +']',
+    label: labels.get('label_'+key),
+    type:'number',
+    default:item.data[key],
+    mandatory:true
+  };
+  key='opening_balance';
   inputFields[key] = {
     name: 'item[' +key +']',
     label: labels.get('label_'+key),

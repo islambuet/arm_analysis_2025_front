@@ -19,5 +19,9 @@ export default {
         en:"Credit Limit",
         bn:'ব্যবহারকারীর বিবরণ'
     },
+    label_opening_balance:{
+        en:"Opening Balance",
+        bn:'ব্যবহারকারীর বিবরণ'
+    },
 
 }

@@ -80,11 +80,11 @@
           <template v-for="(column,index) in taskData.columns.all">
 
             <td :class="((['part_name','area_name','territory_name','distributor_name','dealer_name'].indexOf(column.group) == -1)?'text-right':'')" v-if="taskData.columns.hidden.indexOf(column.group)<0">
-              <template v-if="(['crop_type_name'].indexOf(column.key) != -1)">
-                <div v-html="row[column.key]"></div>
-              </template>
-              <template v-else-if="(['credit_limit','opening_balance','sales_gross','sales_canceled','sales_net','payment_total','end_balance'].indexOf(column.key) != -1)">
+              <template v-if="(['credit_limit','opening_balance','sales_gross','sales_canceled','sales_net','payment_total','end_balance'].indexOf(column.key) != -1)">
                 {{ row[column.key]?row[column.key].toFixed(2):'' }}
+              </template>
+              <template v-else-if="(['last_invoice_duration','last_payment_duration'].indexOf(column.key) != -1)">
+                {{ row[column.key]?row[column.key]:'' }}
               </template>
               <template  v-else>{{row[column.key]}}</template>
 
@@ -354,7 +354,7 @@
             row['sales_canceled']=(+item['sales_canceled']);
             row['sales_net']=(row['sales_gross']-row['sales_canceled']);
             row['payment_total']=(+item['payment_total']);
-            row['end_balance']=(row['opening_balance']-row['sales_net']+row['payment_total'])
+            row['end_balance']=(row['opening_balance']+row['sales_net']-row['payment_total'])
 
             row['last_invoice_date']=item['last_invoice_date'];
             row['last_invoice_duration']=(+item['last_invoice_duration']);

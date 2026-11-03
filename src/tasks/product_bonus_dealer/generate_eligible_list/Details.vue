@@ -192,8 +192,17 @@
   })
   const setColumns=()=>{
     let columns={}
-
-    let key='part_name';
+    let key='id';
+    columns[key]={
+      label: labels.get('label_'+key),
+      hideable:true,
+      filterable:true,
+      sortable:true,
+      type:'text',
+      filter:{from:'',to:''},
+      class:'col_1'
+    };
+    key='part_name';
     columns[key]={
       label: labels.get('label_'+key),
       hideable:true,

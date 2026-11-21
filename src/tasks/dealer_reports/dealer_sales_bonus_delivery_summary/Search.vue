@@ -376,48 +376,100 @@
       let formData=new FormData(document.getElementById('formSearch'))
       await axios.post(taskData.api_url+'/get-items',formData).then((res)=>{
         if (res.data.error == "") {
+
+          let row_total={}
+
+          row_total['part_name']='Total';
+          row_total['area_name']='Total';
+          row_total['territory_name']='Total';
+          row_total['distributor_name']='Total';
+          row_total['crop_name']='';
+          row_total['crop_type_name']='';
+          row_total['variety_name']='';
+          row_total['pack_size_name']='Total';
+
+          row_total['quantity_delivery_pkt']=0;
+          row_total['quantity_delivery_kg']=0;
+
           let rows_array=[];
-          for(let i in res.data.items){
-            let item=res.data.items[i];
-            for(let id in item['delivery_data']) {
-              for(let bonus_id in item['delivery_data'][id]) {
+          let locations=taskData.distributors;
+          if(options['report_format']=='territory')
+          {
+            locations=taskData.location_territories;
+          }
+          else if(options['report_format']=='area')
+          {
+            locations=taskData.location_areas;
+          }
+          else if(options['report_format']=='part')
+          {
+            locations=taskData.location_parts;
+          }
+          else if(options['report_format']=='national'){
+            locations=[{'id':-1,'part_name':'National','area_name':'','territory_name':'National','distributor_name':''}]
+          }
+          let items=res.data.items;
+
+          for (let index in locations){
+            let location_id=locations[index]['id'];
+            //console.log(location_id)
+            if(items[location_id]){
+
+              for(let pack_size_id in items[location_id])
+              {
+                let crop_id=(pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id]['crop_id']:0);
+                let crop_type_id=(pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id]['crop_type_id']:0);
+                let variety_id=(pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id]['variety_id']:0);
+                let pack_size_value=(pack_sizes_object[pack_size_id]?(+pack_sizes_object[pack_size_id]['pack_size_value']):0);
+
                 if(options['crop_id']>0){
-                  let crop_id=(taskData.bonus_setup[bonus_id]?taskData.bonus_setup[bonus_id]['crop_id']:0);
                   if(crop_id != options['crop_id'])
                   {
-                    break;
+                    continue;
                   }
                 }
-                let bonus_data=item['delivery_data'][id][bonus_id];
-                for (let pack_size_id in bonus_data['pack_sizes']) {
-                  let row={}
-                  row['part_name']=item['part_name'];
-                  row['area_name']=item['area_name'];
-                  row['territory_name']=item['territory_name'];
-                  row['distributor_name']=item['distributor_name'];
-                  row['dealer_name']=item['dealer_name'];
-                  row['crop_name']=(taskData.bonus_setup[bonus_id]?taskData.bonus_setup[bonus_id]['crop_name']:bonus_id);
-                  row['crop_type_name']=(taskData.bonus_setup[bonus_id]?taskData.bonus_setup[bonus_id]['crop_type_name']:bonus_id);
-                  row['id']=(id+'_'+bonus_id)
-                  row['quantity_balance_adjusted']=(+bonus_data['quantity_balance_adjusted'])
-                  row['quantity_delivery_pkt']=(+bonus_data['pack_sizes'][pack_size_id])
-                  if(pack_sizes_object[pack_size_id]){
-                    row['variety_name']=(pack_sizes_object[pack_size_id].variety_name);
-                    row['pack_size_name']=(pack_sizes_object[pack_size_id].name);
-                    row['quantity_delivery_kg']=(row['quantity_delivery_pkt']*(+pack_sizes_object[pack_size_id].value)/1000);
+                if(options['crop_type_id']>0){
+                  if(crop_type_id != options['crop_type_id'])
+                  {
+                    continue;
                   }
-                  else{
-                    row['variety_name']='NF'
-                    row['pack_size_name']='NF'
-                    row['quantity_delivery_kg']=0;
-                  }
-                  row['delivery_at']=systemFunctions.displayDate(bonus_data['delivery_at'])
-                  rows_array.push(row)
                 }
+                if(options['variety_id']>0){
+                  if(variety_id != options['variety_id'])
+                  {
+                    continue;
+                  }
+                }
+                if(options['pack_size_id']>0){
+                  if(pack_size_id != options['pack_size_id'])
+                  {
+                    continue;
+                  }
+                }
+                let row={};
+                row['part_name']=locations[index]['part_name']?locations[index]['part_name']:'NF';
+                row['area_name']=locations[index]['area_name']?locations[index]['area_name']:'NF';
+                row['territory_name']=locations[index]['territory_name']?locations[index]['territory_name']:'NF';
+                row['distributor_name']=locations[index]['distributor_name']?locations[index]['distributor_name']:'NF';
 
+
+                row['crop_name']=(pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id]['crop_name']:pack_size_id);
+                row['crop_type_name']=(pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id]['type_name']:pack_size_id);
+                row['variety_name']=(pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id]['variety_name']:pack_size_id);
+                row['pack_size_name']=(pack_sizes_object[pack_size_id]?pack_sizes_object[pack_size_id]['name']:pack_size_id);
+
+                row['quantity_delivery_pkt']=(+items[location_id][pack_size_id])
+                row['quantity_delivery_kg']=(row['quantity_delivery_pkt']*pack_size_value/1000)
+
+                row_total['quantity_delivery_pkt']+=row['quantity_delivery_pkt'];
+                row_total['quantity_delivery_kg']+=row['quantity_delivery_kg'];
+
+                rows_array.push(row)
               }
             }
+
           }
+          rows_array.unshift(row_total)
           taskData.itemsFiltered=rows_array;
           show_report.value=true;
           //console.log(rows_array)

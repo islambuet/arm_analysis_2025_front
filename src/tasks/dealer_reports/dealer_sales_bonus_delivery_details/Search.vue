@@ -325,6 +325,15 @@
         default:item.data[key],
         mandatory:false
       };
+      key='crop_type_id';
+      inputFields[key] = {
+        name: 'options[' +key +']',
+        label: labels.get('label_'+key),
+        type:'dropdown',
+        options:[],
+        default:item.data[key],
+        mandatory:false
+      };
       key='status';
       inputFields[key] = {
         name: 'options[' +key +']',
@@ -350,19 +359,43 @@
       let formData=new FormData(document.getElementById('formSearch'))
       await axios.post(taskData.api_url+'/get-items',formData).then((res)=>{
         if (res.data.error == "") {
+          let row_total={}
+          row_total['part_name']='Total';
+          row_total['area_name']='';
+          row_total['territory_name']='';
+          row_total['distributor_name']='';
+          row_total['dealer_name']='Total';
+          row_total['crop_name']='';
+          row_total['crop_type_name']='Total';
+          row_total['id']='';
+          row_total['quantity_balance_adjusted']=0;
+          row_total['quantity_delivery_pkt']=0;
+          row_total['quantity_delivery_kg']=0;
+          row_total['variety_name']=''
+          row_total['pack_size_name']=''
+          row_total['delivery_at']='';
+
           let rows_array=[];
           for(let i in res.data.items){
             let item=res.data.items[i];
             for(let id in item['delivery_data']) {
               for(let bonus_id in item['delivery_data'][id]) {
-                if(options['crop_id']>0){
+                if(options['crop_type_id']>0){
+                  if(bonus_id != options['crop_type_id'])
+                  {
+                    continue;
+                  }
+                }
+                else if(options['crop_id']>0){
                   let crop_id=(taskData.bonus_setup[bonus_id]?taskData.bonus_setup[bonus_id]['crop_id']:0);
+                  console.log(crop_id,options['crop_id'])
                   if(crop_id != options['crop_id'])
                   {
-                    break;
+                    continue;
                   }
                 }
                 let bonus_data=item['delivery_data'][id][bonus_id];
+                let first=true;
                 for (let pack_size_id in bonus_data['pack_sizes']) {
                   let row={}
                   row['part_name']=item['part_name'];
@@ -385,13 +418,20 @@
                     row['pack_size_name']='NF'
                     row['quantity_delivery_kg']=0;
                   }
+                  row_total['quantity_delivery_pkt']+=row['quantity_delivery_pkt'];
+                  row_total['quantity_delivery_kg']+=row['quantity_delivery_kg'];
+                  if(first){
+                    row_total['quantity_balance_adjusted']+=row['quantity_balance_adjusted'];
+                  }
                   row['delivery_at']=systemFunctions.displayDate(bonus_data['delivery_at'])
                   rows_array.push(row)
+                  first=false;
                 }
 
               }
             }
           }
+          rows_array.unshift(row_total)
           taskData.itemsFiltered=rows_array;
           show_report.value=true;
           //console.log(rows_array)
@@ -514,7 +554,24 @@
       await systemFunctions.delay(20);
       $('#fiscal_year').trigger('change')
 
-
+      $(document).off("change", "#crop_id");
+      $(document).on("change",'#crop_id',async function()
+      {
+        let crop_id=$(this).val();
+        let key='crop_type_id';
+        //item.inputFields3[key].options=taskData.crop_types.filter((temp)=>{ if((temp.crop_id==crop_id) && (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
+        //item.inputFields3[key].options=taskData.bonus_setup.filter((temp)=>{ if((temp.crop_id==crop_id) && (temp.status=='Active')){temp.value=temp.id.toString();temp.label=temp.name;return true}})
+        let options=[];
+        for(let bonus_id in taskData.bonus_setup){
+          if(taskData.bonus_setup[bonus_id]['crop_id']==crop_id){
+            options.push({value:bonus_id,label:taskData.bonus_setup[bonus_id]['crop_type_name'].replaceAll("<br>", " + ").slice(0,-3)})
+          }
+        }
+        item.inputFields3[key].options=options;
+        await systemFunctions.delay(1);
+        $('#'+key).val('');
+        console.log(taskData.bonus_setup)
+      })
       $(document).off("change", "#part_id");
       $(document).on("change",'#part_id',async function()
       {
